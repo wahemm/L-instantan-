@@ -6,8 +6,8 @@ const PLANS = [
     id: "digital",
     name: "Digital",
     price: "10 €",
-    note: "BD complète PDF",
-    perks: ["BD complète haute résolution", "PDF prêt à partager", "Téléchargement immédiat"],
+    note: "Album PDF HD",
+    perks: ["Album haute résolution", "PDF prêt à partager", "Téléchargement immédiat"],
     featured: false,
   },
   {
@@ -33,13 +33,13 @@ const TESTIMONIALS = [
     name: "Camille",
     role: "Pack Physique",
     quote:
-      "On a envoyé les photos du week-end et on a reçu des illustrations magnifiques. Un souvenir inoubliable.",
+      "On a envoyé les photos du week-end et le livre est magnifique. Un souvenir inoubliable à feuilleter.",
   },
   {
     name: "Yanis",
     role: "Pack Digital",
     quote:
-      "En moins d'une minute j'avais mes illustrations cartoon. Le rendu est bluffant, vraiment premium.",
+      "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium.",
   },
   {
     name: "Sarah",
@@ -49,12 +49,31 @@ const TESTIMONIALS = [
   },
 ];
 
+const ALBUM_TYPES = [
+  {
+    title: "Voyage",
+    desc: "Rassemble tes plus beaux moments de voyage dans un album élégant.",
+  },
+  {
+    title: "Famille",
+    desc: "Réunions, fêtes, moments du quotidien — un livre pour toute la famille.",
+  },
+  {
+    title: "Couple",
+    desc: "Vos souvenirs à deux dans un bel objet à garder ou à offrir.",
+  },
+  {
+    title: "Événement",
+    desc: "Mariage, anniversaire, soirée — immortalise chaque moment important.",
+  },
+];
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <Nav />
 
-      {/* Hero — fond noir avec gradient */}
+      {/* Hero */}
       <section className="relative overflow-hidden bg-slate-900 px-6 py-24 text-white sm:py-32">
         <div
           className="pointer-events-none absolute inset-0"
@@ -65,20 +84,22 @@ export default function Home() {
         />
         <div className="relative mx-auto max-w-3xl text-center">
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-            Photos → Illustrations cartoon
+            Photos → Album premium
           </p>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-snug text-white sm:text-5xl lg:text-6xl">
-            Tes souvenirs, sublimés<br />en illustrations uniques.
+            Tes souvenirs méritent
+            <br />
+            un beau livre.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-            Envoie tes photos et reçois des illustrations cartoon HD en quelques secondes. Parfait pour imprimer, offrir ou partager.
+            Uploade tes photos et crée un album premium en quelques minutes. Papier photo brillant, couverture rigide, livré chez toi.
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/create"
               className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
             >
-              Créer mes illustrations
+              Créer mon album
             </Link>
             <Link
               href="/comment-ca-marche"
@@ -90,53 +111,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Avant / Après */}
+      {/* Types d'albums */}
       <section className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
         <div className="mb-12 text-center">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            La transformation
+            Pour chaque occasion
           </p>
           <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
-            Avant / Après
+            Un album pour chaque moment
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-slate-500">
-            De la photo ordinaire à l&apos;illustration cartoon premium, en quelques secondes.
+            Quel que soit le souvenir, on en fait un beau livre.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Avant */}
-          <div className="flex flex-col items-center gap-4 rounded-2xl border border-gray-100 bg-[#f8f7f4] p-8 shadow-sm">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Avant — Photo originale
-            </span>
-            <div className="w-full aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-5xl mb-3">📸</div>
-                <p className="text-sm font-medium text-slate-500">Ta photo</p>
-                <p className="text-xs text-slate-400 mt-1">JPG ou PNG</p>
-              </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {ALBUM_TYPES.map((t) => (
+            <div
+              key={t.title}
+              className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-[#f8f7f4] p-6 shadow-sm"
+            >
+              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">
+                {t.title}
+              </h3>
+              <p className="text-sm leading-relaxed text-slate-500">{t.desc}</p>
             </div>
-          </div>
-
-          {/* Après */}
-          <div className="relative flex flex-col items-center gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-            <div className="absolute -top-3 right-5">
-              <span className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm">
-                Cartoon HD
-              </span>
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Après — Illustration cartoon
-            </span>
-            <div className="w-full aspect-[4/3] rounded-xl bg-gradient-to-br from-amber-100 via-rose-100 to-sky-100 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-5xl mb-3">🎨</div>
-                <p className="text-sm font-medium text-slate-700">Illustration cartoon</p>
-                <p className="text-xs text-slate-400 mt-1">Style premium, haute résolution</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -161,16 +161,19 @@ export default function Home() {
               },
               {
                 num: "02",
-                title: "Génération IA",
-                desc: "Notre IA transforme chaque photo en illustration cartoon en 30 à 60 secondes.",
+                title: "Personnalise ton album",
+                desc: "Choisis ta mise en page automatique ou personnalise chaque page toi-même.",
               },
               {
                 num: "03",
-                title: "Télécharge ou imprime",
-                desc: "Partage tes illustrations sur les réseaux ou commande un livre imprimé premium.",
+                title: "Reçois ton livre",
+                desc: "Commande ton album imprimé premium, livré chez toi en 5 à 7 jours.",
               },
             ].map((step) => (
-              <li key={step.num} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+              <li
+                key={step.num}
+                className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm"
+              >
                 <span className="font-[family-name:var(--font-playfair)] text-5xl font-bold text-slate-100">
                   {step.num}
                 </span>
@@ -223,11 +226,7 @@ export default function Home() {
               >
                 {plan.name}
               </h3>
-              <p
-                className={`mt-1 text-sm ${
-                  plan.featured ? "text-slate-400" : "text-slate-400"
-                }`}
-              >
+              <p className={`mt-1 text-sm ${plan.featured ? "text-slate-400" : "text-slate-400"}`}>
                 {plan.note}
               </p>
 
@@ -240,7 +239,7 @@ export default function Home() {
                   {plan.price}
                 </span>
                 <span className={`mb-1 text-xs ${plan.featured ? "text-slate-400" : "text-slate-400"}`}>
-                  one-shot
+                  paiement unique
                 </span>
               </div>
 
@@ -252,7 +251,9 @@ export default function Home() {
                       plan.featured ? "text-slate-300" : "text-slate-600"
                     }`}
                   >
-                    <span className={`mt-0.5 shrink-0 ${plan.featured ? "text-slate-400" : "text-slate-300"}`}>
+                    <span
+                      className={`mt-0.5 shrink-0 ${plan.featured ? "text-slate-400" : "text-slate-300"}`}
+                    >
                       ✓
                     </span>
                     {perk}
@@ -275,7 +276,7 @@ export default function Home() {
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-400">
-          Paiement sécurisé. Satisfait ou remboursé.
+          Paiement sécurisé. Satisfait ou remboursé sous 14 jours.
         </p>
       </section>
 
@@ -322,13 +323,13 @@ export default function Home() {
             Prêt à sublimer tes souvenirs ?
           </h2>
           <p className="mt-4 text-slate-400">
-            Lance-toi maintenant. Tes illustrations prêtes en moins d&apos;une minute.
+            Crée ton album en quelques minutes. Tu vois le résultat avant de payer.
           </p>
           <Link
             href="/create"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-10 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
           >
-            Créer mes illustrations
+            Créer mon album
           </Link>
         </div>
       </section>
@@ -344,7 +345,7 @@ export default function Home() {
               Comment ça marche
             </Link>
             <Link href="/shop" className="transition hover:text-slate-700">
-              Illustrations
+              Albums
             </Link>
             <Link href="/faq" className="transition hover:text-slate-700">
               FAQ
