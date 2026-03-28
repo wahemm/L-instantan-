@@ -1,5 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
+
+const DEMOS = [
+  { src: "/demos/provence.png", alt: "Album Provence Lavande" },
+  { src: "/demos/italie.png", alt: "Album Italie Dolce Vita" },
+  { src: "/demos/miami.png", alt: "Album Miami Plage" },
+  { src: "/demos/espagne.png", alt: "Album Espagne Soleil" },
+  { src: "/demos/marrakech.png", alt: "Album Marrakech Soleil" },
+];
 
 const PLANS = [
   {
@@ -50,22 +59,10 @@ const TESTIMONIALS = [
 ];
 
 const ALBUM_TYPES = [
-  {
-    title: "Voyage",
-    desc: "Rassemble tes plus beaux moments de voyage dans un album élégant.",
-  },
-  {
-    title: "Famille",
-    desc: "Réunions, fêtes, moments du quotidien — un livre pour toute la famille.",
-  },
-  {
-    title: "Couple",
-    desc: "Vos souvenirs à deux dans un bel objet à garder ou à offrir.",
-  },
-  {
-    title: "Événement",
-    desc: "Mariage, anniversaire, soirée — immortalise chaque moment important.",
-  },
+  { title: "Voyage", desc: "Rassemble tes plus beaux moments de voyage dans un album élégant." },
+  { title: "Famille", desc: "Réunions, fêtes, moments du quotidien — un livre pour toute la famille." },
+  { title: "Couple", desc: "Vos souvenirs à deux dans un bel objet à garder ou à offrir." },
+  { title: "Événement", desc: "Mariage, anniversaire, soirée — immortalise chaque moment important." },
 ];
 
 export default function Home() {
@@ -107,6 +104,41 @@ export default function Home() {
             >
               Comment ça marche
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase albums */}
+      <section className="bg-[#f8f7f4] py-20 sm:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-12 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Nos créations
+            </p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
+              Des albums pour chaque destination
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-500">
+              Provence, Italie, Miami, Espagne, Marrakech… Chaque voyage mérite son beau livre.
+            </p>
+          </div>
+
+          <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+            {DEMOS.map((demo) => (
+              <div
+                key={demo.alt}
+                className="shrink-0 snap-center overflow-hidden rounded-2xl shadow-lg transition hover:shadow-2xl"
+                style={{ width: 400 }}
+              >
+                <Image
+                  src={demo.src}
+                  alt={demo.alt}
+                  width={800}
+                  height={560}
+                  className="h-auto w-full"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>
