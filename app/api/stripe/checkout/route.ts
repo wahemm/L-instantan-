@@ -3,22 +3,52 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const PRICES: Record<string, number> = {
+// Base prices in cents (includes up to 24 pages)
+const BASE_PRICES: Record<string, number> = {
   digital: 1000,
-  physique: 3500,
-  duo: 4000,
+  physique: 2900,
+  duo: 3500,
 };
+
+// Extra price per page above 24, in cents
+const EXTRA_PER_PAGE: Record<string, number> = {
+  digital: 25,
+  physique: 50,
+  duo: 60,
+};
+
+const INCLUDED_PAGES = 24;
+
+function calculatePrice(pack: string, pageCount: number): number {
+  const base = BASE_PRICES[pack] ?? 0;
+  const extra = EXTRA_PER_PAGE[pack] ?? 0;
+  const extraPages = Math.max(0, pageCount - INCLUDED_PAGES);
+  return base + extraPages * extra;
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const pack = body.pack as string;
+    const pageCount = typeof body.pageCount === "number" ? body.pageCount : INCLUDED_PAGES;
 
-    if (!pack || !(pack in PRICES)) {
+    if (!pack || !(pack in BASE_PRICES)) {
       return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
     }
 
     const origin = req.headers.get("origin") ?? "http://localhost:3000";
+    const totalCents = calculatePrice(pack, pageCount);
+
+    const packLabel =
+      pack === "digital"
+        ? "Pack Digital"
+        : pack === "physique"
+        ? "Pack Physique"
+        : "Pack Duo";
+
+    const pageDesc = pageCount > INCLUDED_PAGES
+      ? ` (${pageCount} pages)`
+      : "";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -27,14 +57,9 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           price_data: {
             currency: "eur",
-            unit_amount: PRICES[pack],
+            unit_amount: totalCents,
             product_data: {
-              name:
-                pack === "digital"
-                  ? "Pack Digital — L'Instantané"
-                  : pack === "physique"
-                  ? "Pack Physique — L'Instantané"
-                  : "Pack Duo — L'Instantané",
+              name: `${packLabel} — L'Instantané${pageDesc}`,
             },
           },
         },

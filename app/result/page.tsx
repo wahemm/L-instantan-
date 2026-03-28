@@ -4,46 +4,21 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
+import { PACKS, calculatePrice, formatPrice, INCLUDED_PAGES } from "@/app/lib/pricing";
 
 // ── Types ──────────────────────────────────────────────────────────────
-type PageLayout = 1 | 2 | 3 | 4;
-type EditorPage = { layout: PageLayout; photos: (string | null)[]; caption: string };
+type LayoutId = string;
+type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string };
 type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
-// ── Packs ──────────────────────────────────────────────────────────────
-const PACKS = [
-  {
-    id: "digital" as const,
-    name: "Digital",
-    price: "10 €",
-    desc: "Album PDF HD — téléchargement immédiat",
-    perks: ["Album haute résolution", "PDF prêt à partager", "Téléchargement immédiat"],
-  },
-  {
-    id: "physique" as const,
-    name: "Physique",
-    price: "35 €",
-    desc: "Livre imprimé livré chez toi",
-    perks: ["Livre imprimé finition premium", "Livraison en France", "Pour offrir ou garder"],
-    featured: true,
-  },
-  {
-    id: "duo" as const,
-    name: "Duo",
-    price: "40 €",
-    desc: "Digital + Physique — le meilleur des deux",
-    perks: ["Pack Digital inclus", "Livre imprimé inclus", "Meilleure valeur"],
-  },
-];
-
 // ── Checkout ───────────────────────────────────────────────────────────
-async function redirectToCheckout(pack: "digital" | "physique" | "duo") {
+async function redirectToCheckout(pack: "digital" | "physique" | "duo", pageCount: number) {
   const res = await fetch("/api/stripe/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pack }),
+    body: JSON.stringify({ pack, pageCount }),
   });
   const data = await res.json();
   if (data.url) {
@@ -130,124 +105,103 @@ function AutoBookViewer({ album }: { album: Extract<Album, { type: "auto" }> }) 
 }
 
 // ── Manual layout viewer ────────────────────────────────────────────────
-function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }> }) {
-  const [current, setCurrent] = useState(-1); // -1 = cover
-  const total = album.pages.length;
+function getGridClass(layoutId: string): string {
+  switch (layoutId) {
+    case "full": return "grid-cols-1";
+    case "two-h": return "grid-cols-1 grid-rows-2";
+    case "two-v": return "grid-cols-2";
+    case "three-top": return "grid-cols-2 grid-rows-[2fr_1fr]";
+    case "three-left": return "grid-cols-2 grid-rows-2";
+    case "grid4": return "grid-cols-2 grid-rows-2";
+    default: return "grid-cols-1";
+  }
+}
 
+function getSpanClass(layoutId: string, idx: number): string {
+  if (layoutId === "three-top" && idx === 0) return "col-span-2";
+  if (layoutId === "three-left" && idx === 0) return "row-span-2";
+  return "";
+}
+
+function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }> }) {
+  const [current, setCurrent] = useState(-1);
+  const total = album.pages.length;
   const isCover = current === -1;
   const page = isCover ? null : album.pages[current];
 
-  function gridClass(layout: PageLayout) {
-    if (layout === 1) return "grid-cols-1 grid-rows-1";
-    if (layout === 2) return "grid-cols-1 grid-rows-2";
-    return "grid-cols-2 grid-rows-2"; // 3 or 4
-  }
-
   return (
     <div className="flex flex-col items-center">
-      <div
-        className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl"
-        style={{ aspectRatio: "210/297" }}
-      >
+      <div className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl" style={{ aspectRatio: "210/297" }}>
         {isCover ? (
           <div className="flex h-full flex-col items-center justify-center bg-[#121212] px-8 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">
-              L&apos;Instantané
-            </p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic text-white">
-              {album.title}
-            </h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">L&apos;Instantané</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic text-white">{album.title}</h2>
           </div>
         ) : page ? (
-          <div className="flex h-full flex-col bg-white">
-            <div className={`grid flex-1 gap-0.5 bg-gray-100 ${gridClass(page.layout)}`}>
-              {Array.from({ length: page.layout }).map((_, idx) => {
-                const photo = page.photos[idx];
-                const spanClass = page.layout === 3 && idx === 0 ? "col-span-2" : "";
-                return (
-                  <div key={idx} className={`overflow-hidden bg-[#f8f7f4] ${spanClass}`}>
-                    {photo && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo} alt="" className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            {page.caption && (
-              <div className="px-4 py-2 text-center text-xs italic text-slate-400">
-                {page.caption}
+          <div className="flex h-full flex-col" style={{ backgroundColor: page.bgColor || "#ffffff" }}>
+            {page.layoutId === "text-only" ? (
+              <div className="flex flex-1 items-center justify-center p-8">
+                <p className="text-center text-sm italic leading-relaxed text-slate-600">{page.caption}</p>
               </div>
+            ) : page.layoutId === "photo-text" ? (
+              <>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  {page.photos[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={page.photos[0]} alt="" className="h-full w-full object-cover" />
+                  )}
+                </div>
+                {page.caption && (
+                  <div className="px-4 py-3 text-center text-xs italic text-slate-500">{page.caption}</div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className={`grid flex-1 gap-0.5 ${getGridClass(page.layoutId)}`}>
+                  {page.photos.map((photo, idx) => (
+                    <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(page.layoutId, idx)}`}>
+                      {photo && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={photo} alt="" className="h-full w-full object-cover" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {page.caption && (
+                  <div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{page.caption}</div>
+                )}
+              </>
             )}
           </div>
         ) : null}
       </div>
 
-      {/* Navigation */}
       <div className="mt-5 flex items-center gap-4">
-        <button
-          onClick={() => setCurrent((c) => Math.max(-1, c - 1))}
-          disabled={current === -1}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30"
-        >
-          ←
-        </button>
-        <span className="text-sm text-slate-400">
-          {current + 2} / {total + 1}
-        </span>
-        <button
-          onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))}
-          disabled={current === total - 1}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30"
-        >
-          →
-        </button>
+        <button onClick={() => setCurrent((c) => Math.max(-1, c - 1))} disabled={current === -1} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">←</button>
+        <span className="text-sm text-slate-400">{current + 2} / {total + 1}</span>
+        <button onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))} disabled={current === total - 1} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">→</button>
       </div>
 
-      {/* Thumbnails */}
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        <button
-          onClick={() => setCurrent(-1)}
-          className={`shrink-0 overflow-hidden rounded border-2 transition ${
-            current === -1 ? "border-slate-900" : "border-transparent hover:border-gray-300"
-          }`}
-          style={{ width: 36, height: 50 }}
-        >
-          <div className="flex h-full items-center justify-center bg-[#121212]">
-            <span className="text-[8px] text-white/40">Cover</span>
-          </div>
+        <button onClick={() => setCurrent(-1)} className={`shrink-0 overflow-hidden rounded border-2 transition ${current === -1 ? "border-slate-900" : "border-transparent hover:border-gray-300"}`} style={{ width: 36, height: 50 }}>
+          <div className="flex h-full items-center justify-center bg-[#121212]"><span className="text-[8px] text-white/40">Cover</span></div>
         </button>
         {album.pages.map((p, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrent(idx)}
-            className={`shrink-0 overflow-hidden rounded border-2 transition ${
-              current === idx ? "border-slate-900" : "border-transparent hover:border-gray-300"
-            }`}
-            style={{ width: 36, height: 50 }}
-          >
-            <div
-              className={`grid h-full gap-px bg-gray-100 ${
-                p.layout === 1
-                  ? "grid-cols-1"
-                  : p.layout === 2
-                  ? "grid-cols-1 grid-rows-2"
-                  : "grid-cols-2 grid-rows-2"
-              }`}
-            >
-              {Array.from({ length: p.layout }).map((_, si) => {
-                const photo = p.photos[si];
-                const spanClass = p.layout === 3 && si === 0 ? "col-span-2" : "";
-                return (
-                  <div key={si} className={`overflow-hidden bg-[#f8f7f4] ${spanClass}`}>
+          <button key={idx} onClick={() => setCurrent(idx)} className={`shrink-0 overflow-hidden rounded border-2 transition ${current === idx ? "border-slate-900" : "border-transparent hover:border-gray-300"}`} style={{ width: 36, height: 50, backgroundColor: p.bgColor || "#fff" }}>
+            {p.layoutId === "text-only" ? (
+              <div className="flex h-full items-center justify-center"><span className="text-[6px] text-slate-400">Aa</span></div>
+            ) : (
+              <div className={`grid h-full gap-px ${getGridClass(p.layoutId)}`}>
+                {p.photos.map((photo, si) => (
+                  <div key={si} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId, si)}`}>
                     {photo && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={photo} alt="" className="h-full w-full object-cover" />
                     )}
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </button>
         ))}
       </div>
@@ -271,10 +225,16 @@ function ResultContent() {
     }
   }, []);
 
+  const pageCount = album
+    ? album.type === "manual"
+      ? album.pages.length
+      : Math.ceil((album.photos?.length ?? 0) / 2)
+    : INCLUDED_PAGES;
+
   async function onCheckout(pack: "digital" | "physique" | "duo") {
     setLoadingPack(pack);
     try {
-      await redirectToCheckout(pack);
+      await redirectToCheckout(pack, pageCount);
     } finally {
       setLoadingPack(null);
     }
@@ -352,73 +312,70 @@ function ResultContent() {
             </p>
           </div>
 
+          {pageCount > INCLUDED_PAGES && (
+            <p className="mb-6 text-center text-sm text-slate-500">
+              Ton album fait <strong>{pageCount} pages</strong> — {pageCount - INCLUDED_PAGES} pages supplémentaires au-delà des {INCLUDED_PAGES} incluses.
+            </p>
+          )}
+
           <div className="grid gap-5 sm:grid-cols-3">
-            {PACKS.map((pack) => (
-              <article
-                key={pack.id}
-                className={`relative flex flex-col rounded-2xl border p-6 ${
-                  pack.featured
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-gray-100 bg-white shadow-sm"
-                }`}
-              >
-                {pack.featured && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">
-                      Populaire
+            {PACKS.map((pack) => {
+              const price = calculatePrice(pack.id, pageCount);
+              const priceLabel = formatPrice(price);
+              return (
+                <article
+                  key={pack.id}
+                  className={`relative flex flex-col rounded-2xl border p-6 ${
+                    pack.featured
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-gray-100 bg-white shadow-sm"
+                  }`}
+                >
+                  {pack.featured && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">
+                        Populaire
+                      </span>
+                    </div>
+                  )}
+                  <h3 className={`font-[family-name:var(--font-playfair)] text-xl ${pack.featured ? "text-white" : "text-slate-900"}`}>
+                    {pack.name}
+                  </h3>
+                  <p className={`mt-1 text-sm ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
+                    {pack.desc}
+                  </p>
+                  <div className="my-4 flex items-end gap-1">
+                    <span className={`font-[family-name:var(--font-playfair)] text-3xl ${pack.featured ? "text-white" : "text-slate-900"}`}>
+                      {priceLabel}
+                    </span>
+                    <span className={`mb-0.5 text-xs ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
+                      {pageCount > INCLUDED_PAGES ? `${pageCount} pages` : "paiement unique"}
                     </span>
                   </div>
-                )}
-                <h3
-                  className={`font-[family-name:var(--font-playfair)] text-xl ${
-                    pack.featured ? "text-white" : "text-slate-900"
-                  }`}
-                >
-                  {pack.name}
-                </h3>
-                <p className={`mt-1 text-sm ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
-                  {pack.desc}
-                </p>
-                <div className="my-4 flex items-end gap-1">
-                  <span
-                    className={`font-[family-name:var(--font-playfair)] text-3xl ${
-                      pack.featured ? "text-white" : "text-slate-900"
+                  <ul className="mb-6 flex flex-col gap-2">
+                    {pack.perks.map((perk) => (
+                      <li key={perk} className={`flex items-start gap-2 text-sm ${pack.featured ? "text-slate-300" : "text-slate-600"}`}>
+                        <span className={`mt-0.5 shrink-0 ${pack.featured ? "text-slate-400" : "text-slate-300"}`}>✓</span>
+                        {perk}
+                      </li>
+                    ))}
+                    <li className={`flex items-start gap-2 text-sm ${pack.featured ? "text-slate-300" : "text-slate-600"}`}>
+                      <span className={`mt-0.5 shrink-0 ${pack.featured ? "text-slate-400" : "text-slate-300"}`}>✓</span>
+                      {INCLUDED_PAGES} pages incluses{pageCount > INCLUDED_PAGES ? ` + ${pageCount - INCLUDED_PAGES} suppl.` : ""}
+                    </li>
+                  </ul>
+                  <button
+                    onClick={() => onCheckout(pack.id)}
+                    disabled={loadingPack !== null}
+                    className={`mt-auto inline-flex w-full items-center justify-center rounded-full py-3 text-sm font-medium transition disabled:opacity-60 ${
+                      pack.featured ? "bg-white text-slate-900 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-700"
                     }`}
                   >
-                    {pack.price}
-                  </span>
-                  <span className={`mb-0.5 text-xs ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
-                    paiement unique
-                  </span>
-                </div>
-                <ul className="mb-6 flex flex-col gap-2">
-                  {pack.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className={`flex items-start gap-2 text-sm ${
-                        pack.featured ? "text-slate-300" : "text-slate-600"
-                      }`}
-                    >
-                      <span className={`mt-0.5 shrink-0 ${pack.featured ? "text-slate-400" : "text-slate-300"}`}>
-                        ✓
-                      </span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => onCheckout(pack.id)}
-                  disabled={loadingPack !== null}
-                  className={`mt-auto inline-flex w-full items-center justify-center rounded-full py-3 text-sm font-medium transition disabled:opacity-60 ${
-                    pack.featured
-                      ? "bg-white text-slate-900 hover:bg-slate-100"
-                      : "bg-slate-900 text-white hover:bg-slate-700"
-                  }`}
-                >
-                  {loadingPack === pack.id ? "Redirection…" : `Commander — ${pack.price}`}
-                </button>
-              </article>
-            ))}
+                    {loadingPack === pack.id ? "Redirection…" : `Commander — ${priceLabel}`}
+                  </button>
+                </article>
+              );
+            })}
           </div>
 
           <p className="mt-6 text-center text-sm text-slate-400">

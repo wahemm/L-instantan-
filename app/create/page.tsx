@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/app/components/Nav";
+import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 
 // ── Types ─────────────────────────────────────────────────────────────
 type Mode = null | "auto" | "manual";
@@ -485,7 +486,13 @@ export default function CreatePage() {
           )}
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden text-xs text-slate-400 sm:block">{pages.length} page{pages.length > 1 ? "s" : ""}</span>
+          <div className="hidden items-center gap-3 sm:flex">
+            <span className="text-xs text-slate-400">{pages.length} page{pages.length > 1 ? "s" : ""}</span>
+            <span className="text-xs text-slate-300">|</span>
+            <span className="text-xs font-semibold text-slate-700">
+              à partir de {formatPrice(calculatePrice("physique", pages.length))}
+            </span>
+          </div>
           <button onClick={handleManualSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700">
             Voir l&apos;aperçu →
           </button>
