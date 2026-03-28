@@ -1,512 +1,361 @@
+import Link from "next/link";
+import Nav from "@/app/components/Nav";
+
+const PLANS = [
+  {
+    id: "digital",
+    name: "Digital",
+    price: "10 €",
+    note: "BD complète PDF",
+    perks: ["BD complète haute résolution", "PDF prêt à partager", "Téléchargement immédiat"],
+    featured: false,
+  },
+  {
+    id: "physique",
+    name: "Physique",
+    price: "35 €",
+    note: "Livre imprimé",
+    perks: ["Livre imprimé finition premium", "Livraison en France", "Pour offrir ou garder"],
+    featured: true,
+  },
+  {
+    id: "duo",
+    name: "Duo",
+    price: "40 €",
+    note: "Digital + Physique",
+    perks: ["Pack Digital inclus", "Livre imprimé inclus", "Meilleure valeur"],
+    featured: false,
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Camille",
+    role: "Pack Physique",
+    quote:
+      "On a envoyé les photos du week-end et on a reçu des illustrations magnifiques. Un souvenir inoubliable.",
+  },
+  {
+    name: "Yanis",
+    role: "Pack Digital",
+    quote:
+      "En moins d'une minute j'avais mes illustrations cartoon. Le rendu est bluffant, vraiment premium.",
+  },
+  {
+    name: "Sarah",
+    role: "Pack Duo",
+    quote:
+      "Offrir le livre imprimé à ma mère pour son anniversaire, c'était le cadeau parfait. Elle a adoré.",
+  },
+];
+
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[#FFF9EC] text-slate-900">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top,_#FFEE9A,_transparent_60%)]" />
-        <div className="absolute left-[-80px] top-40 h-40 w-40 rotate-2 border-[3px] border-black bg-[#FFE7EC]" />
-        <div className="absolute right-[-60px] top-72 h-32 w-32 -rotate-3 border-[3px] border-black bg-[#D8EEFF]" />
-      </div>
+    <main className="min-h-screen bg-white text-slate-900">
+      <Nav />
 
-      <header className="sticky top-0 z-20 border-b-[3px] border-black bg-[#FFF5D9]/95 backdrop-blur shadow-[0_4px_0_0_#000]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <a
-            href="#top"
-            className="flex items-center gap-3 rounded-xl border-[3px] border-black bg-white px-3 py-1.5 shadow-[3px_3px_0_0_#000] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
-          >
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-full border-[3px] border-black bg-[#FFE55C] text-lg"
-              aria-hidden="true"
+      {/* Hero — fond noir avec gradient */}
+      <section className="relative overflow-hidden bg-slate-900 px-6 py-24 text-white sm:py-32">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 70%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-3xl text-center">
+          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+            Photos → Illustrations cartoon
+          </p>
+          <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-snug text-white sm:text-5xl lg:text-6xl">
+            Tes souvenirs, sublimés<br />en illustrations uniques.
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            Envoie tes photos et reçois des illustrations cartoon HD en quelques secondes. Parfait pour imprimer, offrir ou partager.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/create"
+              className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
             >
-              ⚡
-            </span>
-            <span className="text-lg font-extrabold tracking-tight">
-              L&apos;Instantané
-            </span>
-          </a>
-
-          <nav className="hidden items-center gap-6 md:flex">
-            <a
-              href="#avant-apres"
-              className="text-sm font-semibold text-slate-800 hover:text-red-500 transition"
-            >
-              Avant/Après
-            </a>
-            <a
-              href="#comment-ca-marche"
-              className="text-sm font-semibold text-slate-800 hover:text-blue-500 transition"
+              Créer mes illustrations
+            </Link>
+            <Link
+              href="/comment-ca-marche"
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-8 py-3.5 text-sm font-medium text-white transition hover:bg-white/10"
             >
               Comment ça marche
-            </a>
-            <a
-              href="#pricing"
-              className="text-sm font-semibold text-slate-800 hover:text-yellow-500 transition"
-            >
-              Prix
-            </a>
-            <a
-              href="#temoignages"
-              className="text-sm font-semibold text-slate-800 hover:text-emerald-500 transition"
-            >
-              Témoignages
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="#waitlist"
-              className="inline-flex items-center justify-center rounded-full border-[3px] border-black bg-[#FFE55C] px-5 py-2 text-sm font-semibold text-black shadow-[3px_3px_0_0_#000] hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_#000] transition-transform"
-            >
-              Rejoindre la liste d&apos;attente
-            </a>
+            </Link>
           </div>
         </div>
-      </header>
+      </section>
 
-      <section id="top" className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:pt-16 sm:pb-16">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="relative">
-            <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.22em] text-red-500">
-              <span aria-hidden="true">⚡</span>
-              SOUVENIRS → BD
-            </p>
-            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-              Tes souvenirs en BD,
-              <span className="text-yellow-500"> en un instantané</span>.
-            </h1>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-800 sm:text-lg">
-              Envoie tes photos, ajoute une description et reçois une histoire en cases,
-              bulles et onomatopées, prête à partager ou imprimer en
-              <span className="font-semibold"> 2 minutes</span>.
-            </p>
+      {/* Avant / Après */}
+      <section className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            La transformation
+          </p>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
+            Avant / Après
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-slate-500">
+            De la photo ordinaire à l&apos;illustration cartoon premium, en quelques secondes.
+          </p>
+        </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a
-                id="waitlist"
-                href="#waitlist"
-                className="inline-flex items-center justify-center rounded-full border-[3px] border-black bg-[#FFE55C] px-8 py-3 text-base font-semibold text-black shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000] transition-transform"
-              >
-                Rejoindre la liste d&apos;attente
-              </a>
-              <a
-                href="#comment-ca-marche"
-                className="inline-flex items-center justify-center rounded-full border-[3px] border-black bg-white px-8 py-3 text-base font-semibold text-slate-900 shadow-[4px_4px_0_0_#000] hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000] transition-transform"
-              >
-                Voir comment ça marche
-              </a>
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {[
-                { label: "2 min", value: "Rapide" },
-                { label: "BD", value: "Stylée" },
-                { label: "PDF", value: "Prêt à partager" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border-[3px] border-black bg-white px-4 py-3 shadow-[3px_3px_0_0_#000]"
-                >
-                  <div className="text-xs font-semibold text-red-500">
-                    {item.label}
-                  </div>
-                  <div className="mt-1 text-sm text-slate-800">
-                    {item.value}
-                  </div>
-                </div>
-              ))}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Avant */}
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-gray-100 bg-[#f8f7f4] p-8 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Avant — Photo originale
+            </span>
+            <div className="w-full aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-5xl mb-3">📸</div>
+                <p className="text-sm font-medium text-slate-500">Ta photo</p>
+                <p className="text-xs text-slate-400 mt-1">JPG ou PNG</p>
+              </div>
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-2 -z-10 rounded-[2.5rem] border-[3px] border-black bg-[#FFF] shadow-[6px_6px_0_0_#000]" />
-            <div className="rounded-[2rem] border-[3px] border-black bg-[#FFFBF0] p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.18em] text-slate-700">
-                    PLAN CHE BD
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-slate-900">
-                    Avant → Après, en un instantané
-                  </p>
-                </div>
-                <span className="rounded-full border-[2px] border-black bg-[#FF4B4B] px-3 py-1 text-xs font-semibold text-white shadow-[2px_2px_0_0_#000]">
-                  BD
-                </span>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="aspect-square rounded-2xl border-[3px] border-black bg-gradient-to-br from-[#FFE7EC] via-[#FFF5D9] to-[#D8EEFF]"
-                  >
-                    <div className="flex h-full items-end p-2">
-                      <div className="rounded-lg border-[2px] border-black bg-white/70 px-2 py-1 text-[11px] font-semibold text-slate-900 shadow-[2px_2px_0_0_#000]">
-                        {idx % 2 === 0 ? "PHOTO" : "BD"}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 rounded-2xl border-[3px] border-black bg-white p-4 shadow-[3px_3px_0_0_#000]">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Narration prête</p>
-                    <p className="mt-1 text-sm text-slate-700">
-                      Ajoute une description, on s&apos;occupe du rendu.
-                    </p>
-                  </div>
-                  <span className="text-2xl" aria-hidden="true">
-                    ✍️
-                  </span>
-                </div>
+          {/* Après */}
+          <div className="relative flex flex-col items-center gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+            <div className="absolute -top-3 right-5">
+              <span className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white shadow-sm">
+                Cartoon HD
+              </span>
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Après — Illustration cartoon
+            </span>
+            <div className="w-full aspect-[4/3] rounded-xl bg-gradient-to-br from-amber-100 via-rose-100 to-sky-100 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-5xl mb-3">🎨</div>
+                <p className="text-sm font-medium text-slate-700">Illustration cartoon</p>
+                <p className="text-xs text-slate-400 mt-1">Style premium, haute résolution</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section
-        id="avant-apres"
-        className="mx-auto max-w-6xl px-4 py-12 sm:py-16"
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Avant / Après
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-700 sm:text-base">
-              Passe de la photo à une planche BD moderne, avec un style cohérent et une
-              mise en scène prête à imprimer.
+      {/* Comment ça marche */}
+      <section className="bg-[#f8f7f4] py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Simple et rapide
             </p>
-          </div>
-          <div className="rounded-2xl border-[3px] border-black bg-white px-4 py-3 text-sm text-slate-800 shadow-[3px_3px_0_0_#000]">
-            De tes souvenirs à la BD,{" "}
-            <span className="font-semibold text-red-500">en 2 minutes</span>.
-          </div>
-        </div>
-
-        <div className="mt-10 grid gap-6 lg:grid-cols-2">
-          <figure className="relative overflow-hidden rounded-[2rem] border-[3px] border-black bg-white p-5 shadow-[5px_5px_0_0_#000]">
-            <figcaption className="flex items-center justify-between gap-4">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <span className="text-xl" aria-hidden="true">
-                  📸
-                </span>
-                Avant (photo)
-              </span>
-              <span className="text-xs text-slate-500">Entrée</span>
-            </figcaption>
-            <div className="mt-4 aspect-[4/3] rounded-[1.6rem] border-[3px] border-black bg-gradient-to-br from-[#FFF5D9] to-white p-4">
-              <div className="h-full rounded-[1.2rem] border-[3px] border-black bg-[#FFF9EC] p-4">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-red-400" aria-hidden="true" />
-                  <span className="text-xs font-semibold text-slate-800">
-                    Tes meilleurs moments
-                  </span>
-                </div>
-                <div className="mt-auto rounded-2xl border-[2px] border-black bg-white p-3">
-                  <p className="text-sm font-semibold text-slate-900">
-                    Voyage • Week-end • Amis
-                  </p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    (remplace par tes photos)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </figure>
-
-          <figure className="relative overflow-hidden rounded-[2rem] border-[3px] border-black bg-[#FFE55C] p-5 shadow-[5px_5px_0_0_#000]">
-            <div className="absolute right-6 top-6 rounded-full border-[2px] border-black bg-[#FF4B4B] px-3 py-1 text-xs font-semibold text-white shadow-[2px_2px_0_0_#000]">
-              Après
-            </div>
-            <figcaption className="flex items-center justify-between gap-4">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <span className="text-xl" aria-hidden="true">
-                  🖍️
-                </span>
-                Après (BD)
-              </span>
-              <span className="text-xs text-slate-800">Sortie</span>
-            </figcaption>
-            <div className="mt-4 aspect-[4/3] rounded-[1.6rem] border-[3px] border-black bg-gradient-to-br from-[#FFE7EC] to-[#D8EEFF] p-4">
-              <div className="relative h-full rounded-[1.2rem] border-[3px] border-black bg-white p-4">
-                <div className="absolute left-4 top-4 rounded-xl border-[2px] border-black bg-[#FFFBF0] px-3 py-2">
-                  <p className="text-xs font-semibold text-slate-900">Planche BD</p>
-                </div>
-                <div className="grid h-full grid-cols-2 gap-3">
-                  <div className="rounded-xl border-[2px] border-black bg-[#FFF5D9] p-3">
-                    <p className="text-xs font-semibold text-slate-900">Case 1</p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-slate-700">
-                      Une narration qui donne le rythme
-                    </p>
-                  </div>
-                  <div className="rounded-xl border-[2px] border-black bg-[#D8EEFF] p-3">
-                    <p className="text-xs font-semibold text-slate-900">Case 2</p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-slate-700">
-                      Un style uniforme et moderne
-                    </p>
-                  </div>
-                  <div className="col-span-2 rounded-xl border-[2px] border-black bg-white p-3">
-                    <p className="text-xs font-semibold text-slate-900">Case 3</p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-slate-700">
-                      Prêt à partager ou imprimer
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </figure>
-        </div>
-      </section>
-
-      <section id="comment-ca-marche" className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
               Comment ça marche
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-700 sm:text-base">
-              3 étapes simples pour transformer tes souvenirs en BD, sans friction.
-            </p>
-          </div>
-        </div>
-
-        <ol className="mt-10 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              emoji: "📸",
-              title: "Uploade tes photos",
-              description: "Sélectionne tes meilleurs moments. On s’occupe du reste.",
-            },
-            {
-              emoji: "✍️",
-              title: "Décris ton souvenir",
-              description: "Ajoute quelques lignes pour donner le ton et la narration.",
-            },
-            {
-              emoji: "⚡",
-              title: "Reçois ta BD en 2 minutes",
-              description: "Une BD prête à partager, télécharger, ou imprimer.",
-            },
-          ].map((item, idx) => (
-            <li
-              key={item.title}
-              className="group rounded-[2rem] border-[3px] border-black bg-white p-6 shadow-[4px_4px_0_0_#000] transition hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border-[3px] border-black bg-[#FFE55C] text-2xl">
-                    {item.emoji}
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold tracking-[0.18em] text-red-500">
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-                    <h3 className="mt-1 text-lg font-bold text-slate-900">
-                      {item.title}
-                    </h3>
-                  </div>
-                </div>
-                <span
-                  className="text-3xl opacity-0 transition group-hover:opacity-100"
-                  aria-hidden="true"
-                >
-                  ✦
-                </span>
-              </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-700">
-                {item.description}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section id="pricing" className="mx-auto max-w-6xl px-4 pb-14 pt-6 sm:pb-16">
-        <div className="rounded-[2.5rem] border-[3px] border-black bg-[#FFFBF0] px-5 py-8 shadow-[5px_5px_0_0_#000] sm:px-10 sm:py-12">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Pricing
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-700 sm:text-base">
-                Paiement unique. Choisis l&apos;offre qui correspond à ton souvenir.
-              </p>
-            </div>
-            <div className="rounded-2xl border-[3px] border-black bg-white px-4 py-3 text-sm text-slate-800 shadow-[3px_3px_0_0_#000]">
-              Offre la plus demandée :{" "}
-              <span className="font-semibold text-red-500">Digital</span>
-            </div>
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          <ol className="grid gap-6 md:grid-cols-3">
             {[
               {
-                name: "Gratuit",
-                price: "0€",
-                note: "Aperçu 3 pages",
-                featured: false,
-                perks: ["Aperçu BD", "Style cohérent", "Parfait pour tester"],
+                num: "01",
+                title: "Upload tes photos",
+                desc: "Sélectionne tes meilleurs moments depuis ton téléphone ou ordinateur.",
               },
               {
-                name: "Digital",
-                price: "9.99€",
-                note: "BD complète PDF",
-                featured: true,
-                perks: ["BD complète", "PDF prêt à partager", "Téléchargement immédiat"],
+                num: "02",
+                title: "Génération IA",
+                desc: "Notre IA transforme chaque photo en illustration cartoon en 30 à 60 secondes.",
               },
               {
-                name: "Physique",
-                price: "34.99€",
-                note: "Livre imprimé",
-                featured: false,
-                perks: ["Livre imprimé", "Finition premium", "Pour offrir (ou garder)"],
+                num: "03",
+                title: "Télécharge ou imprime",
+                desc: "Partage tes illustrations sur les réseaux ou commande un livre imprimé premium.",
               },
-            ].map((plan) => (
-              <article
-                key={plan.name}
-                className={[
-                  "relative overflow-hidden rounded-[2rem] border-[3px] p-6 shadow-[4px_4px_0_0_#000]",
-                  plan.featured
-                    ? "border-black bg-[#FFE55C]"
-                    : "border-black bg-white",
-                ].join(" ")}
-              >
-                {plan.featured ? (
-                  <div className="absolute right-4 top-4 rounded-full border-[2px] border-black bg-[#FF4B4B] px-3 py-1 text-xs font-semibold text-white shadow-[2px_2px_0_0_#000]">
+            ].map((step) => (
+              <li key={step.num} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <span className="font-[family-name:var(--font-playfair)] text-5xl font-bold text-slate-100">
+                  {step.num}
+                </span>
+                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">
+                  {step.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-500">{step.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="mx-auto max-w-5xl px-6 py-20 sm:py-24">
+        <div className="mb-14 text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Nos offres
+          </p>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
+            Paiement unique, sans abonnement
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-slate-500">
+            Choisis le pack qui correspond à tes souvenirs.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {PLANS.map((plan) => (
+            <article
+              key={plan.id}
+              className={`relative flex flex-col rounded-2xl border p-8 ${
+                plan.featured
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "border-gray-100 bg-white shadow-sm"
+              }`}
+            >
+              {plan.featured && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">
                     Populaire
-                  </div>
-                ) : null}
-
-                <div className="mt-2 flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
-                    <p className="mt-1 text-sm text-slate-700">{plan.note}</p>
-                  </div>
+                  </span>
                 </div>
+              )}
 
-                <div className="mt-6 flex items-end gap-2">
-                  <div className="text-4xl font-extrabold tracking-tight text-slate-900">
-                    {plan.price}
-                  </div>
-                  <div className="pb-1 text-xs font-semibold text-slate-600">
-                    one-shot
-                  </div>
-                </div>
+              <h3
+                className={`font-[family-name:var(--font-playfair)] text-2xl ${
+                  plan.featured ? "text-white" : "text-slate-900"
+                }`}
+              >
+                {plan.name}
+              </h3>
+              <p
+                className={`mt-1 text-sm ${
+                  plan.featured ? "text-slate-400" : "text-slate-400"
+                }`}
+              >
+                {plan.note}
+              </p>
 
-                <ul className="mt-6 space-y-2 text-sm text-slate-800">
-                  {plan.perks.map((perk) => (
-                    <li key={perk} className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border-[2px] border-black bg-[#FFE55C] text-[11px] font-bold">
-                        ✓
-                      </span>
-                      <span>{perk}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  href="#waitlist"
-                  className={[
-                    "mt-7 inline-flex w-full items-center justify-center rounded-full border-[3px] px-6 py-2.5 text-sm font-semibold shadow-[3px_3px_0_0_#000] transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_0_#000] focus:outline-none",
-                    plan.featured
-                      ? "border-black bg-[#FF4B4B] text-white"
-                      : "border-black bg-white text-slate-900",
-                  ].join(" ")}
+              <div className="my-6 flex items-end gap-1">
+                <span
+                  className={`font-[family-name:var(--font-playfair)] text-4xl ${
+                    plan.featured ? "text-white" : "text-slate-900"
+                  }`}
                 >
-                  Rejoindre la liste d&apos;attente
-                </a>
+                  {plan.price}
+                </span>
+                <span className={`mb-1 text-xs ${plan.featured ? "text-slate-400" : "text-slate-400"}`}>
+                  one-shot
+                </span>
+              </div>
 
-                <p className="mt-4 text-center text-xs text-slate-600">
-                  Sans abonnement.
+              <ul className="mb-8 flex flex-col gap-2.5">
+                {plan.perks.map((perk) => (
+                  <li
+                    key={perk}
+                    className={`flex items-start gap-2 text-sm ${
+                      plan.featured ? "text-slate-300" : "text-slate-600"
+                    }`}
+                  >
+                    <span className={`mt-0.5 shrink-0 ${plan.featured ? "text-slate-400" : "text-slate-300"}`}>
+                      ✓
+                    </span>
+                    {perk}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/create"
+                className={`mt-auto inline-flex items-center justify-center rounded-full py-3 text-sm font-medium transition ${
+                  plan.featured
+                    ? "bg-white text-slate-900 hover:bg-slate-100"
+                    : "bg-slate-900 text-white hover:bg-slate-700"
+                }`}
+              >
+                Commencer
+              </Link>
+            </article>
+          ))}
+        </div>
+
+        <p className="mt-8 text-center text-sm text-slate-400">
+          Paiement sécurisé. Satisfait ou remboursé.
+        </p>
+      </section>
+
+      {/* Témoignages */}
+      <section className="bg-[#f8f7f4] py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-14 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Ils ont testé
+            </p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
+              Témoignages
+            </h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <blockquote
+                key={t.name}
+                className="flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm"
+              >
+                <p className="flex-1 text-sm leading-relaxed text-slate-600">
+                  &ldquo;{t.quote}&rdquo;
                 </p>
-              </article>
+                <footer className="mt-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-slate-900">{t.name}</div>
+                    <div className="text-xs text-slate-400">{t.role}</div>
+                  </div>
+                </footer>
+              </blockquote>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="temoignages" className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Témoignages
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-700 sm:text-base">
-              Des avis fictifs, mais des souvenirs bien réels.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              name: "Camille",
-              role: "BD Digital",
-              quote:
-                "On a envoyé les photos du week-end et on a reçu une BD hyper stylée. La narration rend tout vivant.",
-            },
-            {
-              name: "Yanis",
-              role: "Aperçu Gratuit",
-              quote:
-                "J’ai testé pour voir… et en 2 minutes j’avais un aperçu propre et drôle. J’y retourne direct pour la version complète.",
-            },
-            {
-              name: "Sarah",
-              role: "Livre Physique",
-              quote:
-                "Offrir la BD imprimée, c’est top. Le rendu est beau, et ça devient vraiment un objet souvenir.",
-            },
-          ].map((t) => (
-            <blockquote
-              key={t.name}
-              className="rounded-[2rem] border-[3px] border-black bg-white p-6 shadow-[4px_4px_0_0_#000]"
-            >
-              <p className="text-sm leading-relaxed text-slate-800">
-                “{t.quote}”
-              </p>
-              <footer className="mt-5 flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border-[2px] border-black bg-[#FFE55C] text-sm font-extrabold text-slate-900">
-                  {t.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900">{t.name}</div>
-                  <div className="text-xs text-slate-600">{t.role}</div>
-                </div>
-              </footer>
-            </blockquote>
-          ))}
+      {/* CTA final */}
+      <section className="bg-slate-900 py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-2xl px-6 text-center">
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic sm:text-4xl">
+            Prêt à sublimer tes souvenirs ?
+          </h2>
+          <p className="mt-4 text-slate-400">
+            Lance-toi maintenant. Tes illustrations prêtes en moins d&apos;une minute.
+          </p>
+          <Link
+            href="/create"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-10 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+          >
+            Créer mes illustrations
+          </Link>
         </div>
       </section>
 
-      <footer className="border-t-[3px] border-black bg-[#FFF5D9]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-slate-700 sm:flex-row sm:items-center sm:justify-between">
-          <div>© 2026 L&apos;Instantané</div>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <a
-              href="#comment-ca-marche"
-              className="font-semibold hover:text-red-500 transition"
-            >
+      {/* Footer */}
+      <footer className="border-t border-gray-100 bg-white py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
+          <span className="font-[family-name:var(--font-playfair)] text-slate-900">
+            L&apos;Instantané
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Link href="/comment-ca-marche" className="transition hover:text-slate-700">
               Comment ça marche
-            </a>
-            <a
-              href="#pricing"
-              className="font-semibold hover:text-blue-500 transition"
-            >
-              Prix
-            </a>
-            <a
-              href="#temoignages"
-              className="font-semibold hover:text-yellow-500 transition"
-            >
-              Témoignages
-            </a>
+            </Link>
+            <Link href="/shop" className="transition hover:text-slate-700">
+              Illustrations
+            </Link>
+            <Link href="/faq" className="transition hover:text-slate-700">
+              FAQ
+            </Link>
+            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">
+              À propos
+            </Link>
           </div>
+          <span>© 2026 L&apos;Instantané</span>
         </div>
       </footer>
     </main>
-  )
+  );
 }
