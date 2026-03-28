@@ -28,7 +28,7 @@ const PACKS: {
   {
     id: "physique",
     name: "Physique",
-    price: "35 €",
+    price: "29 €",
     desc: "Ton album imprimé sur papier premium, livré chez toi.",
     perks: [
       "Livre imprimé finition premium",
@@ -41,7 +41,7 @@ const PACKS: {
   {
     id: "duo",
     name: "Duo",
-    price: "40 €",
+    price: "35 €",
     desc: "Le meilleur des deux : version digitale + livre imprimé.",
     perks: [
       "Pack Digital inclus",

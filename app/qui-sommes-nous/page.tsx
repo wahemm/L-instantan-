@@ -88,7 +88,7 @@ export default function QuiSommesNousPage() {
               { value: "170g", label: "Papier photo premium" },
               { value: "200", label: "Photos max par album" },
               { value: "5–7j", label: "Délai de livraison" },
-              { value: "35€", label: "Livre imprimé livré" },
+              { value: "29€", label: "Livre imprimé livré" },
             ].map((stat) => (
               <div
                 key={stat.label}

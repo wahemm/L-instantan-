@@ -22,7 +22,7 @@ const PLANS = [
   {
     id: "physique",
     name: "Physique",
-    price: "35 €",
+    price: "29 €",
     note: "Livre imprimé",
     perks: ["Livre imprimé finition premium", "Livraison en France", "Pour offrir ou garder"],
     featured: true,
@@ -30,7 +30,7 @@ const PLANS = [
   {
     id: "duo",
     name: "Duo",
-    price: "40 €",
+    price: "35 €",
     note: "Digital + Physique",
     perks: ["Pack Digital inclus", "Livre imprimé inclus", "Meilleure valeur"],
     featured: false,

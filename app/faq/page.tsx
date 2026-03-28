@@ -11,7 +11,7 @@ const faqs = [
   },
   {
     q: "Combien coûte un album ?",
-    a: "Nous proposons trois packs : Digital à 10€ (album PDF HD), Physique à 35€ (livre imprimé livré chez toi), et Duo à 40€ (digital + physique). Paiement unique, sans abonnement.",
+    a: "Nous proposons trois packs : Digital à 10€ (album PDF HD), Physique à 29€ (livre imprimé livré chez toi), et Duo à 35€ (digital + physique). Paiement unique, sans abonnement.",
   },
   {
     q: "Combien de temps prend la livraison ?",
