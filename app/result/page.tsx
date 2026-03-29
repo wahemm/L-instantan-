@@ -8,7 +8,8 @@ import { PACKS, calculatePrice, formatPrice, INCLUDED_PAGES } from "@/app/lib/pr
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
-type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string; title?: string; subtitle?: string; };
+interface TextEl { id: string; x: number; y: number; w: number; text: string; size: number; color: string; bold: boolean; italic: boolean; align: "left"|"center"|"right"; font: "playfair"|"inter"; }
+type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string; title?: string; subtitle?: string; texts?: TextEl[]; };
 type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
@@ -128,6 +129,20 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
   const total = album.pages.length;
   const page = album.pages[current];
 
+  function renderTextOverlays(p: EditorPage) {
+    return (p.texts || []).map(el => (
+      <div key={el.id} className="absolute pointer-events-none z-10" style={{
+        left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%`,
+        fontSize: el.size, color: el.color,
+        fontWeight: el.bold ? "bold" : "normal",
+        fontStyle: el.italic ? "italic" : "normal",
+        textAlign: el.align,
+        fontFamily: el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)",
+        lineHeight: 1.3, whiteSpace: "pre-wrap", wordBreak: "break-word",
+      }}>{el.text}</div>
+    ));
+  }
+
   function renderPage(p: EditorPage) {
     // Cover page
     if (p.layoutId === "cover") {
@@ -147,11 +162,12 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
             </h2>
             <div className={`h-px w-12 ${dark ? "bg-white/25" : "bg-slate-300"}`} />
           </div>
+          {renderTextOverlays(p)}
         </div>
       );
     }
     return (
-      <div className="flex h-full flex-col" style={{ backgroundColor: p.bgColor || "#ffffff" }}>
+      <div className="relative flex h-full flex-col" style={{ backgroundColor: p.bgColor || "#ffffff" }}>
         {p.layoutId === "text-only" ? (
           <div className="flex flex-1 items-center justify-center p-8">
             <p className="text-center text-sm italic leading-relaxed text-slate-600">{p.caption}</p>
@@ -178,6 +194,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
             {p.caption && <div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{p.caption}</div>}
           </>
         )}
+        {renderTextOverlays(p)}
       </div>
     );
   }
