@@ -8,7 +8,7 @@ import { PACKS, calculatePrice, formatPrice, INCLUDED_PAGES } from "@/app/lib/pr
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
-type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string };
+type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string; title?: string; subtitle?: string; };
 type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
@@ -124,80 +124,91 @@ function getSpanClass(layoutId: string, idx: number): string {
 }
 
 function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }> }) {
-  const [current, setCurrent] = useState(-1);
+  const [current, setCurrent] = useState(0);
   const total = album.pages.length;
-  const isCover = current === -1;
-  const page = isCover ? null : album.pages[current];
+  const page = album.pages[current];
+
+  function renderPage(p: EditorPage) {
+    // Cover page
+    if (p.layoutId === "cover") {
+      const dark = ["#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340","#7c3aed","#be185d","#0369a1","#15803d","#b45309"].includes(p.bgColor);
+      return (
+        <div className="relative flex h-full flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: p.bgColor || "#0f172a" }}>
+          {p.photos[0] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+          )}
+          <div className="relative z-10 flex flex-col items-center gap-3 px-8 text-center">
+            {p.subtitle && (
+              <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${dark ? "text-white/50" : "text-slate-400"}`}>{p.subtitle}</p>
+            )}
+            <h2 className={`font-[family-name:var(--font-playfair)] text-3xl leading-tight ${dark ? "text-white" : "text-slate-800"}`}>
+              {p.title || album.title}
+            </h2>
+            <div className={`h-px w-12 ${dark ? "bg-white/25" : "bg-slate-300"}`} />
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex h-full flex-col" style={{ backgroundColor: p.bgColor || "#ffffff" }}>
+        {p.layoutId === "text-only" ? (
+          <div className="flex flex-1 items-center justify-center p-8">
+            <p className="text-center text-sm italic leading-relaxed text-slate-600">{p.caption}</p>
+          </div>
+        ) : p.layoutId === "photo-text" ? (
+          <>
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {p.photos[0] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.photos[0]} alt="" className="h-full w-full object-cover" />
+                )}
+            </div>
+            {p.caption && <div className="px-4 py-3 text-center text-xs italic text-slate-500">{p.caption}</div>}
+          </>
+        ) : (
+          <>
+            <div className={`grid flex-1 gap-0.5 ${getGridClass(p.layoutId)}`}>
+              {p.photos.map((photo, idx) => (
+                <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId, idx)}`}>
+                  {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}
+                </div>
+              ))}
+            </div>
+            {p.caption && <div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{p.caption}</div>}
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl" style={{ aspectRatio: "210/297" }}>
-        {isCover ? (
-          <div className="flex h-full flex-col items-center justify-center bg-[#121212] px-8 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">L&apos;Instantané</p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic text-white">{album.title}</h2>
-          </div>
-        ) : page ? (
-          <div className="flex h-full flex-col" style={{ backgroundColor: page.bgColor || "#ffffff" }}>
-            {page.layoutId === "text-only" ? (
-              <div className="flex flex-1 items-center justify-center p-8">
-                <p className="text-center text-sm italic leading-relaxed text-slate-600">{page.caption}</p>
-              </div>
-            ) : page.layoutId === "photo-text" ? (
-              <>
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  {page.photos[0] && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={page.photos[0]} alt="" className="h-full w-full object-cover" />
-                  )}
-                </div>
-                {page.caption && (
-                  <div className="px-4 py-3 text-center text-xs italic text-slate-500">{page.caption}</div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className={`grid flex-1 gap-0.5 ${getGridClass(page.layoutId)}`}>
-                  {page.photos.map((photo, idx) => (
-                    <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(page.layoutId, idx)}`}>
-                      {photo && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={photo} alt="" className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {page.caption && (
-                  <div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{page.caption}</div>
-                )}
-              </>
-            )}
-          </div>
-        ) : null}
+        {page && renderPage(page)}
       </div>
 
       <div className="mt-5 flex items-center gap-4">
-        <button onClick={() => setCurrent((c) => Math.max(-1, c - 1))} disabled={current === -1} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">←</button>
-        <span className="text-sm text-slate-400">{current + 2} / {total + 1}</span>
+        <button onClick={() => setCurrent((c) => Math.max(0, c - 1))} disabled={current === 0} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">←</button>
+        <span className="text-sm text-slate-400">{current + 1} / {total}</span>
         <button onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))} disabled={current === total - 1} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">→</button>
       </div>
 
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        <button onClick={() => setCurrent(-1)} className={`shrink-0 overflow-hidden rounded border-2 transition ${current === -1 ? "border-slate-900" : "border-transparent hover:border-gray-300"}`} style={{ width: 36, height: 50 }}>
-          <div className="flex h-full items-center justify-center bg-[#121212]"><span className="text-[8px] text-white/40">Cover</span></div>
-        </button>
         {album.pages.map((p, idx) => (
           <button key={idx} onClick={() => setCurrent(idx)} className={`shrink-0 overflow-hidden rounded border-2 transition ${current === idx ? "border-slate-900" : "border-transparent hover:border-gray-300"}`} style={{ width: 36, height: 50, backgroundColor: p.bgColor || "#fff" }}>
-            {p.layoutId === "text-only" ? (
+            {p.layoutId === "cover" ? (
+              <div className="relative flex h-full items-center justify-center" style={{ backgroundColor: p.bgColor || "#0f172a" }}>
+                {p.photos[0] && <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />}
+                <span className="relative text-[6px] text-white/60 font-bold">Couv</span>
+              </div>
+            ) : p.layoutId === "text-only" ? (
               <div className="flex h-full items-center justify-center"><span className="text-[6px] text-slate-400">Aa</span></div>
             ) : (
               <div className={`grid h-full gap-px ${getGridClass(p.layoutId)}`}>
                 {p.photos.map((photo, si) => (
                   <div key={si} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId, si)}`}>
-                    {photo && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo} alt="" className="h-full w-full object-cover" />
-                    )}
+                    {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}
                   </div>
                 ))}
               </div>
@@ -227,7 +238,7 @@ function ResultContent() {
 
   const pageCount = album
     ? album.type === "manual"
-      ? album.pages.length
+      ? album.pages.filter((p) => p.layoutId !== "cover").length
       : Math.ceil((album.photos?.length ?? 0) / 2)
     : INCLUDED_PAGES;
 
