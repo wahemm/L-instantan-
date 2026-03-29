@@ -6,9 +6,45 @@ import Nav from "@/app/components/Nav";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 
 // ── Types ─────────────────────────────────────────────────────────────
-type Mode = null | "auto" | "manual";
+type Mode = null | "mode-select" | "auto" | "manual";
+
+interface CoverTemplate {
+  id: string;
+  name: string;
+  category: string;
+  src: string;
+}
+
+const COVER_CATEGORIES = ["Tous", "Voyage", "2025", "Couple", "Amis", "Famille"];
+
+const COVER_TEMPLATES: CoverTemplate[] = [
+  { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
+  { id: "italie",    name: "Italie",    category: "Voyage", src: "/covers/Italie.png" },
+  { id: "provence",  name: "Provence",  category: "Voyage", src: "/covers/Provence.png" },
+  { id: "bali-1",    name: "Bali",      category: "Voyage", src: "/covers/bali 1.png" },
+  { id: "bali-2",    name: "Bali 2",    category: "Voyage", src: "/covers/bali 2.png" },
+  { id: "brazil",    name: "Brésil",    category: "Voyage", src: "/covers/brazil.png" },
+  { id: "bresil-2",  name: "Brésil 2",  category: "Voyage", src: "/covers/bresil 2.png" },
+  { id: "paris",     name: "Paris",     category: "Voyage", src: "/covers/paris.png" },
+  { id: "canada",    name: "Canada",    category: "Voyage", src: "/covers/canada.png" },
+  { id: "canada-2",  name: "Canada 2",  category: "Voyage", src: "/covers/canada 2.png" },
+  { id: "marrakech", name: "Marrakech", category: "Voyage", src: "/covers/Marrakech.png" },
+  { id: "mexique",   name: "Mexique",   category: "Voyage", src: "/covers/mexique.png" },
+  { id: "miami",     name: "Miami",     category: "Voyage", src: "/covers/Miami.png" },
+  { id: "mykonos",   name: "Mykonos",   category: "Voyage", src: "/covers/mykonos.png" },
+  { id: "perou",     name: "Pérou",     category: "Voyage", src: "/covers/Perou.png" },
+  { id: "amor",      name: "Amor",      category: "Couple", src: "/covers/amor.png" },
+];
 type LayoutId = "cover"|"full"|"two-h"|"two-v"|"three-top"|"three-left"|"grid4"|"photo-text"|"text-only";
-type PanelId = "photos"|"layouts"|"colors"|"text";
+type PanelId = "photos"|"layouts"|"colors"|"text"|"stickers";
+
+interface StickerEl {
+  id: string;
+  emoji: string;
+  x: number;
+  y: number;
+  size: number;
+}
 
 interface TextEl {
   id: string;
@@ -27,11 +63,13 @@ interface TextEl {
 interface EditorPage {
   layoutId: LayoutId;
   photos: (string | null)[];
+  photoPositions: { x: number; y: number }[];
   bgColor: string;
   title: string;
   subtitle: string;
   caption: string;
   texts: TextEl[];
+  stickers: StickerEl[];
 }
 
 // ── Constants ──────────────────────────────────────────────────────────
@@ -61,6 +99,15 @@ const TEXT_COLORS = [
 
 const FONT_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48, 64];
 
+const STICKER_CATS: { label: string; items: string[] }[] = [
+  { label: "Plage",   items: ["🌊","🏖️","🐚","🦀","🐠","🐬","🌴","☀️","🍹","⛵","🏄","🦞"] },
+  { label: "Voyage",  items: ["✈️","🗺️","🧭","🏔️","🎒","📸","🗼","🏝️","🚂","🚢","🌍","🛫"] },
+  { label: "Nature",  items: ["🌸","🌺","🌻","🍃","🌿","🦋","🐝","🌈","⛅","🌙","⭐","🍄"] },
+  { label: "Fête",    items: ["🎉","🎊","🥂","🎂","🎁","🎈","✨","🎆","🥳","🍾","🎀","🎵"] },
+  { label: "Amour",   items: ["❤️","💕","💝","🌹","💏","💌","🫶","🥰","💫","🌷","💑","🎀"] },
+  { label: "Animaux", items: ["🐶","🐱","🦊","🐻","🦁","🐯","🦋","🦜","🐬","🦒","🐘","🦓"] },
+];
+
 const DARK_BG = new Set(["#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340","#7c3aed","#be185d","#0369a1","#15803d","#b45309"]);
 const isDark = (c: string) => DARK_BG.has(c);
 
@@ -70,14 +117,17 @@ function getSlotCount(layoutId: LayoutId): number {
 }
 
 function makePage(layoutId: LayoutId, overrides: Partial<EditorPage> = {}): EditorPage {
+  const n = getSlotCount(layoutId);
   return {
     layoutId,
-    photos: Array(getSlotCount(layoutId)).fill(null),
+    photos: Array(n).fill(null),
+    photoPositions: Array(n).fill({ x: 50, y: 50 }),
     bgColor: layoutId === "cover" ? "#0f172a" : "#ffffff",
     title: layoutId === "cover" ? "Mon Album" : "",
     subtitle: "",
     caption: "",
     texts: [],
+    stickers: [],
     ...overrides,
   };
 }
@@ -263,6 +313,90 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   );
 }
 
+// ── Sticker Element (draggable + resizable) ────────────────────────────
+function StickerElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onDelete }: {
+  el: StickerEl;
+  isSelected: boolean;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  onSelect: () => void;
+  onUpdate: (u: Partial<StickerEl>) => void;
+  onDelete: () => void;
+}) {
+  const elRef = useRef<HTMLDivElement>(null);
+
+  function startDrag(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX, startY = e.clientY;
+    const ox = el.x, oy = el.y;
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    function onMove(me: MouseEvent) {
+      if (!elRef.current) return;
+      const nx = Math.max(0, Math.min(90, ox + ((me.clientX - startX) / rect.width) * 100));
+      const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
+      elRef.current.style.left = `${nx}%`;
+      elRef.current.style.top = `${ny}%`;
+    }
+    function onUp(me: MouseEvent) {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      const nx = Math.max(0, Math.min(90, ox + ((me.clientX - startX) / rect.width) * 100));
+      const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
+      onUpdate({ x: nx, y: ny });
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    onSelect();
+  }
+
+  function startResize(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const os = el.size;
+    function onMove(me: MouseEvent) {
+      if (!elRef.current) return;
+      const ns = Math.max(16, Math.min(180, os + (me.clientX - startX)));
+      elRef.current.style.fontSize = `${ns}px`;
+    }
+    function onUp(me: MouseEvent) {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      const ns = Math.max(16, Math.min(180, os + (me.clientX - startX)));
+      onUpdate({ size: ns });
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }
+
+  return (
+    <div
+      ref={elRef}
+      className={`absolute z-20 cursor-move select-none leading-none ${isSelected ? "outline outline-2 outline-offset-2 outline-blue-400 rounded-lg" : ""}`}
+      style={{ left: `${el.x}%`, top: `${el.y}%`, fontSize: el.size }}
+      onMouseDown={startDrag}
+      onClick={(e) => { e.stopPropagation(); onSelect(); }}
+    >
+      {el.emoji}
+      {isSelected && (
+        <>
+          <button
+            onMouseDown={e => e.stopPropagation()}
+            onClick={e => { e.stopPropagation(); onDelete(); }}
+            className="absolute -top-2.5 -right-2.5 z-30 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow hover:bg-red-600"
+          >×</button>
+          <div
+            className="absolute -bottom-2 -right-2 z-30 h-4 w-4 cursor-se-resize rounded-sm bg-blue-500 shadow"
+            onMouseDown={startResize}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Photo Slot ─────────────────────────────────────────────────────────
 interface SlotProps {
   photo: string | null;
@@ -270,27 +404,66 @@ interface SlotProps {
   isDragOver: boolean;
   className?: string;
   bgColor: string;
+  objectPosition?: { x: number; y: number };
   onClick: () => void;
   onDoubleClick: () => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent) => void;
+  onReposition?: (pos: { x: number; y: number }) => void;
 }
 
-function Slot({ photo, isActive, isDragOver, className = "", bgColor, onClick, onDoubleClick, onDragOver, onDragLeave, onDrop }: SlotProps) {
+function Slot({ photo, isActive, isDragOver, className = "", bgColor, objectPosition, onClick, onDoubleClick, onDragOver, onDragLeave, onDrop, onReposition }: SlotProps) {
   const bg = bgColor === "#ffffff" ? "#f0ede8" : `${bgColor}44`;
+  const imgRef = useRef<HTMLImageElement>(null);
+  const didReposition = useRef(false);
+  const pos = objectPosition ?? { x: 50, y: 50 };
+
+  function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    if (!photo || !isActive || !onReposition) return;
+    didReposition.current = false;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const startX = e.clientX, startY = e.clientY;
+
+    function onMove(me: MouseEvent) {
+      const dx = me.clientX - startX, dy = me.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didReposition.current = true;
+      if (!didReposition.current) return;
+      const x = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
+      if (imgRef.current) imgRef.current.style.objectPosition = `${x}% ${y}%`;
+    }
+    function onUp(me: MouseEvent) {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      if (!didReposition.current) return;
+      const x = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
+      onReposition?.({ x, y });
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }
+
+  function handleClick() {
+    if (didReposition.current) { didReposition.current = false; return; }
+    onClick();
+  }
+
   return (
     <div
-      className={`relative cursor-pointer overflow-hidden transition-all ${className} ${
+      className={`relative overflow-hidden transition-all ${className} ${
         isDragOver ? "ring-4 ring-inset ring-blue-400" : isActive ? "ring-2 ring-inset ring-blue-500" : "hover:brightness-[0.97]"
-      }`}
+      } ${isActive && photo ? "cursor-move" : "cursor-pointer"}`}
       style={{ backgroundColor: bg }}
-      onClick={onClick} onDoubleClick={onDoubleClick}
+      onClick={handleClick} onDoubleClick={onDoubleClick}
       onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}
+      onMouseDown={handleMouseDown}
     >
       {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={photo} alt="" className="h-full w-full object-cover" />
+        <img ref={imgRef} src={photo} alt="" className="h-full w-full object-cover" draggable={false}
+          style={{ objectPosition: `${pos.x}% ${pos.y}%` }} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center gap-1.5">
           {isDragOver ? <div className="text-3xl text-blue-400">↓</div> : (
@@ -306,14 +479,20 @@ function Slot({ photo, isActive, isDragOver, className = "", bgColor, onClick, o
           <span className="rounded-full bg-blue-500 px-2 py-1 text-[10px] font-semibold text-white shadow">Remplacer</span>
         </div>
       )}
+      {photo && isActive && !isDragOver && (
+        <div className="pointer-events-none absolute bottom-1.5 left-0 right-0 flex justify-center">
+          <span className="rounded-full bg-black/50 px-2 py-0.5 text-[9px] text-white">↕ Glisser pour recadrer</span>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Page Renderer ──────────────────────────────────────────────────────
-function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDrop }: {
+function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDrop, onSlotReposition }: {
   page: EditorPage; activeSlot: number | null;
   onSlotClick:(i:number)=>void; onSlotDblClick:(i:number)=>void; onSlotDrop:(i:number,s:string)=>void;
+  onSlotReposition?: (i:number, pos:{x:number,y:number})=>void;
 }) {
   const [dragOver, setDragOver] = useState<number|null>(null);
 
@@ -321,10 +500,12 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
     return {
       photo: page.photos[idx] ?? null, isActive: activeSlot === idx, isDragOver: dragOver === idx,
       bgColor: page.bgColor, className: cls,
+      objectPosition: page.photoPositions?.[idx] ?? { x: 50, y: 50 },
       onClick: () => onSlotClick(idx), onDoubleClick: () => onSlotDblClick(idx),
       onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; setDragOver(idx); },
       onDragLeave: () => setDragOver(null),
       onDrop: e => { e.preventDefault(); const s = e.dataTransfer.getData("application/linstantane-photo"); if (s) onSlotDrop(idx,s); setDragOver(null); },
+      onReposition: onSlotReposition ? (pos) => onSlotReposition(idx, pos) : undefined,
     };
   }
 
@@ -338,13 +519,17 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
       <div className="relative flex h-full flex-col items-center justify-center overflow-hidden" style={{backgroundColor:page.bgColor}}
         onDragOver={e=>{e.preventDefault();setDragOver(0);}} onDragLeave={()=>setDragOver(null)}
         onDrop={e=>{e.preventDefault();const s=e.dataTransfer.getData("application/linstantane-photo");if(s)onSlotDrop(0,s);setDragOver(null);}}>
-        {has && <img src={page.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35"/>}
+        {/* Template Canva : pleine page, moitié droite = couverture avant */}
+        {has && <img src={page.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>}
         {dragOver===0&&<div className="absolute inset-0 flex items-center justify-center bg-blue-400/20 ring-4 ring-inset ring-blue-400 z-20"><span className="rounded-full bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow">{has?"Remplacer":"Déposer la photo"}</span></div>}
-        <div className="relative z-10 flex flex-col items-center gap-3 px-8 text-center">
-          {page.subtitle&&<p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${sc}`}>{page.subtitle}</p>}
-          <h1 className={`font-[family-name:var(--font-playfair)] text-3xl leading-tight ${tc}`}>{page.title||"Mon Album"}</h1>
-          <div className={`h-px w-12 ${dark?"bg-white/25":"bg-slate-300"}`}/>
-        </div>
+        {/* Titre uniquement si pas de template */}
+        {!has && (
+          <div className="relative z-10 flex flex-col items-center gap-3 px-8 text-center">
+            {page.subtitle&&<p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${sc}`}>{page.subtitle}</p>}
+            <h1 className={`font-[family-name:var(--font-playfair)] text-3xl leading-tight ${tc}`}>{page.title||"Mon Album"}</h1>
+            <div className={`h-px w-12 ${dark?"bg-white/25":"bg-slate-300"}`}/>
+          </div>
+        )}
         {!has&&dragOver!==0&&<button onClick={()=>onSlotClick(0)} className={`absolute bottom-4 right-4 rounded-full border px-3 py-1.5 text-[10px] font-semibold transition ${dark?"border-white/25 text-white/50 hover:border-white/60":"border-slate-300 text-slate-400 hover:border-slate-500"}`}>+ Photo de fond</button>}
         {has&&<button onClick={()=>onSlotDblClick(0)} className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-[10px] text-white opacity-60 hover:opacity-100 transition">×</button>}
       </div>
@@ -415,6 +600,9 @@ export default function CreatePage() {
   const editorInputRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(null);
+  const [selectedCover, setSelectedCover] = useState<string | null>(null);
+  const [coverSearch, setCoverSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Tous");
 
   // ── Auto mode ──────────────────────────────────────────────────────
   const [autoFiles, setAutoFiles] = useState<File[]>([]);
@@ -438,16 +626,30 @@ export default function CreatePage() {
     if (!autoFiles.length) return;
     setAutoLoading(true);
     const resized = await Promise.all(autoFiles.map(f=>resizeImage(f)));
-    sessionStorage.setItem("linstantane:album",JSON.stringify({type:"auto",title:autoTitle||"Mon album",subtitle:autoSubtitle,photos:resized}));
+    sessionStorage.setItem("linstantane:album",JSON.stringify({type:"auto",title:autoTitle||"Mon album",subtitle:autoSubtitle,photos:resized,coverTemplate:selectedCover}));
     router.push("/result");
   }
 
   // ── Manual editor state ────────────────────────────────────────────
   const [library, setLibrary] = useState<string[]>([]);
   const [pages, setPages] = useState<EditorPage[]>(DEFAULT_PAGES.map(p=>({...p,texts:[...p.texts]})));
+
+  function enterManualMode() {
+    setPages(DEFAULT_PAGES.map((p, i) => ({
+      ...p,
+      texts: [...p.texts],
+      ...(i === 0 && selectedCover ? { photos: [selectedCover], bgColor: "#0f172a" } : {}),
+    })));
+    setMode("manual");
+  }
   const [currentPageIdx, setCurrentPageIdx] = useState(0);
   const [activeSlot, setActiveSlot] = useState<number|null>(null);
   const [selectedTextId, setSelectedTextId] = useState<string|null>(null);
+  const [selectedStickerId, setSelectedStickerId] = useState<string|null>(null);
+  const [activeStickerCat, setActiveStickerCat] = useState("Plage");
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [previewMode, setPreviewMode] = useState<"single"|"all">("single");
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
   const [editingTitle, setEditingTitle] = useState(false);
 
@@ -473,8 +675,16 @@ export default function CreatePage() {
   }
 
   function assignToSlot(slotIdx: number, src: string) {
-    updateCurrent({photos:currentPage.photos.map((p,i)=>i===slotIdx?src:p)});
+    const positions = [...(currentPage.photoPositions || currentPage.photos.map(()=>({x:50,y:50})))];
+    positions[slotIdx] = { x: 50, y: 50 };
+    updateCurrent({photos:currentPage.photos.map((p,i)=>i===slotIdx?src:p), photoPositions: positions});
     setActiveSlot(null);
+  }
+
+  function handleSlotReposition(slotIdx: number, pos: { x: number; y: number }) {
+    const positions = [...(currentPage.photoPositions || currentPage.photos.map(()=>({x:50,y:50})))];
+    positions[slotIdx] = pos;
+    updateCurrent({ photoPositions: positions });
   }
 
   function removeFromSlot(slotIdx: number) {
@@ -498,6 +708,22 @@ export default function CreatePage() {
     setSelectedTextId(null);
   }
 
+  function addSticker(emoji: string) {
+    const el: StickerEl = { id: `s${Date.now()}${Math.floor(Math.random()*9999)}`, emoji, x: 30, y: 30, size: 48 };
+    updateCurrent({stickers:[...(currentPage.stickers||[]), el]});
+    setSelectedStickerId(el.id);
+    setSelectedTextId(null);
+  }
+
+  function updateCurrentSticker(id: string, u: Partial<StickerEl>) {
+    updateCurrent({stickers:(currentPage.stickers||[]).map(s=>s.id===id?{...s,...u}:s)});
+  }
+
+  function removeCurrentSticker(id: string) {
+    updateCurrent({stickers:(currentPage.stickers||[]).filter(s=>s.id!==id)});
+    setSelectedStickerId(null);
+  }
+
   function changeLayout(layoutId: LayoutId) {
     if (layoutId === "cover") return;
     const n = getSlotCount(layoutId);
@@ -513,7 +739,7 @@ export default function CreatePage() {
   }
 
   function duplicatePage(idx: number) {
-    const copy = {...pages[idx],photos:[...pages[idx].photos],texts:[...(pages[idx].texts||[])]};
+    const copy = {...pages[idx],photos:[...pages[idx].photos],photoPositions:[...(pages[idx].photoPositions||[])],texts:[...(pages[idx].texts||[])],stickers:[...(pages[idx].stickers||[])]};
     setPages(p=>[...p.slice(0,idx+1),copy,...p.slice(idx+1)]);
     setCurrentPageIdx(idx+1);
   }
@@ -533,14 +759,128 @@ export default function CreatePage() {
 
   function togglePanel(id: PanelId) { setOpenPanel(p=>p===id?null:id); }
 
-  // ── LANDING ────────────────────────────────────────────────────────
+  // ── COVER PICKER ──────────────────────────────────────────────────
   if (mode === null) {
+    const filtered = COVER_TEMPLATES.filter(t =>
+      (activeCategory === "Tous" || t.category === activeCategory) &&
+      (coverSearch === "" || t.name.toLowerCase().includes(coverSearch.toLowerCase()))
+    );
+    return (
+      <main className="min-h-screen bg-white text-slate-900">
+        <Nav />
+        <div className="mx-auto max-w-4xl px-6 py-12">
+          <div className="mb-8 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 1 sur 3</p>
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Choisis ta couverture</h1>
+            <p className="mt-2 text-sm text-slate-500">Sélectionne un design ou continue sans template.</p>
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-4">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <input
+              type="text"
+              placeholder="Rechercher un template…"
+              value={coverSearch}
+              onChange={e => setCoverSearch(e.target.value)}
+              className="w-full rounded-2xl border border-gray-200 bg-[#f8f7f4] py-3 pl-10 pr-4 text-sm outline-none focus:border-slate-400"
+            />
+          </div>
+
+          {/* Categories */}
+          <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+            {COVER_CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition ${
+                  activeCategory === cat
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-gray-200 bg-white text-slate-600 hover:border-slate-400"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {filtered.map(tpl => {
+              const selected = selectedCover === tpl.src;
+              return (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => { setSelectedCover(tpl.src); setMode("mode-select"); }}
+                  className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
+                    selected
+                      ? "border-slate-900 ring-2 ring-slate-900 ring-offset-2 shadow-xl"
+                      : "border-gray-200 hover:border-slate-400 hover:shadow-md"
+                  }`}
+                >
+                  {/* Couverture avant = moitié droite de l'export Canva */}
+                  <div className="aspect-[3/4] w-full overflow-hidden relative bg-gray-100">
+                    <img
+                      src={tpl.src}
+                      alt={tpl.name}
+                      className="absolute top-0 right-0 h-full w-auto max-w-none transition group-hover:scale-105"
+                    />
+                  </div>
+                  {selected && (
+                    <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white text-sm shadow">✓</div>
+                  )}
+                  <p className="px-2 py-2 text-center text-xs font-medium text-slate-700">{tpl.name}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Actions */}
+          <div className="mt-8 flex items-center justify-between">
+            {selectedCover && (
+              <button onClick={() => setSelectedCover(null)} className="text-sm text-slate-400 hover:text-slate-600">
+                Désélectionner
+              </button>
+            )}
+            <div className={`flex gap-3 ${!selectedCover ? "ml-auto" : ""}`}>
+              <button
+                onClick={() => { setSelectedCover(null); setMode("mode-select"); }}
+                className="rounded-full border border-gray-200 px-6 py-3 text-sm text-slate-600 transition hover:border-slate-400"
+              >
+                Passer cette étape
+              </button>
+              <button
+                onClick={() => setMode("mode-select")}
+                className="rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+              >
+                {selectedCover ? "Continuer avec ce template →" : "Continuer →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // ── MODE SELECTION ─────────────────────────────────────────────────
+  if (mode === "mode-select") {
     return (
       <main className="min-h-screen bg-white text-slate-900">
         <Nav />
         <div className="mx-auto max-w-4xl px-6 py-16">
+          <button onClick={()=>setMode(null)} className="mb-10 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700">← Retour</button>
+          {selectedCover && (
+            <div className="mb-8 flex items-center gap-3 rounded-2xl border border-gray-200 bg-[#f8f7f4] px-4 py-3">
+              <img src={selectedCover} alt="Couverture choisie" className="h-12 w-9 rounded object-cover border border-gray-200"/>
+              <div>
+                <p className="text-xs font-semibold text-slate-700">Couverture sélectionnée</p>
+                <button onClick={()=>setSelectedCover(null)} className="text-xs text-slate-400 hover:text-slate-600">Changer</button>
+              </div>
+            </div>
+          )}
           <div className="mb-12 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 1 sur 3</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 2 sur 3</p>
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-slate-900 sm:text-5xl">Comment veux-tu créer<br/>ton album ?</h1>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
@@ -550,7 +890,7 @@ export default function CreatePage() {
               <p className="mt-2 text-sm leading-relaxed text-slate-500">Uploade tes photos, on s&apos;occupe du reste. Mise en page élégante en quelques secondes.</p>
               <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900">Choisir <span className="transition group-hover:translate-x-1">→</span></div>
             </button>
-            <button onClick={()=>setMode("manual")} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-left transition hover:border-slate-900 hover:shadow-lg">
+            <button onClick={()=>enterManualMode()} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-left transition hover:border-slate-900 hover:shadow-lg">
               <div className="mb-5 text-4xl">🎨</div>
               <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">Je personnalise moi-même</h2>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">Choisis le layout, place tes photos, ajoute du texte où tu veux. Contrôle total.</p>
@@ -568,7 +908,7 @@ export default function CreatePage() {
       <main className="min-h-screen bg-white text-slate-900">
         <Nav />
         <div className="mx-auto max-w-2xl px-6 py-12">
-          <button onClick={()=>setMode(null)} className="mb-8 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700">← Retour</button>
+          <button onClick={()=>setMode("mode-select")} className="mb-8 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700">← Retour</button>
           <div className="mb-10 text-center">
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Mise en page automatique</h1>
             <p className="mt-3 text-sm text-slate-500">Uploade tes photos et on s&apos;occupe du reste.</p>
@@ -592,13 +932,178 @@ export default function CreatePage() {
   }
 
   // ── MANUAL EDITOR ─────────────────────────────────────────────────
+
+  // Spread logic (livre standard) :
+  //   idx=0 (couverture) → droite  |  idx impair → droite (recto)  |  idx pair >0 → gauche (verso)
+  const isActiveRight = currentPageIdx === 0 || currentPageIdx % 2 === 1;
+  // Page 1 spéciale : contre-garde à gauche (pas de page[0])
+  const isContraGarde = currentPageIdx === 1;
+  const spreadLeftIdx: number | null = isActiveRight
+    ? (currentPageIdx === 0 || currentPageIdx === 1 ? null : currentPageIdx - 1)
+    : currentPageIdx;
+  const spreadRightIdx: number | null = isActiveRight
+    ? currentPageIdx
+    : (currentPageIdx + 1 < pages.length ? currentPageIdx + 1 : null);
+  const spreadLeftPage  = spreadLeftIdx  !== null ? pages[spreadLeftIdx]  : null;
+  const spreadRightPage = spreadRightIdx !== null ? pages[spreadRightIdx] : null;
+  const leftLabel  = currentPageIdx === 0 ? "Couverture arrière" : isContraGarde ? "Contre-garde" : spreadLeftIdx !== null ? `Page ${spreadLeftIdx}` : "";
+  const rightLabel = currentPageIdx === 0 ? "Couverture avant"   : spreadRightIdx !== null ? `Page ${spreadRightIdx}` : "";
+  const pageW = "min(520px, calc((100vw - 180px) / 2))";
+
+  const ToolIcons = () => <>
+    <SidebarIcon active={openPanel==="photos"}   onClick={()=>togglePanel("photos")}   icon="📸" label="Photos"/>
+    <SidebarIcon active={openPanel==="layouts"}  onClick={()=>togglePanel("layouts")}  label="Mise en page"
+      icon={<svg viewBox="0 0 16 16" className="w-5 h-5 fill-current"><rect x="1" y="1" width="6" height="6" rx="0.5"/><rect x="9" y="1" width="6" height="6" rx="0.5"/><rect x="1" y="9" width="6" height="6" rx="0.5"/><rect x="9" y="9" width="6" height="6" rx="0.5"/></svg>}
+    />
+    <SidebarIcon active={openPanel==="colors"}   onClick={()=>togglePanel("colors")}   icon="🎨" label="Couleurs"/>
+    <SidebarIcon active={openPanel==="text"}     onClick={()=>togglePanel("text")}     icon={<span className="font-bold text-sm">Aa</span>} label="Texte"/>
+    <SidebarIcon active={openPanel==="stickers"} onClick={()=>togglePanel("stickers")} icon="✨" label="Stickers"/>
+  </>;
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#e8e5e0] text-slate-900">
+
+      {/* ── Modale Aperçu ── */}
+      {showPreview && (() => {
+        // Calcul des spreads : couverture + spreads intérieurs
+        type Spread = { label: string; left: EditorPage | null; right: EditorPage | null; leftLabel: string; rightLabel: string; isCover?: boolean };
+        const spreads: Spread[] = [];
+        // Spread 0 : couverture
+        spreads.push({ label: "Couverture", left: null, right: pages[0], leftLabel: "Couverture arrière", rightLabel: "Couverture avant", isCover: true });
+        // Spreads intérieurs
+        for (let i = 0; i < Math.ceil((pages.length - 1) / 2); i++) {
+          const leftIdx = i === 0 ? null : i * 2;
+          const rightIdx = i * 2 + 1;
+          const leftPg = leftIdx !== null && leftIdx < pages.length ? pages[leftIdx] : null;
+          const rightPg = rightIdx < pages.length ? pages[rightIdx] : null;
+          spreads.push({
+            label: i === 0 ? "Page 1" : `Pages ${leftIdx}–${rightIdx}`,
+            left: leftPg, right: rightPg,
+            leftLabel: i === 0 ? "Contre-garde" : leftIdx !== null ? `Page ${leftIdx}` : "",
+            rightLabel: rightIdx < pages.length ? `Page ${rightIdx}` : "",
+          });
+        }
+        const cur = spreads[previewIdx] ?? spreads[0];
+        const canPrev = previewIdx > 0;
+        const canNext = previewIdx < spreads.length - 1;
+
+        return (
+          <div className="fixed inset-0 z-50 flex flex-col bg-[#f0eeeb]">
+            {/* Header */}
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6">
+              <div className="flex items-center gap-4">
+                <span className="font-[family-name:var(--font-playfair)] text-sm font-bold text-slate-900">{albumTitle}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={()=>setShowPreview(false)} className="rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition">✏️ Modifier</button>
+                <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
+              </div>
+            </div>
+
+            {/* Canvas zone */}
+            <div className="relative flex flex-1 items-center justify-center overflow-hidden">
+              {/* Flèche gauche */}
+              <button
+                onClick={()=>setPreviewIdx(p=>Math.max(0,p-1))}
+                disabled={!canPrev}
+                className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition"
+              >‹</button>
+
+              {/* Spread */}
+              <div className="flex flex-col items-center">
+                {cur.isCover && pages[0].photos[0] ? (
+                  <div className="overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
+                    <img src={pages[0].photos[0]!} alt="" className="h-full w-full object-cover"/>
+                  </div>
+                ) : (
+                  <div className="flex overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2/1.41"}}>
+                    {/* Gauche */}
+                    <div className="flex-1 overflow-hidden" style={{background: cur.isCover ? "#1e293b" : (previewIdx===1 ? "#2a2a2a" : cur.left?.bgColor||"#fff")}}>
+                      {cur.isCover ? (
+                        <div className="flex h-full items-center justify-center"><p className="text-[10px] text-white/30">Couverture arrière</p></div>
+                      ) : previewIdx===1 ? (
+                        <div className="flex h-full items-center justify-center"><p className="text-[9px] font-semibold uppercase tracking-widest text-white/25 text-center px-4">Papier de garde</p></div>
+                      ) : cur.left ? (
+                        <div className="relative h-full w-full"><PageRenderer page={cur.left} activeSlot={null} onSlotClick={()=>{}} onSlotDblClick={()=>{}} onSlotDrop={()=>{}}/></div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gray-50"/>
+                      )}
+                    </div>
+                    {/* Spine */}
+                    <div className="w-px shrink-0 bg-black/15"/>
+                    {/* Droite */}
+                    <div className="flex-1 overflow-hidden" style={{background: cur.right?.bgColor||"#fff"}}>
+                      {cur.right ? (
+                        <div className="relative h-full w-full"><PageRenderer page={cur.right} activeSlot={null} onSlotClick={()=>{}} onSlotDblClick={()=>{}} onSlotDrop={()=>{}}/></div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gray-50"/>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="mt-2 flex w-full justify-between px-1 text-[10px] text-slate-400">
+                  <span>{cur.leftLabel}</span><span>{cur.rightLabel}</span>
+                </div>
+              </div>
+
+              {/* Flèche droite */}
+              <button
+                onClick={()=>setPreviewIdx(p=>Math.min(spreads.length-1,p+1))}
+                disabled={!canNext}
+                className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition"
+              >›</button>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="shrink-0 border-t border-gray-200 bg-white">
+              <div className="flex items-center justify-between px-4 py-1.5">
+                <div className="flex gap-1">
+                  <button onClick={()=>setPreviewMode("single")} className={`rounded px-3 py-1 text-[11px] font-medium transition ${previewMode==="single"?"bg-slate-100 text-slate-900":"text-slate-400 hover:text-slate-600"}`}>☰ Une page</button>
+                  <button onClick={()=>setPreviewMode("all")} className={`rounded px-3 py-1 text-[11px] font-medium transition ${previewMode==="all"?"bg-slate-100 text-slate-900":"text-slate-400 hover:text-slate-600"}`}>⊞ Toutes les pages</button>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <button onClick={()=>setPreviewIdx(p=>Math.max(0,p-1))} disabled={!canPrev} className="disabled:opacity-30">‹ Page précédente</button>
+                  <span className="font-medium text-slate-700">{cur.label}</span>
+                  <button onClick={()=>setPreviewIdx(p=>Math.min(spreads.length-1,p+1))} disabled={!canNext} className="disabled:opacity-30">Page suivante ›</button>
+                </div>
+                <div className="w-32"/>
+              </div>
+              {/* Thumbnails */}
+              <div className="flex items-end gap-2 overflow-x-auto px-4 pb-3">
+                {spreads.map((s,i)=>{
+                  const pg = s.right ?? s.left;
+                  return (
+                    <button key={i} onClick={()=>setPreviewIdx(i)} className="flex shrink-0 flex-col items-center gap-1">
+                      <div className={`overflow-hidden rounded border-2 transition ${previewIdx===i?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`}
+                        style={{width:90,height:63,backgroundColor:pg?.bgColor||"#fff",display:"flex"}}>
+                        {s.isCover && pg?.photos[0] ? (
+                          <img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>
+                        ) : (
+                          <>
+                            <div className="flex-1 overflow-hidden" style={{background:s.isCover?"#1e293b":i===1?"#2a2a2a":s.left?.bgColor||"#f0ede8"}}>
+                              {s.left?.photos[0]&&<img src={s.left.photos[0]} alt="" className="h-full w-full object-cover"/>}
+                            </div>
+                            <div className="w-px bg-black/10 shrink-0"/>
+                            <div className="flex-1 overflow-hidden" style={{background:pg?.bgColor||"#f0ede8"}}>
+                              {pg?.photos[0]&&<img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      <span className="text-[8px] text-slate-400 max-w-[64px] truncate text-center">{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Top bar */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
         <div className="flex items-center gap-3">
-          <button onClick={()=>setMode(null)} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
+          <button onClick={()=>setMode("mode-select")} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
           <span className="text-gray-200">|</span>
           {editingTitle ? (
             <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none"/>
@@ -610,6 +1115,7 @@ export default function CreatePage() {
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
           <span className="hidden sm:block text-xs text-slate-300">|</span>
           <span className="hidden sm:block text-xs font-semibold text-slate-700">à partir de {formatPrice(calculatePrice("physique",contentPageCount))}</span>
+          <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
         </div>
       </div>
@@ -619,22 +1125,13 @@ export default function CreatePage() {
 
         {/* Left sidebar */}
         <div className="flex border-r border-gray-200 bg-white z-10">
-          {/* Icon bar */}
           <div className="flex w-14 flex-col items-center gap-1 border-r border-gray-100 px-1 py-2">
-            <SidebarIcon active={openPanel==="photos"}  onClick={()=>togglePanel("photos")}  icon="📸" label="Photos"/>
-            <SidebarIcon active={openPanel==="layouts"} onClick={()=>togglePanel("layouts")} label="Mise en page"
-              icon={<svg viewBox="0 0 16 16" className="w-5 h-5 fill-current"><rect x="1" y="1" width="6" height="6" rx="0.5"/><rect x="9" y="1" width="6" height="6" rx="0.5"/><rect x="1" y="9" width="6" height="6" rx="0.5"/><rect x="9" y="9" width="6" height="6" rx="0.5"/></svg>}
-            />
-            <SidebarIcon active={openPanel==="colors"} onClick={()=>togglePanel("colors")} icon="🎨" label="Couleurs"/>
-            <SidebarIcon active={openPanel==="text"}   onClick={()=>togglePanel("text")}   icon={<span className="font-bold text-sm">Aa</span>} label="Texte"/>
+            <ToolIcons/>
           </div>
-
-          {/* Panel */}
           {openPanel && (
             <div className="flex w-56 flex-col">
               <div className="flex-1 overflow-y-auto p-3">
 
-                {/* PHOTOS */}
                 {openPanel==="photos" && (
                   <div>
                     <button onClick={()=>editorInputRef.current?.click()} className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2.5 text-xs font-semibold text-white hover:bg-slate-700 transition">+ Ajouter des photos</button>
@@ -660,7 +1157,6 @@ export default function CreatePage() {
                   </div>
                 )}
 
-                {/* LAYOUTS */}
                 {openPanel==="layouts" && (
                   <div>
                     {isCoverPage ? <p className="mt-4 text-center text-xs text-slate-400">La couverture a sa propre mise en page.</p> : (
@@ -679,7 +1175,6 @@ export default function CreatePage() {
                   </div>
                 )}
 
-                {/* COLORS */}
                 {openPanel==="colors" && (
                   <div>
                     <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Couleur de fond</p>
@@ -691,7 +1186,6 @@ export default function CreatePage() {
                   </div>
                 )}
 
-                {/* TEXT */}
                 {openPanel==="text" && (
                   <div>
                     {isCoverPage ? (
@@ -712,23 +1206,17 @@ export default function CreatePage() {
                           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Texte sélectionné</p>
                           <button onClick={()=>{removeCurrentText(selectedText.id);}} className="text-[10px] text-red-400 hover:text-red-600">Supprimer</button>
                         </div>
-
-                        {/* Font */}
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Police</p>
                         <div className="mb-3 flex gap-1.5">
                           <button onClick={()=>updateCurrentText(selectedText.id,{font:"playfair"})} className={`flex-1 rounded-lg border py-1.5 text-[11px] transition ${selectedText.font==="playfair"?"border-slate-900 bg-slate-50 font-bold":"border-gray-200 hover:border-slate-400"}`} style={{fontFamily:"var(--font-playfair)"}}>Serif</button>
                           <button onClick={()=>updateCurrentText(selectedText.id,{font:"inter"})} className={`flex-1 rounded-lg border py-1.5 text-[11px] transition ${selectedText.font==="inter"?"border-slate-900 bg-slate-50 font-bold":"border-gray-200 hover:border-slate-400"}`}>Sans-serif</button>
                         </div>
-
-                        {/* Size */}
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Taille</p>
                         <div className="mb-3 flex flex-wrap gap-1">
                           {FONT_SIZES.map(s=>(
                             <button key={s} onClick={()=>updateCurrentText(selectedText.id,{size:s})} className={`rounded px-2 py-1 text-[10px] transition ${selectedText.size===s?"bg-slate-900 text-white":"bg-gray-100 text-slate-600 hover:bg-slate-200"}`}>{s}</button>
                           ))}
                         </div>
-
-                        {/* Style */}
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Style</p>
                         <div className="mb-3 flex gap-1.5">
                           <button onClick={()=>updateCurrentText(selectedText.id,{bold:!selectedText.bold})} className={`flex-1 rounded-lg border py-1.5 text-sm font-bold transition ${selectedText.bold?"border-slate-900 bg-slate-50":"border-gray-200 hover:border-slate-400"}`}>B</button>
@@ -737,16 +1225,12 @@ export default function CreatePage() {
                           <button onClick={()=>updateCurrentText(selectedText.id,{align:"center"})} className={`flex-1 rounded-lg border py-1.5 text-xs transition ${selectedText.align==="center"?"border-slate-900 bg-slate-50":"border-gray-200 hover:border-slate-400"}`}>≡</button>
                           <button onClick={()=>updateCurrentText(selectedText.id,{align:"right"})} className={`flex-1 rounded-lg border py-1.5 text-xs transition ${selectedText.align==="right"?"border-slate-900 bg-slate-50":"border-gray-200 hover:border-slate-400"}`}>≡</button>
                         </div>
-
-                        {/* Color */}
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Couleur</p>
                         <div className="mb-3 grid grid-cols-6 gap-1.5">
                           {TEXT_COLORS.map(c=>(
                             <button key={c} onClick={()=>updateCurrentText(selectedText.id,{color:c})} className={`h-7 w-7 rounded-full border-2 transition ${selectedText.color===c?"border-slate-900 scale-110":"border-gray-200 hover:border-slate-400"}`} style={{backgroundColor:c}}/>
                           ))}
                         </div>
-
-                        {/* Text content */}
                         <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Contenu</p>
                         <textarea value={selectedText.text} onChange={e=>updateCurrentText(selectedText.id,{text:e.target.value})} rows={3} className="w-full rounded-xl border border-gray-200 px-3 py-2 text-xs outline-none focus:border-slate-400 resize-none" placeholder="Ton texte ici…"/>
                         <p className="mt-2 text-[10px] text-slate-400">Ou double-clique sur le texte dans la page</p>
@@ -778,6 +1262,37 @@ export default function CreatePage() {
                     )}
                   </div>
                 )}
+                {openPanel==="stickers" && (
+                  <div>
+                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Stickers</p>
+                    <div className="mb-3 flex flex-wrap gap-1">
+                      {STICKER_CATS.map(c=>(
+                        <button key={c.label} onClick={()=>setActiveStickerCat(c.label)} className={`rounded-full border px-2.5 py-1 text-[10px] font-medium transition ${activeStickerCat===c.label?"border-slate-900 bg-slate-900 text-white":"border-gray-200 text-slate-500 hover:border-slate-400"}`}>{c.label}</button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
+                      {(STICKER_CATS.find(c=>c.label===activeStickerCat)?.items||[]).map(emoji=>(
+                        <button key={emoji} onClick={()=>addSticker(emoji)} title={`Ajouter ${emoji}`}
+                          className="flex aspect-square items-center justify-center rounded-xl text-2xl hover:bg-slate-100 active:scale-90 transition">
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-center text-[10px] text-slate-400">Clique pour ajouter · Glisse pour déplacer</p>
+                    {(currentPage.stickers||[]).length>0&&(
+                      <div className="mt-3 border-t border-gray-100 pt-3">
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{currentPage.stickers.length} sticker{currentPage.stickers.length>1?"s":""} sur cette page</p>
+                        {currentPage.stickers.map(s=>(
+                          <button key={s.id} onClick={()=>setSelectedStickerId(s.id)} className={`mb-1 flex w-full items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition ${selectedStickerId===s.id?"border-slate-900 bg-slate-50":"border-gray-200 hover:border-slate-400"}`}>
+                            <span className="text-lg">{s.emoji}</span>
+                            <button onClick={e=>{e.stopPropagation();removeCurrentSticker(s.id);}} className="ml-auto text-[10px] text-red-400 hover:text-red-600">Suppr.</button>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
 
               {/* Page actions */}
@@ -792,61 +1307,214 @@ export default function CreatePage() {
           )}
         </div>
 
-        {/* Center canvas */}
-        <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-6">
-          <p className="mb-3 text-xs text-slate-500">
-            {isCoverPage?"Couverture":`Page ${currentPageIdx}`}
-            {" · "}
-            <span className="text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
-          </p>
+        {/* ── Center canvas — Spread view ── */}
+        <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto p-4">
 
-          <div
-            ref={pageRef}
-            className="relative overflow-hidden rounded-sm shadow-2xl"
-            style={{width:"min(360px, calc(100vw - 340px - 3rem))",aspectRatio:"210/297"}}
-            onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
-          >
-            <div className="absolute inset-0" data-pagebackdrop="1">
-              <PageRenderer
-                page={currentPage}
-                activeSlot={activeSlot}
-                onSlotClick={slotIdx=>{handleSlotClick(slotIdx);}}
-                onSlotDblClick={removeFromSlot}
-                onSlotDrop={assignToSlot}
-              />
-            </div>
-            {/* Text overlays */}
-            {(currentPage.texts||[]).map(el=>(
-              <TextElComponent
-                key={el.id}
-                el={el}
-                isSelected={selectedTextId===el.id}
-                containerRef={pageRef}
-                onSelect={()=>{setSelectedTextId(el.id);setActiveSlot(null);setOpenPanel("text");}}
-                onUpdate={u=>updateCurrentText(el.id,u)}
-                onDelete={()=>removeCurrentText(el.id)}
-              />
-            ))}
+          {/* Page navigation */}
+          <div className="mb-4 flex items-center gap-5 text-xs">
+            <button
+              onClick={()=>{
+                const prev = currentPageIdx === 0 ? 0 : Math.max(0, isActiveRight ? currentPageIdx - 2 : currentPageIdx - 1);
+                setCurrentPageIdx(prev); setActiveSlot(null); setSelectedTextId(null);
+              }}
+              disabled={currentPageIdx === 0}
+              className="flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 transition"
+            >← Page précédente</button>
+            <span className="font-semibold text-slate-700 min-w-[80px] text-center">
+              {currentPageIdx === 0 ? "Couverture" : `Page ${currentPageIdx}`}
+            </span>
+            <button
+              onClick={()=>{
+                const next = currentPageIdx === 0 ? 1 : isActiveRight ? currentPageIdx + 1 : Math.min(pages.length - 1, currentPageIdx + 2);
+                if (next < pages.length) { setCurrentPageIdx(next); setActiveSlot(null); setSelectedTextId(null); }
+              }}
+              disabled={currentPageIdx >= pages.length - 1 && (isActiveRight || currentPageIdx + 2 >= pages.length)}
+              className="flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30 transition"
+            >Page suivante →</button>
           </div>
 
-          <div className="mt-3 flex items-center gap-3 text-[10px] text-slate-400">
-            {library.length===0&&!isCoverPage&&<span>Ajoute des photos à gauche, puis glisse-les sur la page</span>}
-            {library.length>0&&activeSlot===null&&getSlotCount(currentPage.layoutId)>0&&!isCoverPage&&<span>Glisse une photo · Double-clic pour supprimer</span>}
+          {/* Spread */}
+          {isCoverPage && currentPage.photos[0] ? (
+            /* ── Couverture avec template Canva : image complète ── */
+            <div className="flex flex-col items-center drop-shadow-2xl">
+              <div
+                ref={pageRef}
+                className="relative overflow-hidden rounded-sm shadow-2xl"
+                style={{width:"min(1040px, calc(100vw - 160px))", aspectRatio:"2000/1389"}}
+                onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
+              >
+                <img src={currentPage.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" data-pagebackdrop="1"/>
+                <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"3%",right:"53%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
+                <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"53%",right:"3%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
+                {(currentPage.texts||[]).map(el=>(
+                  <TextElComponent key={el.id} el={el} isSelected={selectedTextId===el.id} containerRef={pageRef}
+                    onSelect={()=>{setSelectedTextId(el.id);setSelectedStickerId(null);setActiveSlot(null);setOpenPanel("text");}}
+                    onUpdate={u=>updateCurrentText(el.id,u)} onDelete={()=>removeCurrentText(el.id)}/>
+                ))}
+                {(currentPage.stickers||[]).map(el=>(
+                  <StickerElComponent key={el.id} el={el} isSelected={selectedStickerId===el.id} containerRef={pageRef}
+                    onSelect={()=>{setSelectedStickerId(el.id);setSelectedTextId(null);setActiveSlot(null);setOpenPanel("stickers");}}
+                    onUpdate={u=>updateCurrentSticker(el.id,u)} onDelete={()=>removeCurrentSticker(el.id)}/>
+                ))}
+                <button onClick={()=>updateCurrent({photos:[null]})} className="absolute right-2 top-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-xs text-white opacity-60 hover:opacity-100 transition">×</button>
+              </div>
+              <div className="mt-2 flex w-full justify-between px-2 text-[10px] text-slate-400">
+                <span>Couverture arrière</span>
+                <span>Couverture avant</span>
+              </div>
+            </div>
+          ) : (
+            /* ── Spread deux pages ── */
+            <div className="flex items-stretch drop-shadow-2xl">
+
+              {/* Left page */}
+              <div className="flex flex-col items-center">
+                <div
+                  ref={!isActiveRight ? pageRef : undefined}
+                  className="relative overflow-hidden"
+                  style={{width: pageW, aspectRatio:"210/297", cursor: isActiveRight && spreadLeftPage ? "pointer" : "default"}}
+                  onClick={e=>{
+                    if (isActiveRight && spreadLeftIdx !== null) {
+                      setCurrentPageIdx(spreadLeftIdx); setActiveSlot(null); setSelectedTextId(null);
+                    } else if (!isActiveRight && (e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop)) {
+                      setSelectedTextId(null); setActiveSlot(null);
+                    }
+                  }}
+                >
+                  {spreadLeftPage ? (
+                    <>
+                      <div className="absolute inset-0" data-pagebackdrop="1">
+                        <PageRenderer page={spreadLeftPage} activeSlot={!isActiveRight ? activeSlot : null}
+                          onSlotClick={!isActiveRight ? handleSlotClick : ()=>{}}
+                          onSlotDblClick={!isActiveRight ? removeFromSlot : ()=>{}}
+                          onSlotDrop={!isActiveRight ? assignToSlot : ()=>{}}
+                          onSlotReposition={!isActiveRight ? handleSlotReposition : undefined}/>
+                      </div>
+                      <div className="pointer-events-none absolute" style={{inset:"7%",border:"1px dashed rgba(100,100,100,0.25)"}}/>
+                      {!isActiveRight && (currentPage.texts||[]).map(el=>(
+                        <TextElComponent key={el.id} el={el} isSelected={selectedTextId===el.id} containerRef={pageRef}
+                          onSelect={()=>{setSelectedTextId(el.id);setSelectedStickerId(null);setActiveSlot(null);setOpenPanel("text");}}
+                          onUpdate={u=>updateCurrentText(el.id,u)} onDelete={()=>removeCurrentText(el.id)}/>
+                      ))}
+                      {!isActiveRight && (currentPage.stickers||[]).map(el=>(
+                        <StickerElComponent key={el.id} el={el} isSelected={selectedStickerId===el.id} containerRef={pageRef}
+                          onSelect={()=>{setSelectedStickerId(el.id);setSelectedTextId(null);setActiveSlot(null);setOpenPanel("stickers");}}
+                          onUpdate={u=>updateCurrentSticker(el.id,u)} onDelete={()=>removeCurrentSticker(el.id)}/>
+                      ))}
+                      {isActiveRight && <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition bg-black/5"><span className="rounded-full bg-black/50 px-3 py-1 text-[10px] text-white">Cliquer pour éditer</span></div>}
+                      <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-black/20 to-transparent"/>
+                    </>
+                  ) : isContraGarde ? (
+                    /* Contre-garde — page derrière la couverture, non modifiable */
+                    <div className="relative flex h-full w-full flex-col items-center justify-center gap-3 overflow-hidden bg-[#2a2a2a]">
+                      <p className="text-[9px] font-semibold uppercase tracking-widest text-white/30 text-center px-6 leading-loose">Cette page ne peut<br/>pas être modifiée</p>
+                      <p className="text-[8px] text-white/20 text-center px-6">Papier de garde</p>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-black/40 to-transparent"/>
+                    </div>
+                  ) : (
+                    /* Couverture arrière */
+                    <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 overflow-hidden bg-gray-100">
+                      <span className="text-3xl opacity-20">📖</span>
+                      <p className="text-[10px] text-gray-400 text-center px-6 leading-relaxed">Couverture arrière</p>
+                      <div className="pointer-events-none absolute" style={{inset:"7%",border:"1px dashed rgba(100,100,100,0.2)"}}/>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-black/25 to-transparent"/>
+                    </div>
+                  )}
+                </div>
+                {leftLabel && <p className="mt-2 text-[10px] text-slate-400">{leftLabel}</p>}
+              </div>
+
+              {/* Spine */}
+              <div className="relative shrink-0 overflow-hidden" style={{width:22,background:"linear-gradient(to right,#c8c3bb,#e2ddd7,#f0ede8,#e2ddd7,#c8c3bb)"}}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="rotate-90 whitespace-nowrap text-[8px] font-semibold tracking-[0.35em] uppercase text-gray-500">{albumTitle}</span>
+                </div>
+                <div className="absolute inset-y-0 left-0 w-px bg-black/10"/>
+                <div className="absolute inset-y-0 right-0 w-px bg-black/10"/>
+              </div>
+
+              {/* Right page */}
+              <div className="flex flex-col items-center">
+                <div
+                  ref={isActiveRight ? pageRef : undefined}
+                  className="relative overflow-hidden"
+                  style={{width: pageW, aspectRatio:"210/297", cursor: !isActiveRight && spreadRightPage ? "pointer" : "default"}}
+                  onClick={e=>{
+                    if (!isActiveRight && spreadRightIdx !== null) {
+                      setCurrentPageIdx(spreadRightIdx); setActiveSlot(null); setSelectedTextId(null);
+                    } else if (isActiveRight && (e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop)) {
+                      setSelectedTextId(null); setActiveSlot(null);
+                    }
+                  }}
+                >
+                  {spreadRightPage ? (
+                    <>
+                      <div className="absolute inset-0" data-pagebackdrop="1">
+                        <PageRenderer page={spreadRightPage} activeSlot={isActiveRight ? activeSlot : null}
+                          onSlotClick={isActiveRight ? handleSlotClick : ()=>{}}
+                          onSlotDblClick={isActiveRight ? removeFromSlot : ()=>{}}
+                          onSlotDrop={isActiveRight ? assignToSlot : ()=>{}}
+                          onSlotReposition={isActiveRight ? handleSlotReposition : undefined}/>
+                      </div>
+                      <div className="pointer-events-none absolute" style={{inset:"7%",border:"1px dashed rgba(100,100,100,0.25)"}}/>
+                      {isActiveRight && (currentPage.texts||[]).map(el=>(
+                        <TextElComponent key={el.id} el={el} isSelected={selectedTextId===el.id} containerRef={pageRef}
+                          onSelect={()=>{setSelectedTextId(el.id);setSelectedStickerId(null);setActiveSlot(null);setOpenPanel("text");}}
+                          onUpdate={u=>updateCurrentText(el.id,u)} onDelete={()=>removeCurrentText(el.id)}/>
+                      ))}
+                      {isActiveRight && (currentPage.stickers||[]).map(el=>(
+                        <StickerElComponent key={el.id} el={el} isSelected={selectedStickerId===el.id} containerRef={pageRef}
+                          onSelect={()=>{setSelectedStickerId(el.id);setSelectedTextId(null);setActiveSlot(null);setOpenPanel("stickers");}}
+                          onUpdate={u=>updateCurrentSticker(el.id,u)} onDelete={()=>removeCurrentSticker(el.id)}/>
+                      ))}
+                      {!isActiveRight && <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition bg-black/5"><span className="rounded-full bg-black/50 px-3 py-1 text-[10px] text-white">Cliquer pour éditer</span></div>}
+                      <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/20 to-transparent"/>
+                    </>
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-50">
+                      <p className="text-[10px] text-gray-300">Page vide</p>
+                      <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/20 to-transparent"/>
+                    </div>
+                  )}
+                </div>
+                {rightLabel && <p className="mt-2 text-[10px] text-slate-400">{rightLabel}</p>}
+              </div>
+
+            </div>
+          )}
+
+
+          {/* Hint */}
+          <div className="mt-4 flex items-center gap-3 text-[10px] text-slate-400">
+            {library.length===0&&!isCoverPage&&<span>Ajoute des photos à gauche puis glisse-les sur la page active</span>}
             {(currentPage.texts||[]).length===0&&<button onClick={addTextElement} className="flex items-center gap-1 text-blue-400 hover:text-blue-600 transition"><span className="font-bold">Aa</span> Ajouter du texte</button>}
           </div>
         </div>
+
+        {/* Right icon toolbar */}
+        <div className="flex w-14 shrink-0 flex-col items-center gap-1 border-l border-gray-200 bg-white px-1 py-2">
+          <ToolIcons/>
+        </div>
+
       </div>
 
       {/* Bottom strip */}
-      <div className="flex h-24 shrink-0 items-center gap-3 overflow-x-auto border-t border-gray-200 bg-white px-4 pb-1">
+      <div className="flex h-24 shrink-0 items-center gap-2 overflow-x-auto border-t border-gray-200 bg-white px-4 pb-1">
         {pages.map((page,idx)=>(
-          <PageThumb key={idx} page={page} label={idx===0?"Couverture":`Page ${idx}`} isActive={idx===currentPageIdx} onClick={()=>{setCurrentPageIdx(idx);setActiveSlot(null);setSelectedTextId(null);}}/>
+          <PageThumb
+            key={idx}
+            page={page}
+            label={idx===0?"Couverture":`Page ${idx}`}
+            isActive={idx===currentPageIdx || idx===spreadLeftIdx || idx===spreadRightIdx}
+            onClick={()=>{setCurrentPageIdx(idx);setActiveSlot(null);setSelectedTextId(null);}}
+          />
         ))}
         <button onClick={addPage} className="flex shrink-0 flex-col items-center gap-1" title="Ajouter une page">
           <div className="flex items-center justify-center rounded border-2 border-dashed border-gray-200 text-slate-300 hover:border-slate-400 hover:text-slate-500 transition" style={{width:48,height:68}}><span className="text-xl leading-none">+</span></div>
           <span className="text-[9px] text-slate-400">Ajouter</span>
         </button>
       </div>
+
     </div>
   );
 }

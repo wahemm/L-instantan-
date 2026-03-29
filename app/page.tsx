@@ -123,7 +123,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+          <div className="flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory scrollbar-hide">
             {DEMOS.map((demo) => (
               <div
                 key={demo.alt}
@@ -139,6 +139,7 @@ export default function Home() {
                 />
               </div>
             ))}
+            <div className="shrink-0 w-1" aria-hidden="true" />
           </div>
         </div>
       </section>

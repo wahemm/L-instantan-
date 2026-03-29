@@ -9,7 +9,8 @@ import { PACKS, calculatePrice, formatPrice, INCLUDED_PAGES } from "@/app/lib/pr
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
 interface TextEl { id: string; x: number; y: number; w: number; text: string; size: number; color: string; bold: boolean; italic: boolean; align: "left"|"center"|"right"; font: "playfair"|"inter"; }
-type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; caption: string; bgColor: string; title?: string; subtitle?: string; texts?: TextEl[]; };
+interface StickerEl { id: string; emoji: string; x: number; y: number; size: number; }
+type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; photoPositions?: {x:number;y:number}[]; caption: string; bgColor: string; title?: string; subtitle?: string; texts?: TextEl[]; stickers?: StickerEl[]; };
 type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
@@ -117,121 +118,183 @@ function getGridClass(layoutId: string): string {
     default: return "grid-cols-1";
   }
 }
-
 function getSpanClass(layoutId: string, idx: number): string {
   if (layoutId === "three-top" && idx === 0) return "col-span-2";
   if (layoutId === "three-left" && idx === 0) return "row-span-2";
   return "";
 }
 
-function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }> }) {
-  const [current, setCurrent] = useState(0);
-  const total = album.pages.length;
-  const page = album.pages[current];
+function renderPage(p: EditorPage, albumTitle: string) {
+  const dark = ["#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340","#7c3aed","#be185d","#0369a1","#15803d","#b45309"].includes(p.bgColor||"");
 
-  function renderTextOverlays(p: EditorPage) {
-    return (p.texts || []).map(el => (
+  function textOverlays() {
+    return (p.texts||[]).map(el => (
       <div key={el.id} className="absolute pointer-events-none z-10" style={{
-        left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%`,
-        fontSize: el.size, color: el.color,
-        fontWeight: el.bold ? "bold" : "normal",
-        fontStyle: el.italic ? "italic" : "normal",
-        textAlign: el.align,
-        fontFamily: el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)",
-        lineHeight: 1.3, whiteSpace: "pre-wrap", wordBreak: "break-word",
+        left:`${el.x}%`,top:`${el.y}%`,width:`${el.w}%`,
+        fontSize:el.size,color:el.color,
+        fontWeight:el.bold?"bold":"normal",fontStyle:el.italic?"italic":"normal",
+        textAlign:el.align,fontFamily:el.font==="playfair"?"var(--font-playfair)":"var(--font-inter)",
+        lineHeight:1.3,whiteSpace:"pre-wrap",wordBreak:"break-word",
       }}>{el.text}</div>
     ));
   }
+  function stickerOverlays() {
+    return (p.stickers||[]).map(el => (
+      <div key={el.id} className="absolute pointer-events-none z-10 leading-none select-none"
+        style={{left:`${el.x}%`,top:`${el.y}%`,fontSize:el.size}}>{el.emoji}</div>
+    ));
+  }
 
-  function renderPage(p: EditorPage) {
-    // Cover page
-    if (p.layoutId === "cover") {
-      const dark = ["#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340","#7c3aed","#be185d","#0369a1","#15803d","#b45309"].includes(p.bgColor);
+  if (p.layoutId === "cover") {
+    if (p.photos[0]) {
       return (
-        <div className="relative flex h-full flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: p.bgColor || "#0f172a" }}>
-          {p.photos[0] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
-          )}
-          <div className="relative z-10 flex flex-col items-center gap-3 px-8 text-center">
-            {p.subtitle && (
-              <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${dark ? "text-white/50" : "text-slate-400"}`}>{p.subtitle}</p>
-            )}
-            <h2 className={`font-[family-name:var(--font-playfair)] text-3xl leading-tight ${dark ? "text-white" : "text-slate-800"}`}>
-              {p.title || album.title}
-            </h2>
-            <div className={`h-px w-12 ${dark ? "bg-white/25" : "bg-slate-300"}`} />
-          </div>
-          {renderTextOverlays(p)}
+        <div className="relative h-full w-full overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>
+          {textOverlays()}{stickerOverlays()}
         </div>
       );
     }
     return (
-      <div className="relative flex h-full flex-col" style={{ backgroundColor: p.bgColor || "#ffffff" }}>
-        {p.layoutId === "text-only" ? (
-          <div className="flex flex-1 items-center justify-center p-8">
-            <p className="text-center text-sm italic leading-relaxed text-slate-600">{p.caption}</p>
-          </div>
-        ) : p.layoutId === "photo-text" ? (
-          <>
-            <div className="flex-1 min-h-0 overflow-hidden">
-              {p.photos[0] && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.photos[0]} alt="" className="h-full w-full object-cover" />
-                )}
-            </div>
-            {p.caption && <div className="px-4 py-3 text-center text-xs italic text-slate-500">{p.caption}</div>}
-          </>
-        ) : (
-          <>
-            <div className={`grid flex-1 gap-0.5 ${getGridClass(p.layoutId)}`}>
-              {p.photos.map((photo, idx) => (
-                <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId, idx)}`}>
-                  {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}
-                </div>
-              ))}
-            </div>
-            {p.caption && <div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{p.caption}</div>}
-          </>
-        )}
-        {renderTextOverlays(p)}
+      <div className="relative flex h-full flex-col items-center justify-center overflow-hidden" style={{backgroundColor:p.bgColor||"#0f172a"}}>
+        <div className="relative z-10 flex flex-col items-center gap-3 px-8 text-center">
+          {p.subtitle&&<p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${dark?"text-white/50":"text-slate-400"}`}>{p.subtitle}</p>}
+          <h2 className={`font-[family-name:var(--font-playfair)] text-3xl leading-tight ${dark?"text-white":"text-slate-800"}`}>{p.title||albumTitle}</h2>
+          <div className={`h-px w-12 ${dark?"bg-white/25":"bg-slate-300"}`}/>
+        </div>
+        {textOverlays()}{stickerOverlays()}
       </div>
     );
   }
+  if (p.layoutId==="text-only") return (
+    <div className="relative flex h-full items-center justify-center p-8" style={{backgroundColor:p.bgColor||"#fff"}}>
+      <p className="text-center text-sm italic leading-relaxed text-slate-600">{p.caption}</p>
+      {textOverlays()}{stickerOverlays()}
+    </div>
+  );
+  if (p.layoutId==="photo-text") return (
+    <div className="relative flex h-full flex-col" style={{backgroundColor:p.bgColor||"#fff"}}>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {p.photos[0]&&<img src={p.photos[0]} alt="" className="h-full w-full object-cover" style={{objectPosition:`${p.photoPositions?.[0]?.x??50}% ${p.photoPositions?.[0]?.y??50}%`}}/>}
+      </div>
+      {p.caption&&<div className="px-4 py-3 text-center text-xs italic text-slate-500">{p.caption}</div>}
+      {textOverlays()}{stickerOverlays()}
+    </div>
+  );
+  return (
+    <div className="relative flex h-full flex-col" style={{backgroundColor:p.bgColor||"#fff"}}>
+      <div className={`grid flex-1 gap-0.5 ${getGridClass(p.layoutId)}`}>
+        {p.photos.map((photo,idx)=>(
+          <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId,idx)}`}>
+            {photo&&<img src={photo} alt="" className="h-full w-full object-cover" style={{objectPosition:`${p.photoPositions?.[idx]?.x??50}% ${p.photoPositions?.[idx]?.y??50}%`}}/>}
+          </div>
+        ))}
+      </div>
+      {p.caption&&<div className="px-3 py-2 text-center text-[10px] italic text-slate-400">{p.caption}</div>}
+      {textOverlays()}{stickerOverlays()}
+    </div>
+  );
+}
+
+function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }> }) {
+  const pages = album.pages;
+
+  type Spread = { label: string; left: EditorPage|null; right: EditorPage|null; leftLabel: string; rightLabel: string; isCover?: boolean };
+  const spreads: Spread[] = [];
+  spreads.push({ label:"Couverture", left:null, right:pages[0], leftLabel:"Couverture arrière", rightLabel:"Couverture avant", isCover:true });
+  for (let i=0; i<Math.ceil((pages.length-1)/2); i++) {
+    const leftIdx = i===0 ? null : i*2;
+    const rightIdx = i*2+1;
+    spreads.push({
+      label: i===0 ? "Page 1" : `Pages ${leftIdx}–${rightIdx}`,
+      left: leftIdx!==null && leftIdx<pages.length ? pages[leftIdx] : null,
+      right: rightIdx<pages.length ? pages[rightIdx] : null,
+      leftLabel: i===0 ? "Contre-garde" : leftIdx!==null ? `Page ${leftIdx}` : "",
+      rightLabel: rightIdx<pages.length ? `Page ${rightIdx}` : "",
+    });
+  }
+
+  const [idx, setIdx] = useState(0);
+  const cur = spreads[idx]??spreads[0];
+  const canPrev = idx>0, canNext = idx<spreads.length-1;
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl" style={{ aspectRatio: "210/297" }}>
-        {page && renderPage(page)}
+    <div className="flex h-full flex-col">
+      {/* Canvas zone — flex-1 comme dans la modale */}
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden">
+        <button onClick={()=>setIdx(p=>Math.max(0,p-1))} disabled={!canPrev}
+          className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition">‹</button>
+
+        <div className="flex flex-col items-center">
+          {cur.isCover && pages[0].photos[0] ? (
+            <div className="overflow-hidden rounded shadow-2xl border border-black/10"
+              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover"/>
+            </div>
+          ) : (
+            <div className="flex overflow-hidden rounded shadow-2xl border border-black/10"
+              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2/1.41"}}>
+              <div className="flex-1 overflow-hidden relative" style={{background:cur.isCover?"#1e293b":idx===1?"#2a2a2a":cur.left?.bgColor||"#fff"}}>
+                {cur.isCover ? <div className="flex h-full items-center justify-center"><p className="text-[10px] text-white/30">Couverture arrière</p></div>
+                : idx===1 ? <div className="flex h-full items-center justify-center"><p className="text-[9px] font-semibold uppercase tracking-widest text-white/25 text-center px-4">Papier de garde</p></div>
+                : cur.left ? <div className="relative h-full w-full">{renderPage(cur.left, album.title)}</div>
+                : <div className="flex h-full items-center justify-center bg-gray-50"/>}
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-black/15 to-transparent"/>
+              </div>
+              <div className="w-px shrink-0 bg-black/15"/>
+              <div className="flex-1 overflow-hidden relative" style={{background:cur.right?.bgColor||"#fff"}}>
+                {cur.right ? <div className="relative h-full w-full">{renderPage(cur.right, album.title)}</div>
+                : <div className="flex h-full items-center justify-center bg-gray-50"/>}
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/15 to-transparent"/>
+              </div>
+            </div>
+          )}
+          <div className="mt-2 flex w-full justify-between px-1 text-[10px] text-slate-400">
+            <span>{cur.leftLabel}</span><span>{cur.rightLabel}</span>
+          </div>
+        </div>
+
+        <button onClick={()=>setIdx(p=>Math.min(spreads.length-1,p+1))} disabled={!canNext}
+          className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition">›</button>
       </div>
 
-      <div className="mt-5 flex items-center gap-4">
-        <button onClick={() => setCurrent((c) => Math.max(0, c - 1))} disabled={current === 0} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">←</button>
-        <span className="text-sm text-slate-400">{current + 1} / {total}</span>
-        <button onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))} disabled={current === total - 1} className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">→</button>
-      </div>
-
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        {album.pages.map((p, idx) => (
-          <button key={idx} onClick={() => setCurrent(idx)} className={`shrink-0 overflow-hidden rounded border-2 transition ${current === idx ? "border-slate-900" : "border-transparent hover:border-gray-300"}`} style={{ width: 36, height: 50, backgroundColor: p.bgColor || "#fff" }}>
-            {p.layoutId === "cover" ? (
-              <div className="relative flex h-full items-center justify-center" style={{ backgroundColor: p.bgColor || "#0f172a" }}>
-                {p.photos[0] && <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />}
-                <span className="relative text-[6px] text-white/60 font-bold">Couv</span>
-              </div>
-            ) : p.layoutId === "text-only" ? (
-              <div className="flex h-full items-center justify-center"><span className="text-[6px] text-slate-400">Aa</span></div>
-            ) : (
-              <div className={`grid h-full gap-px ${getGridClass(p.layoutId)}`}>
-                {p.photos.map((photo, si) => (
-                  <div key={si} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId, si)}`}>
-                    {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}
-                  </div>
-                ))}
-              </div>
-            )}
-          </button>
-        ))}
+      {/* Bottom bar */}
+      <div className="shrink-0 border-t border-gray-200 bg-white">
+        <div className="flex items-center justify-center px-4 py-1.5">
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <button onClick={()=>setIdx(p=>Math.max(0,p-1))} disabled={!canPrev} className="disabled:opacity-30">‹ Page précédente</button>
+            <span className="font-medium text-slate-700">{cur.label}</span>
+            <button onClick={()=>setIdx(p=>Math.min(spreads.length-1,p+1))} disabled={!canNext} className="disabled:opacity-30">Page suivante ›</button>
+          </div>
+        </div>
+        <div className="flex items-end gap-2 overflow-x-auto px-4 pb-3">
+          {spreads.map((s,i)=>{
+            const pg = s.right??s.left;
+            return (
+              <button key={i} onClick={()=>setIdx(i)} className="flex shrink-0 flex-col items-center gap-1">
+                <div className={`overflow-hidden rounded border-2 transition ${idx===i?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`}
+                  style={{width:90,height:63,display:"flex",backgroundColor:pg?.bgColor||"#fff"}}>
+                  {s.isCover&&pg?.photos[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>
+                  ) : (
+                    <>
+                      <div className="flex-1 overflow-hidden" style={{background:s.isCover?"#1e293b":i===1?"#2a2a2a":s.left?.bgColor||"#f0ede8"}}>
+                        {s.left?.photos[0]&&<img src={s.left.photos[0]} alt="" className="h-full w-full object-cover"/>}
+                      </div>
+                      <div className="w-px bg-black/10 shrink-0"/>
+                      <div className="flex-1 overflow-hidden" style={{background:pg?.bgColor||"#f0ede8"}}>
+                        {pg?.photos[0]&&<img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <span className="text-[8px] text-slate-400 max-w-[94px] truncate text-center">{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -281,7 +344,7 @@ function ResultContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-4xl px-6 pt-12">
         {album ? (
           <>
             <div className="mb-10 text-center">
@@ -292,40 +355,38 @@ function ResultContent() {
                 Voici à quoi ressemblera ton livre imprimé.
               </p>
             </div>
-
-            {album.type === "auto" ? (
-              <AutoBookViewer album={album} />
-            ) : (
-              <ManualBookViewer album={album} />
-            )}
-
-            <div className="mt-4 flex justify-center">
-              <Link
-                href="/create"
-                className="text-sm text-slate-400 transition hover:text-slate-700"
-              >
-                ← Modifier mon album
-              </Link>
-            </div>
           </>
-        ) : (
-          <div className="py-20 text-center">
-            <div className="mb-6 text-5xl">📖</div>
-            <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900">
-              Aucun album à afficher
-            </h1>
-            <p className="mx-auto mt-4 max-w-sm text-slate-500">
-              Commence par créer ton album pour voir l&apos;aperçu ici.
-            </p>
-            <Link
-              href="/create"
-              className="mt-8 inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-            >
-              Créer mon album
-            </Link>
-          </div>
-        )}
+        ) : null}
+      </div>
 
+      {/* Viewer pleine largeur */}
+      {album && (
+        <div className="w-full bg-[#f0eeeb]" style={{height:"calc(100vh - 200px)"}}>
+          {album.type === "auto" ? (
+            <div className="flex h-full flex-col items-center justify-center py-8 px-6">
+              <AutoBookViewer album={album} />
+            </div>
+          ) : (
+            <ManualBookViewer album={album} />
+          )}
+        </div>
+      )}
+      {album && (
+        <div className="flex justify-center py-4 bg-white border-t border-gray-100">
+          <Link href="/create" className="text-sm text-slate-400 transition hover:text-slate-700">← Modifier mon album</Link>
+        </div>
+      )}
+
+      {!album && (
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+          <div className="mb-6 text-5xl">📖</div>
+          <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900">Aucun album à afficher</h1>
+          <p className="mx-auto mt-4 max-w-sm text-slate-500">Commence par créer ton album pour voir l&apos;aperçu ici.</p>
+          <Link href="/create" className="mt-8 inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700">Créer mon album</Link>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-4xl px-6">
         {/* Pricing */}
         <section className="mt-20">
           <div className="mb-8 text-center">
@@ -413,6 +474,7 @@ function ResultContent() {
       </div>
     </>
   );
+
 }
 
 export default function ResultPage() {
