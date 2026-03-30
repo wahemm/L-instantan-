@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
+import { COVER_TEMPLATES as COLOR_TEMPLATES } from "@/app/lib/templates";
 
 // ── Types ─────────────────────────────────────────────────────────────
 type Mode = null | "mode-select" | "auto" | "manual";
@@ -652,6 +653,23 @@ export default function CreatePage() {
   const [previewMode, setPreviewMode] = useState<"single"|"all">("single");
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
   const [editingTitle, setEditingTitle] = useState(false);
+
+  // Read ?mode=manual and selected template from sessionStorage on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "manual") {
+      const templateId = sessionStorage.getItem("linstantane:template");
+      sessionStorage.removeItem("linstantane:template");
+      const tpl = templateId ? COLOR_TEMPLATES.find(t => t.id === templateId) : null;
+      setPages(DEFAULT_PAGES.map((p, i) => ({
+        ...p,
+        texts: [...p.texts],
+        ...(i === 0 && tpl ? { bgColor: tpl.bgColor } : {}),
+      })));
+      setMode("manual");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currentPage = pages[currentPageIdx];
   const isCoverPage = currentPage.layoutId === "cover";
