@@ -340,11 +340,46 @@ function ResultContent() {
   return (
     <>
       {success && (
-        <div className="border-b border-green-200 bg-green-50">
-          <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-4">
-            <span className="text-xl text-green-600">✓</span>
-            <p className="text-sm font-medium text-green-800">
-              Paiement reçu ! Ton livre est en cours de préparation.
+        <div className="bg-white">
+          <div className="mx-auto max-w-2xl px-6 py-16 text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg viewBox="0 0 24 24" className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
+              Commande confirmée !
+            </h1>
+            <p className="mx-auto mt-4 max-w-md text-slate-500">
+              Ton paiement a bien été reçu. Ton album est maintenant en cours de fabrication.
+            </p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3 text-left">
+              {[
+                { icon: "📦", title: "Fabrication", desc: "Ton album est envoyé en production sous 24h." },
+                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 5 à 7 jours ouvrés." },
+                { icon: "📧", title: "Confirmation", desc: "Un email de confirmation va t'être envoyé." },
+              ].map(step => (
+                <div key={step.title} className="flex gap-3 rounded-xl border border-gray-100 p-4">
+                  <span className="text-xl">{step.icon}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link href="/shop" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700">
+                Créer un nouvel album
+              </Link>
+              <Link href="/" className="inline-flex items-center justify-center rounded-full border border-gray-200 px-8 py-3 text-sm font-medium text-slate-600 transition hover:border-slate-400">
+                Retour à l&apos;accueil
+              </Link>
+            </div>
+          </div>
+          <div className="border-t border-gray-100 bg-[#f8f7f4] py-8">
+            <p className="text-center text-xs text-slate-400">
+              Une question ? Contacte-nous à <a href="mailto:contact@linstantane.fr" className="underline hover:text-slate-700">contact@linstantane.fr</a>
             </p>
           </div>
         </div>
@@ -380,7 +415,7 @@ function ResultContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-6 pt-8">
+      {!success && <div className="mx-auto max-w-4xl px-6 pt-8">
         {album ? (
           <div className="mb-8 text-center">
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900 sm:text-4xl">
@@ -391,10 +426,10 @@ function ResultContent() {
             </p>
           </div>
         ) : null}
-      </div>
+      </div>}
 
       {/* Viewer pleine largeur */}
-      {album && (
+      {album && !success && (
         <div className="w-full bg-[#f0eeeb]" style={{height:"calc(100vh - 200px)"}}>
           {album.type === "auto" ? (
             <div className="flex h-full flex-col items-center justify-center py-8 px-6">
@@ -420,7 +455,7 @@ function ResultContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-6 pb-20">
+      {!success && <div className="mx-auto max-w-4xl px-6 pb-20">
         {/* Compact pricing section */}
         <section className="mt-16 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <div className="mb-6 text-center">
@@ -467,7 +502,7 @@ function ResultContent() {
             🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
           </p>
         </section>
-      </div>
+      </div>}
     </>
   );
 
