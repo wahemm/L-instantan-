@@ -1,7 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
-import { COVER_TEMPLATES } from "@/app/lib/templates";
+
+const COVER_PREVIEWS = [
+  { id: "espagne",   name: "Espagne",   src: "/covers/Espagne.png" },
+  { id: "italie",    name: "Italie",    src: "/covers/Italie.png" },
+  { id: "provence",  name: "Provence",  src: "/covers/Provence.png" },
+  { id: "miami",     name: "Miami",     src: "/covers/Miami.png" },
+  { id: "marrakech", name: "Marrakech", src: "/covers/Marrakech.png" },
+  { id: "bali",      name: "Bali",      src: "/covers/bali 1.png" },
+  { id: "paris",     name: "Paris",     src: "/covers/paris.png" },
+  { id: "perou",     name: "Pérou",     src: "/covers/Perou.png" },
+];
 
 const DEMOS = [
   { src: "/demos/provence.png", alt: "Album Provence Lavande" },
@@ -166,30 +176,25 @@ export default function Home() {
               Choisis ta couverture
             </h2>
             <p className="mx-auto mt-4 max-w-md text-slate-500">
-              8 styles disponibles dès maintenant — et de nouvelles illustrations arrivent chaque mois.
+              Espagne, Italie, Miami, Paris… et de nouvelles illustrations arrivent chaque mois.
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 sm:grid-cols-8">
-            {COVER_TEMPLATES.map(tpl => (
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+            {COVER_PREVIEWS.map(tpl => (
               <Link
                 key={tpl.id}
-                href="/shop"
+                href="/create"
                 className="group flex flex-col items-center gap-2"
               >
-                {/* Mini book */}
-                <div
-                  className="w-full overflow-hidden rounded-md shadow-md transition-all duration-200 group-hover:shadow-xl group-hover:-translate-y-1"
-                  style={{ backgroundColor: tpl.bgColor, aspectRatio: "210/297", border: "1px solid rgba(0,0,0,0.06)", position: "relative" }}
-                >
-                  {/* Spine */}
-                  <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"8%", background:"rgba(0,0,0,0.15)" }} />
-                  {/* Title */}
-                  <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <p style={{ color: tpl.textColor, fontFamily:"Georgia, serif", fontSize:"clamp(7px,1.5vw,11px)", fontStyle:"italic", opacity:0.8, textAlign:"center", padding:"0 10%" }}>
-                      Mon Album
-                    </p>
-                  </div>
+                <div className="w-full overflow-hidden rounded-lg shadow-md transition-all duration-200 group-hover:shadow-xl group-hover:-translate-y-1.5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={tpl.src}
+                    alt={tpl.name}
+                    className="w-full h-auto object-cover"
+                    loading="eager"
+                  />
                 </div>
                 <span className="text-[11px] text-slate-400 group-hover:text-slate-700 transition">{tpl.name}</span>
               </Link>
@@ -198,10 +203,10 @@ export default function Home() {
 
           <div className="mt-10 text-center">
             <Link
-              href="/shop"
+              href="/create"
               className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700"
             >
-              Personnaliser mon album →
+              Voir tous les templates →
             </Link>
           </div>
         </div>
