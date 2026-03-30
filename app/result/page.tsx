@@ -304,6 +304,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
 function ResultContent() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
+  const [selectedPack, setSelectedPack] = useState<"digital"|"physique"|"duo">("physique");
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
 
@@ -311,6 +312,8 @@ function ResultContent() {
     try {
       const raw = sessionStorage.getItem("linstantane:album");
       if (raw) setAlbum(JSON.parse(raw) as Album);
+      const savedPack = sessionStorage.getItem("linstantane:pack") as "digital"|"physique"|"duo"|null;
+      if (savedPack) setSelectedPack(savedPack);
     } catch {
       // nothing
     }
@@ -331,6 +334,9 @@ function ResultContent() {
     }
   }
 
+  const selectedPackData = PACKS.find(p => p.id === selectedPack)!;
+  const selectedPrice = formatPrice(calculatePrice(selectedPack, pageCount));
+
   return (
     <>
       {success && (
@@ -344,18 +350,46 @@ function ResultContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-6 pt-12">
-        {album ? (
-          <>
-            <div className="mb-10 text-center">
-              <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900 sm:text-4xl">
-                Aperçu de ton album
-              </h1>
-              <p className="mt-3 text-slate-500">
-                Voici à quoi ressemblera ton livre imprimé.
-              </p>
+      {/* Sticky order bar */}
+      {album && !success && (
+        <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
+            <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+              {PACKS.map(p => {
+                const pr = formatPrice(calculatePrice(p.id, pageCount));
+                return (
+                  <button key={p.id} onClick={() => setSelectedPack(p.id as "digital"|"physique"|"duo")}
+                    className={`shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${selectedPack===p.id ? "border-slate-900 bg-slate-900 text-white" : "border-gray-200 text-slate-600 hover:border-slate-400"}`}
+                  >
+                    {p.name} <span className={selectedPack===p.id ? "text-slate-300" : "text-slate-400"}>{pr}</span>
+                  </button>
+                );
+              })}
             </div>
-          </>
+            <div className="flex shrink-0 items-center gap-3">
+              <Link href="/create" className="hidden text-xs text-slate-400 hover:text-slate-700 sm:block">← Modifier</Link>
+              <button
+                onClick={() => onCheckout(selectedPack)}
+                disabled={loadingPack !== null}
+                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
+              >
+                {loadingPack ? "…" : `Commander — ${selectedPrice}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-4xl px-6 pt-8">
+        {album ? (
+          <div className="mb-8 text-center">
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900 sm:text-4xl">
+              Aperçu de ton album
+            </h1>
+            <p className="mt-2 text-slate-500 text-sm">
+              {album.type === "manual" ? `${pageCount} page${pageCount > 1 ? "s" : ""}` : ""} · Voici à quoi ressemblera ton livre imprimé.
+            </p>
+          </div>
         ) : null}
       </div>
 
@@ -386,89 +420,51 @@ function ResultContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl px-6">
-        {/* Pricing */}
-        <section className="mt-20">
-          <div className="mb-8 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+      <div className="mx-auto max-w-4xl px-6 pb-20">
+        {/* Compact pricing section */}
+        <section className="mt-16 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+          <div className="mb-6 text-center">
+            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-slate-900">
               Commander mon album
-            </p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900">
-              Garde tes souvenirs pour toujours
             </h2>
-            <p className="mx-auto mt-3 max-w-lg text-slate-500">
-              Commande ton livre imprimé ou télécharge la version HD. Paiement unique, sans abonnement.
-            </p>
+            {pageCount > INCLUDED_PAGES && (
+              <p className="mt-2 text-sm text-slate-500">
+                {pageCount} pages · {pageCount - INCLUDED_PAGES} pages supplémentaires incluses
+              </p>
+            )}
           </div>
-
-          {pageCount > INCLUDED_PAGES && (
-            <p className="mb-6 text-center text-sm text-slate-500">
-              Ton album fait <strong>{pageCount} pages</strong> — {pageCount - INCLUDED_PAGES} pages supplémentaires au-delà des {INCLUDED_PAGES} incluses.
-            </p>
-          )}
-
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             {PACKS.map((pack) => {
               const price = calculatePrice(pack.id, pageCount);
               const priceLabel = formatPrice(price);
+              const isSelected = selectedPack === pack.id;
               return (
-                <article
+                <button
                   key={pack.id}
-                  className={`relative flex flex-col rounded-2xl border p-6 ${
-                    pack.featured
-                      ? "border-slate-900 bg-slate-900 text-white"
-                      : "border-gray-100 bg-white shadow-sm"
+                  onClick={() => setSelectedPack(pack.id as "digital"|"physique"|"duo")}
+                  className={`relative flex flex-col items-center gap-1.5 rounded-xl border py-5 text-center transition ${
+                    isSelected ? "border-slate-900 bg-slate-900 text-white shadow-md" : "border-gray-200 text-slate-700 hover:border-slate-400"
                   }`}
                 >
                   {pack.featured && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">
-                        Populaire
-                      </span>
-                    </div>
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">Populaire</span>
                   )}
-                  <h3 className={`font-[family-name:var(--font-playfair)] text-xl ${pack.featured ? "text-white" : "text-slate-900"}`}>
-                    {pack.name}
-                  </h3>
-                  <p className={`mt-1 text-sm ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
-                    {pack.desc}
-                  </p>
-                  <div className="my-4 flex items-end gap-1">
-                    <span className={`font-[family-name:var(--font-playfair)] text-3xl ${pack.featured ? "text-white" : "text-slate-900"}`}>
-                      {priceLabel}
-                    </span>
-                    <span className={`mb-0.5 text-xs ${pack.featured ? "text-slate-400" : "text-slate-400"}`}>
-                      {pageCount > INCLUDED_PAGES ? `${pageCount} pages` : "paiement unique"}
-                    </span>
-                  </div>
-                  <ul className="mb-6 flex flex-col gap-2">
-                    {pack.perks.map((perk) => (
-                      <li key={perk} className={`flex items-start gap-2 text-sm ${pack.featured ? "text-slate-300" : "text-slate-600"}`}>
-                        <span className={`mt-0.5 shrink-0 ${pack.featured ? "text-slate-400" : "text-slate-300"}`}>✓</span>
-                        {perk}
-                      </li>
-                    ))}
-                    <li className={`flex items-start gap-2 text-sm ${pack.featured ? "text-slate-300" : "text-slate-600"}`}>
-                      <span className={`mt-0.5 shrink-0 ${pack.featured ? "text-slate-400" : "text-slate-300"}`}>✓</span>
-                      {INCLUDED_PAGES} pages incluses{pageCount > INCLUDED_PAGES ? ` + ${pageCount - INCLUDED_PAGES} suppl.` : ""}
-                    </li>
-                  </ul>
-                  <button
-                    onClick={() => onCheckout(pack.id)}
-                    disabled={loadingPack !== null}
-                    className={`mt-auto inline-flex w-full items-center justify-center rounded-full py-3 text-sm font-medium transition disabled:opacity-60 ${
-                      pack.featured ? "bg-white text-slate-900 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-700"
-                    }`}
-                  >
-                    {loadingPack === pack.id ? "Redirection…" : `Commander — ${priceLabel}`}
-                  </button>
-                </article>
+                  <span className="text-sm font-semibold">{pack.name}</span>
+                  <span className={`text-xs ${isSelected ? "text-slate-300" : "text-slate-400"}`}>{pack.desc}</span>
+                  <span className={`font-[family-name:var(--font-playfair)] text-2xl font-bold ${isSelected ? "text-white" : "text-slate-900"}`}>{priceLabel}</span>
+                </button>
               );
             })}
           </div>
-
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Paiement sécurisé via Stripe. Satisfait ou remboursé sous 14 jours.
+          <button
+            onClick={() => onCheckout(selectedPack)}
+            disabled={loadingPack !== null}
+            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
+          >
+            {loadingPack ? "Redirection…" : `Commander — ${selectedPrice}`}
+          </button>
+          <p className="mt-4 text-center text-xs text-slate-400">
+            🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
           </p>
         </section>
       </div>
