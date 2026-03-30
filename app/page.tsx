@@ -116,7 +116,7 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
               <Link
-                href="/shop"
+                href="/create"
                 className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
               >
                 Créer mon album →
@@ -303,7 +303,7 @@ export default function Home() {
                 ))}
               </ul>
               <Link
-                href="/shop"
+                href="/create"
                 className={`mt-auto inline-flex items-center justify-center rounded-full py-3 text-sm font-medium transition ${plan.featured ? "bg-white text-slate-900 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-700"}`}
               >
                 Commencer
@@ -347,7 +347,7 @@ export default function Home() {
           </h2>
           <p className="mt-4 text-slate-400">Crée ton album en quelques minutes. Tu vois le résultat avant de payer.</p>
           <Link
-            href="/shop"
+            href="/create"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-10 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
           >
             Créer mon album →
