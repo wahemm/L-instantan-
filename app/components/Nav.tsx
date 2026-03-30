@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useUser, UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
@@ -12,7 +11,6 @@ const NAV_LINKS = [
 ];
 
 export default function Nav() {
-  const { isSignedIn, isLoaded } = useUser();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -41,25 +39,12 @@ export default function Nav() {
 
         {/* Right */}
         <div className="ml-auto flex items-center gap-3">
-          {isLoaded && !isSignedIn && (
-            <Link
-              href="/shop"
-              className="hidden sm:inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-            >
-              Créer mon album
-            </Link>
-          )}
-          {isLoaded && isSignedIn && (
-            <>
-              <Link
-                href="/create"
-                className="hidden sm:inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-              >
-                Mon album
-              </Link>
-              <UserButton />
-            </>
-          )}
+          <Link
+            href="/shop"
+            className="hidden sm:inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          >
+            Créer mon album
+          </Link>
 
           {/* Hamburger — mobile only */}
           <button
@@ -88,20 +73,11 @@ export default function Nav() {
               </Link>
             ))}
           </nav>
-          {isLoaded && !isSignedIn && (
-            <Link href="/shop" onClick={() => setOpen(false)}
-              className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-            >
-              Créer mon album →
-            </Link>
-          )}
-          {isLoaded && isSignedIn && (
-            <Link href="/create" onClick={() => setOpen(false)}
-              className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-            >
-              Mon album →
-            </Link>
-          )}
+          <Link href="/shop" onClick={() => setOpen(false)}
+            className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
+          >
+            Créer mon album →
+          </Link>
         </div>
       )}
     </header>
