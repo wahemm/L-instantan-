@@ -99,7 +99,7 @@ export default function ShopPage() {
             {/* Template thumbnails */}
             <div>
               <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Couvertures disponibles</p>
-              <div className="grid grid-cols-8 gap-2">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
                 {COVER_TEMPLATES.map(t => (
                   <button
                     key={t.id}
@@ -235,6 +235,35 @@ export default function ShopPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-[#f8f7f4] py-16">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-10 text-center">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Ils ont testé</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-slate-900">Ce que disent nos clients</h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            {[
+              { name:"Camille", role:"Pack Physique", quote:"On a envoyé les photos du week-end et le livre est magnifique. Un souvenir inoubliable à feuilleter." },
+              { name:"Yanis",   role:"Pack Digital",  quote:"En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium." },
+              { name:"Sarah",   role:"Pack Duo",      quote:"Offrir le livre imprimé à ma mère pour son anniversaire, c'était le cadeau parfait. Elle a adoré." },
+            ].map(t => (
+              <blockquote key={t.name} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="mb-3 text-amber-400 text-sm">★★★★★</div>
+                <p className="flex-1 text-sm leading-relaxed text-slate-600">&ldquo;{t.quote}&rdquo;</p>
+                <footer className="mt-5 flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">{t.name.charAt(0)}</div>
+                  <div>
+                    <div className="text-xs font-semibold text-slate-900">{t.name}</div>
+                    <div className="text-[11px] text-slate-400">{t.role}</div>
+                  </div>
+                </footer>
+              </blockquote>
+            ))}
           </div>
         </div>
       </section>
