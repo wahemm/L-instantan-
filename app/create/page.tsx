@@ -549,36 +549,54 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
 }
 
 // ── Page Thumbnail ─────────────────────────────────────────────────────
-function PageThumb({ page, label, isActive, onClick }: { page:EditorPage; label:string; isActive:boolean; onClick:()=>void }) {
+function PageThumb({ page, label, isActive, onClick, onDuplicate, onDelete }: {
+  page:EditorPage; label:string; isActive:boolean; onClick:()=>void;
+  onDuplicate?:()=>void; onDelete?:()=>void;
+}) {
   const isCover = page.layoutId === "cover";
   const slots = getSlotCount(page.layoutId);
   const dark = isDark(page.bgColor);
   const gridClass = page.layoutId==="two-v"||page.layoutId==="grid4" ? "grid grid-cols-2" : slots>=2 ? "grid grid-cols-1 grid-rows-2" : "";
 
   return (
-    <div className="flex flex-col items-center gap-1 shrink-0">
-      <button onClick={onClick} className={`relative overflow-hidden rounded border-2 transition ${isActive?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`} style={{width:48,height:68,backgroundColor:page.bgColor}}>
-        {isCover ? (
-          <>
-            {page.photos[0]&&<img src={page.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30"/>}
-            <div className="relative flex h-full items-center justify-center px-1">
-              <span className={`text-[6px] font-bold text-center leading-tight ${dark?"text-white/80":"text-slate-600"}`}>{page.title||"Album"}</span>
-            </div>
-          </>
-        ) : slots===0 ? (
-          <div className="flex h-full items-center justify-center"><span className={`text-[6px] font-bold ${dark?"text-white/40":"text-slate-300"}`}>Aa</span></div>
-        ) : (
-          <div className={`${gridClass} h-full gap-px`}>
-            {Array.from({length:Math.min(slots,4)}).map((_,si)=>(
-              <div key={si} className="overflow-hidden" style={{backgroundColor:page.bgColor==="#ffffff"?"#f0ede8":`${page.bgColor}44`}}>
-                {page.photos[si]&&<img src={page.photos[si]!} alt="" className="h-full w-full object-cover"/>}
+    <div className="group flex flex-col items-center gap-1 shrink-0">
+      <div className="relative">
+        <button onClick={onClick} className={`relative overflow-hidden rounded border-2 transition ${isActive?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`} style={{width:48,height:68,backgroundColor:page.bgColor}}>
+          {isCover ? (
+            <>
+              {page.photos[0]&&<img src={page.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30"/>}
+              <div className="relative flex h-full items-center justify-center px-1">
+                <span className={`text-[6px] font-bold text-center leading-tight ${dark?"text-white/80":"text-slate-600"}`}>{page.title||"Album"}</span>
               </div>
-            ))}
+            </>
+          ) : slots===0 ? (
+            <div className="flex h-full items-center justify-center"><span className={`text-[6px] font-bold ${dark?"text-white/40":"text-slate-300"}`}>Aa</span></div>
+          ) : (
+            <div className={`${gridClass} h-full gap-px`}>
+              {Array.from({length:Math.min(slots,4)}).map((_,si)=>(
+                <div key={si} className="overflow-hidden" style={{backgroundColor:page.bgColor==="#ffffff"?"#f0ede8":`${page.bgColor}44`}}>
+                  {page.photos[si]&&<img src={page.photos[si]!} alt="" className="h-full w-full object-cover"/>}
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Text indicator */}
+          {(page.texts||[]).length>0&&<div className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-400 shadow"/>}
+        </button>
+        {/* Hover action buttons */}
+        {(onDuplicate||onDelete) && (
+          <div className="absolute -top-1.5 -right-1.5 hidden flex-col gap-0.5 group-hover:flex z-10">
+            {onDuplicate && (
+              <button onClick={e=>{e.stopPropagation();onDuplicate();}} title="Dupliquer"
+                className="flex h-4 w-4 items-center justify-center rounded-full bg-white shadow text-[8px] text-slate-600 hover:bg-slate-100 border border-gray-200">⧉</button>
+            )}
+            {onDelete && (
+              <button onClick={e=>{e.stopPropagation();onDelete();}} title="Supprimer"
+                className="flex h-4 w-4 items-center justify-center rounded-full bg-white shadow text-[8px] text-red-400 hover:bg-red-50 border border-gray-200">×</button>
+            )}
           </div>
         )}
-        {/* Text indicator */}
-        {(page.texts||[]).length>0&&<div className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-400 shadow"/>}
-      </button>
+      </div>
       <span className="text-[9px] text-slate-400 truncate max-w-[60px] text-center">{label}</span>
     </div>
   );
@@ -1525,6 +1543,8 @@ export default function CreatePage() {
             label={idx===0?"Couverture":`Page ${idx}`}
             isActive={idx===currentPageIdx || idx===spreadLeftIdx || idx===spreadRightIdx}
             onClick={()=>{setCurrentPageIdx(idx);setActiveSlot(null);setSelectedTextId(null);}}
+            onDuplicate={idx>0?()=>duplicatePage(idx):undefined}
+            onDelete={idx>0&&pages.length>2?()=>removePage(idx):undefined}
           />
         ))}
         <button onClick={addPage} className="flex shrink-0 flex-col items-center gap-1" title="Ajouter une page">
