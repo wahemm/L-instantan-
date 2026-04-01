@@ -3,14 +3,12 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-// Base prices in cents (includes up to 24 pages)
 const BASE_PRICES: Record<string, number> = {
   digital: 1000,
   physique: 2900,
   duo: 3500,
 };
 
-// Extra price per page above 24, in cents
 const EXTRA_PER_PAGE: Record<string, number> = {
   digital: 25,
   physique: 50,
@@ -31,6 +29,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const pack = body.pack as string;
     const pageCount = typeof body.pageCount === "number" ? body.pageCount : INCLUDED_PAGES;
+    const albumTitle = (body.albumTitle as string) || "Mon Album";
 
     if (!pack || !(pack in BASE_PRICES)) {
       return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
@@ -40,18 +39,14 @@ export async function POST(req: NextRequest) {
     const totalCents = calculatePrice(pack, pageCount);
 
     const packLabel =
-      pack === "digital"
-        ? "Pack Digital"
-        : pack === "physique"
-        ? "Pack Physique"
-        : "Pack Duo";
+      pack === "digital" ? "Pack Digital" :
+      pack === "physique" ? "Pack Physique" : "Pack Duo";
 
-    const pageDesc = pageCount > INCLUDED_PAGES
-      ? ` (${pageCount} pages)`
-      : "";
+    const pageDesc = pageCount > INCLUDED_PAGES ? ` (${pageCount} pages)` : "";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      customer_creation: "always",
       line_items: [
         {
           quantity: 1,
@@ -60,10 +55,16 @@ export async function POST(req: NextRequest) {
             unit_amount: totalCents,
             product_data: {
               name: `${packLabel} — L'Instantané${pageDesc}`,
+              description: `Album "${albumTitle}" · Format A4 · Papier brillant 170g/m²`,
             },
           },
         },
       ],
+      metadata: {
+        pack,
+        pageCount: String(pageCount),
+        albumTitle,
+      },
       success_url: `${origin}/result?success=true`,
       cancel_url: `${origin}/result`,
     });

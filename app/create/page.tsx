@@ -284,15 +284,14 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
         else { onSelect(); }
       }}
       onTouchEnd={(e) => {
-        e.preventDefault(); // prevent synthesized mouse events
+        e.preventDefault();
         e.stopPropagation();
         onSelect();
         setLocalText(el.text);
         setEditing(true);
-        textareaRef.current?.focus(); // synchronous focus → keyboard appears on iOS
+        textareaRef.current?.focus();
       }}
     >
-      {/* Both always in DOM — textarea uses opacity so focus() works synchronously on iOS */}
       <div style={{ position: "relative" }}>
         <div
           style={{ ...textStyle, opacity: editing ? 0 : 1 }}
