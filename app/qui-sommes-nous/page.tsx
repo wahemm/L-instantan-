@@ -85,10 +85,10 @@ export default function QuiSommesNousPage() {
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { value: "170g", label: "Papier photo premium" },
-              { value: "200", label: "Photos max par album" },
+              { value: "500+", label: "Albums créés" },
+              { value: "4,9★", label: "Note moyenne clients" },
               { value: "5–7j", label: "Délai de livraison" },
-              { value: "35€", label: "Livre imprimé livré" },
+              { value: "14j", label: "Satisfait ou remboursé" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -104,6 +104,29 @@ export default function QuiSommesNousPage() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-5xl px-6 py-20">
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Qualité & fabrication</p>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Notre promesse</h2>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {[
+            { icon:"📐", title:"Format A4, couverture rigide", desc:"21 × 28 cm, reliure cousue, couverture cartonnée. Un objet solide, conçu pour durer des années." },
+            { icon:"✨", title:"Papier photo 170g/m²", desc:"Impression offset sur papier brillant premium. Le rendu des couleurs est fidèle à tes photos." },
+            { icon:"🎨", title:"Éditeur intuitif", desc:"Place tes photos librement, choisis ta mise en page, ajoute du texte n'importe où. Aucune compétence requise." },
+            { icon:"🔒", title:"Paiement sécurisé, sans surprise", desc:"Tu vois l'aperçu complet avant de payer. Remboursé sous 14 jours si tu n'es pas satisfait, sans conditions." },
+          ].map(item => (
+            <div key={item.title} className="flex gap-4 rounded-2xl border border-gray-100 p-6">
+              <span className="text-2xl">{item.icon}</span>
+              <div>
+                <h3 className="font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="bg-slate-900 py-20 text-white">
         <div className="mx-auto max-w-2xl px-6 text-center">
           <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic sm:text-4xl">
@@ -111,10 +134,10 @@ export default function QuiSommesNousPage() {
           </h2>
           <p className="mt-4 text-slate-400">Tu vois le résultat avant de payer.</p>
           <Link
-            href="/create"
+            href="/shop"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
           >
-            Créer mon album
+            Créer mon album →
           </Link>
         </div>
       </section>

@@ -292,22 +292,32 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
         textareaRef.current?.focus(); // synchronous focus → keyboard appears on iOS
       }}
     >
-      {/* Textarea always in DOM so we can focus() synchronously on iOS */}
-      <textarea
-        ref={textareaRef}
-        value={localText}
-        onChange={e => setLocalText(e.target.value)}
-        onBlur={() => { setEditing(false); onUpdate({ text: localText }); }}
-        onKeyDown={e => { if (e.key === "Escape") { setEditing(false); onUpdate({ text: localText }); }}}
-        onClick={e => e.stopPropagation()}
-        style={{ ...textStyle, background: "transparent", border: "none", outline: "none", resize: "none", padding: 0, display: editing ? "block" : "none" }}
-        rows={3}
-      />
-      {!editing && (
-        <div style={textStyle} className="whitespace-pre-wrap break-words select-none">
+      {/* Both always in DOM — textarea uses opacity so focus() works synchronously on iOS */}
+      <div style={{ position: "relative" }}>
+        <div
+          style={{ ...textStyle, opacity: editing ? 0 : 1 }}
+          className="whitespace-pre-wrap break-words select-none"
+        >
           {el.text || <span style={{ opacity: 0.35, fontStyle: "italic", fontSize: Math.max(10, el.size * 0.7) }}>Toucher pour écrire</span>}
         </div>
-      )}
+        <textarea
+          ref={textareaRef}
+          value={localText}
+          onChange={e => setLocalText(e.target.value)}
+          onBlur={() => { setEditing(false); onUpdate({ text: localText }); }}
+          onKeyDown={e => { if (e.key === "Escape") { setEditing(false); onUpdate({ text: localText }); }}}
+          onClick={e => e.stopPropagation()}
+          style={{
+            ...textStyle,
+            position: "absolute", top: 0, left: 0, width: "100%",
+            background: "transparent", border: "none", outline: "none",
+            resize: "none", padding: 0,
+            opacity: editing ? 1 : 0,
+            pointerEvents: editing ? "auto" : "none",
+          }}
+          rows={3}
+        />
+      </div>
 
       {isSelected && !editing && (
         <>
