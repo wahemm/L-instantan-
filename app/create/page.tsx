@@ -204,6 +204,7 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   const [editing, setEditing] = useState(false);
   const [localText, setLocalText] = useState(el.text);
   const elRef = useRef<HTMLDivElement>(null);
+  const lastClickRef = useRef<number>(0);
 
   const fontFamily = el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)";
 
@@ -276,8 +277,16 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       className={`absolute z-20 ${editing ? "cursor-text" : "cursor-move"} ${isSelected ? "outline outline-2 outline-offset-1 outline-blue-400" : ""}`}
       style={{ left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%` }}
       onMouseDown={startDrag}
-      onClick={(e) => { e.stopPropagation(); onSelect(); }}
-      onDoubleClick={(e) => { e.stopPropagation(); setEditing(true); setLocalText(el.text); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        const now = Date.now();
+        if (now - lastClickRef.current < 350) {
+          setEditing(true); setLocalText(el.text);
+        } else {
+          onSelect();
+        }
+        lastClickRef.current = now;
+      }}
       onTouchEnd={(e) => { e.stopPropagation(); if (!editing) { setEditing(true); setLocalText(el.text); } }}
     >
       {editing ? (
