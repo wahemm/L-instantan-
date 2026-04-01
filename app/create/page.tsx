@@ -710,6 +710,7 @@ export default function CreatePage() {
   const [selectedStickerId, setSelectedStickerId] = useState<string|null>(null);
   const [activeStickerCat, setActiveStickerCat] = useState("Plage");
   const [showPreview, setShowPreview] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState<{current:number;total:number}|null>(null);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [previewMode, setPreviewMode] = useState<"single"|"all">("single");
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
@@ -871,6 +872,23 @@ export default function CreatePage() {
   function handleSubmit() {
     sessionStorage.setItem("linstantane:album",JSON.stringify({type:"manual",title:albumTitle,pages}));
     router.push("/result");
+  }
+
+  async function handleDownloadPDF() {
+    const { generateAlbumPDF } = await import("@/app/lib/generatePDF");
+    setPdfProgress({current:0,total:pages.length});
+    try {
+      const blob = await generateAlbumPDF(
+        pages, albumTitle,
+        (current,total) => setPdfProgress({current,total})
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `${albumTitle||"mon-album"}.pdf`; a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfProgress(null);
+    }
   }
 
   function togglePanel(id: PanelId) { setOpenPanel(p=>p===id?null:id); }
@@ -1238,6 +1256,9 @@ export default function CreatePage() {
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
           <span className="hidden sm:block text-xs text-slate-300">|</span>
           <span className="hidden sm:block text-xs font-semibold text-slate-700">à partir de {formatPrice(calculatePrice("physique",contentPageCount))}</span>
+          <button onClick={handleDownloadPDF} disabled={pdfProgress!==null} title="Télécharger le PDF" className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-50">
+            {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
+          </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
         </div>

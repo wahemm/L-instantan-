@@ -305,6 +305,7 @@ function ResultContent() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const [selectedPack, setSelectedPack] = useState<"digital"|"physique"|"duo">("physique");
+  const [pdfProgress, setPdfProgress] = useState<{ current: number; total: number } | null>(null);
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
 
@@ -324,6 +325,27 @@ function ResultContent() {
       ? album.pages.filter((p) => p.layoutId !== "cover").length
       : Math.ceil((album.photos?.length ?? 0) / 2)
     : INCLUDED_PAGES;
+
+  async function onDownloadPDF() {
+    if (!album || album.type !== "manual") return;
+    const { generateAlbumPDF } = await import("@/app/lib/generatePDF");
+    setPdfProgress({ current: 0, total: album.pages.length });
+    try {
+      const blob = await generateAlbumPDF(
+        album.pages,
+        album.title || "Mon Album",
+        (current, total) => setPdfProgress({ current, total })
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${album.title || "mon-album"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfProgress(null);
+    }
+  }
 
   async function onCheckout(pack: "digital" | "physique" | "duo") {
     setLoadingPack(pack);
@@ -403,6 +425,17 @@ function ResultContent() {
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <Link href="/create" className="hidden text-xs text-slate-400 hover:text-slate-700 sm:block">← Modifier</Link>
+              {album?.type === "manual" && (
+                <button
+                  onClick={onDownloadPDF}
+                  disabled={pdfProgress !== null}
+                  className="hidden items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:border-slate-400 disabled:opacity-60 sm:flex"
+                >
+                  {pdfProgress
+                    ? `PDF… ${pdfProgress.current}/${pdfProgress.total}`
+                    : "⬇ PDF"}
+                </button>
+              )}
               <button
                 onClick={() => onCheckout(selectedPack)}
                 disabled={loadingPack !== null}
