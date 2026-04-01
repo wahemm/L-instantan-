@@ -279,15 +279,10 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       onMouseDown={startDrag}
       onClick={(e) => {
         e.stopPropagation();
-        const now = Date.now();
-        if (now - lastClickRef.current < 350) {
-          setEditing(true); setLocalText(el.text);
-        } else {
-          onSelect();
-        }
-        lastClickRef.current = now;
+        if (isSelected) { setEditing(true); setLocalText(el.text); }
+        else { onSelect(); }
       }}
-      onTouchEnd={(e) => { e.stopPropagation(); if (!editing) { setEditing(true); setLocalText(el.text); } }}
+      onTouchEnd={(e) => { e.stopPropagation(); setEditing(true); setLocalText(el.text); }}
     >
       {editing ? (
         <textarea
