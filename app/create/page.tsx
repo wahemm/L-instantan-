@@ -209,7 +209,6 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
 
   function startDrag(e: React.MouseEvent) {
     if (editing) return;
-    e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
@@ -325,7 +324,6 @@ function StickerElComponent({ el, isSelected, containerRef, onSelect, onUpdate, 
   const elRef = useRef<HTMLDivElement>(null);
 
   function startDrag(e: React.MouseEvent) {
-    e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
