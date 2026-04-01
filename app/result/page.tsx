@@ -16,11 +16,11 @@ type Album =
   | { type: "manual"; title: string; pages: EditorPage[] };
 
 // ── Checkout ───────────────────────────────────────────────────────────
-async function redirectToCheckout(pack: "digital" | "physique" | "duo", pageCount: number) {
+async function redirectToCheckout(pack: "digital" | "physique" | "duo", pageCount: number, albumTitle?: string) {
   const res = await fetch("/api/stripe/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pack, pageCount }),
+    body: JSON.stringify({ pack, pageCount, albumTitle }),
   });
   const data = await res.json();
   if (data.url) {
@@ -328,7 +328,7 @@ function ResultContent() {
   async function onCheckout(pack: "digital" | "physique" | "duo") {
     setLoadingPack(pack);
     try {
-      await redirectToCheckout(pack, pageCount);
+      await redirectToCheckout(pack, pageCount, album?.title);
     } finally {
       setLoadingPack(null);
     }

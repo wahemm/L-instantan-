@@ -646,8 +646,47 @@ export default function CreatePage() {
     if (!autoFiles.length) return;
     setAutoLoading(true);
     const resized = await Promise.all(autoFiles.map(f=>resizeImage(f)));
-    sessionStorage.setItem("linstantane:album",JSON.stringify({type:"auto",title:autoTitle||"Mon album",subtitle:autoSubtitle,photos:resized,coverTemplate:selectedCover}));
-    router.push("/result");
+
+    // Génère des pages éditables à partir des photos
+    const autoPages: EditorPage[] = [
+      makePage("cover", {
+        title: autoTitle || "Mon Album",
+        subtitle: autoSubtitle,
+        photos: selectedCover ? [selectedCover] : [],
+        bgColor: "#0f172a",
+      }),
+    ];
+
+    let i = 0;
+    while (i < resized.length) {
+      const remaining = resized.length - i;
+      let layoutId: LayoutId;
+      let count: number;
+
+      if (remaining === 1) {
+        layoutId = "full"; count = 1;
+      } else if (remaining === 2) {
+        layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2;
+      } else if (remaining === 3) {
+        layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3;
+      } else {
+        const r = Math.random();
+        if (r < 0.25) { layoutId = "grid4"; count = 4; }
+        else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
+        else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
+      }
+
+      autoPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
+      i += count;
+    }
+
+    setPages(autoPages);
+    setAutoTitle("");
+    setAutoSubtitle("");
+    setAutoFiles([]);
+    setAutoPreviews([]);
+    setAutoLoading(false);
+    setMode("manual");
   }
 
   // ── Manual editor state ────────────────────────────────────────────
@@ -675,6 +714,8 @@ export default function CreatePage() {
   const [previewMode, setPreviewMode] = useState<"single"|"all">("single");
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
   const [editingTitle, setEditingTitle] = useState(false);
+  const undoStackRef = useRef<EditorPage[][]>([]);
+  const [canUndo, setCanUndo] = useState(false);
 
   // Read ?mode=manual and selected template from sessionStorage on mount
   useEffect(() => {
@@ -693,11 +734,37 @@ export default function CreatePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (mode !== "manual") return;
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === "z") {
+        e.preventDefault();
+        undo();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
   const currentPage = pages[currentPageIdx];
   const isCoverPage = currentPage.layoutId === "cover";
   const albumTitle = pages[0].title || "Mon Album";
   const contentPageCount = pages.length - 1;
   const selectedText = selectedTextId ? (currentPage.texts||[]).find(t=>t.id===selectedTextId) ?? null : null;
+
+  function snapshot() {
+    undoStackRef.current = [...undoStackRef.current.slice(-19), pages.map(p=>({...p,photos:[...p.photos],texts:[...(p.texts||[])],stickers:[...(p.stickers||[])]}))];
+    setCanUndo(true);
+  }
+  function undo() {
+    const stack = undoStackRef.current;
+    if (stack.length === 0) return;
+    const prev = stack[stack.length - 1];
+    undoStackRef.current = stack.slice(0, -1);
+    setCanUndo(undoStackRef.current.length > 0);
+    setPages(prev);
+  }
 
   const addLibraryFiles = useCallback(async (files: FileList|null) => {
     if (!files) return;
@@ -715,6 +782,7 @@ export default function CreatePage() {
   }
 
   function assignToSlot(slotIdx: number, src: string) {
+    snapshot();
     const positions = [...(currentPage.photoPositions || currentPage.photos.map(()=>({x:50,y:50})))];
     positions[slotIdx] = { x: 50, y: 50 };
     updateCurrent({photos:currentPage.photos.map((p,i)=>i===slotIdx?src:p), photoPositions: positions});
@@ -732,6 +800,7 @@ export default function CreatePage() {
   }
 
   function addTextElement() {
+    snapshot();
     const color = isDark(currentPage.bgColor) ? "#ffffff" : "#1e1e1e";
     const el = makeTextEl(15, 35, color);
     updateCurrent({texts:[...(currentPage.texts||[]), el]});
@@ -744,11 +813,13 @@ export default function CreatePage() {
   }
 
   function removeCurrentText(id: string) {
+    snapshot();
     updateCurrent({texts:(currentPage.texts||[]).filter(t=>t.id!==id)});
     setSelectedTextId(null);
   }
 
   function addSticker(emoji: string) {
+    snapshot();
     const el: StickerEl = { id: `s${Date.now()}${Math.floor(Math.random()*9999)}`, emoji, x: 30, y: 30, size: 48 };
     updateCurrent({stickers:[...(currentPage.stickers||[]), el]});
     setSelectedStickerId(el.id);
@@ -760,18 +831,21 @@ export default function CreatePage() {
   }
 
   function removeCurrentSticker(id: string) {
+    snapshot();
     updateCurrent({stickers:(currentPage.stickers||[]).filter(s=>s.id!==id)});
     setSelectedStickerId(null);
   }
 
   function changeLayout(layoutId: LayoutId) {
     if (layoutId === "cover") return;
+    snapshot();
     const n = getSlotCount(layoutId);
     updateCurrent({layoutId,photos:Array.from({length:n},(_,i)=>currentPage.photos[i]??null)});
     setActiveSlot(null);
   }
 
   function addPage() {
+    snapshot();
     const idx = pages.length;
     setPages(p=>[...p,makePage("full")]);
     setCurrentPageIdx(idx);
@@ -779,6 +853,7 @@ export default function CreatePage() {
   }
 
   function duplicatePage(idx: number) {
+    snapshot();
     const copy = {...pages[idx],photos:[...pages[idx].photos],photoPositions:[...(pages[idx].photoPositions||[])],texts:[...(pages[idx].texts||[])],stickers:[...(pages[idx].stickers||[])]};
     setPages(p=>[...p.slice(0,idx+1),copy,...p.slice(idx+1)]);
     setCurrentPageIdx(idx+1);
@@ -786,6 +861,7 @@ export default function CreatePage() {
 
   function removePage(idx: number) {
     if (idx===0||pages.length<=2) return;
+    snapshot();
     const next = pages.filter((_,i)=>i!==idx);
     setPages(next);
     setCurrentPageIdx(p=>Math.min(p,next.length-1));
@@ -1156,6 +1232,7 @@ export default function CreatePage() {
           ) : (
             <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold hover:text-slate-500 transition">{albumTitle}</button>
           )}
+          {canUndo&&<button onClick={undo} title="Annuler (⌘Z)" className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">↩</button>}
         </div>
         <div className="flex items-center gap-4">
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
@@ -1226,7 +1303,7 @@ export default function CreatePage() {
                     <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Couleur de fond</p>
                     <div className="grid grid-cols-5 gap-2">
                       {BG_COLORS.map(color=>(
-                        <button key={color} onClick={()=>updateCurrent({bgColor:color})} title={color} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{backgroundColor:color}}/>
+                        <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} title={color} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{backgroundColor:color}}/>
                       ))}
                     </div>
                   </div>
