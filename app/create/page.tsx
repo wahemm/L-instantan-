@@ -16,7 +16,7 @@ interface CoverTemplate {
   src: string;
 }
 
-const COVER_CATEGORIES = ["Tous", "Voyage", "Couple"];
+const COVER_CATEGORIES = ["Tous", "Voyage", "Couple", "Amis", "Famille", "Mariage", "Bébé"];
 
 const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
@@ -944,6 +944,13 @@ export default function CreatePage() {
           </div>
 
           {/* Grid */}
+          {filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <span className="mb-3 text-4xl">🎨</span>
+              <p className="text-sm font-semibold text-slate-700">Bientôt disponible</p>
+              <p className="mt-1 text-xs text-slate-400">Ces templates arrivent prochainement.</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {filtered.map(tpl => {
               const selected = selectedCover === tpl.src;
