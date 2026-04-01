@@ -204,6 +204,7 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   const [editing, setEditing] = useState(false);
   const [localText, setLocalText] = useState(el.text);
   const elRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastClickRef = useRef<number>(0);
 
   const fontFamily = el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)";
@@ -279,27 +280,43 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       onMouseDown={startDrag}
       onClick={(e) => {
         e.stopPropagation();
-        if (isSelected) { setEditing(true); setLocalText(el.text); }
+        if (isSelected) { setEditing(true); setLocalText(el.text); textareaRef.current?.focus(); }
         else { onSelect(); }
       }}
-      onTouchEnd={(e) => { e.stopPropagation(); setEditing(true); setLocalText(el.text); }}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onSelect();
+        setLocalText(el.text);
+        setEditing(true);
+        textareaRef.current?.focus();
+      }}
     >
-      {editing ? (
+      <div style={{ position: "relative" }}>
+        <div
+          style={{ ...textStyle, opacity: editing ? 0 : 1 }}
+          className="whitespace-pre-wrap break-words select-none"
+        >
+          {el.text || <span style={{ opacity: 0.35, fontStyle: "italic", fontSize: Math.max(10, el.size * 0.7) }}>Toucher pour écrire</span>}
+        </div>
         <textarea
-          autoFocus
+          ref={textareaRef}
           value={localText}
           onChange={e => setLocalText(e.target.value)}
           onBlur={() => { setEditing(false); onUpdate({ text: localText }); }}
           onKeyDown={e => { if (e.key === "Escape") { setEditing(false); onUpdate({ text: localText }); }}}
           onClick={e => e.stopPropagation()}
-          style={{ ...textStyle, background: "transparent", border: "none", outline: "none", resize: "none", padding: 0, display: "block" }}
+          style={{
+            ...textStyle,
+            position: "absolute", top: 0, left: 0, width: "100%",
+            background: "transparent", border: "none", outline: "none",
+            resize: "none", padding: 0,
+            opacity: editing ? 1 : 0,
+            pointerEvents: editing ? "auto" : "none",
+          }}
           rows={3}
         />
-      ) : (
-        <div style={textStyle} className="whitespace-pre-wrap break-words select-none">
-          {el.text || <span style={{ opacity: 0.35, fontStyle: "italic", fontSize: Math.max(10, el.size * 0.7) }}>Double-clic pour écrire</span>}
-        </div>
-      )}
+      </div>
 
       {isSelected && !editing && (
         <>
