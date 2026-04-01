@@ -16,7 +16,7 @@ interface CoverTemplate {
   src: string;
 }
 
-const COVER_CATEGORIES = ["Tous", "Voyage", "2025", "Couple", "Amis", "Famille"];
+const COVER_CATEGORIES = ["Tous", "Voyage", "Couple"];
 
 const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
@@ -1113,7 +1113,10 @@ export default function CreatePage() {
         {/* Top bar */}
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
           <button onClick={()=>setMode(null)} className="text-sm text-slate-400">← Retour</button>
-          <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
+          {editingTitle
+            ? <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none max-w-[140px]"/>
+            : <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
+          }
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander</button>
         </div>
 
@@ -1257,7 +1260,7 @@ export default function CreatePage() {
           )}
 
           {/* Icônes outils */}
-          <div className="flex items-center justify-around px-1 py-1.5">
+          <div className="flex items-center justify-around px-1 py-1.5 pb-safe">
             <SidebarIcon active={openPanel==="photos"}   onClick={()=>togglePanel("photos")}   icon="📸" label="Photos"/>
             <SidebarIcon active={openPanel==="layouts"}  onClick={()=>togglePanel("layouts")}  label="Layout"
               icon={<svg viewBox="0 0 16 16" className="w-5 h-5 fill-current"><rect x="1" y="1" width="6" height="6" rx="0.5"/><rect x="9" y="1" width="6" height="6" rx="0.5"/><rect x="1" y="9" width="6" height="6" rx="0.5"/><rect x="9" y="9" width="6" height="6" rx="0.5"/></svg>}/>
