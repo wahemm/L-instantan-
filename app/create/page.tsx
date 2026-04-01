@@ -276,7 +276,9 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       className={`absolute z-20 ${editing ? "cursor-text" : "cursor-move"} ${isSelected ? "outline outline-2 outline-offset-1 outline-blue-400" : ""}`}
       style={{ left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%` }}
       onMouseDown={startDrag}
-      onClick={(e) => { e.stopPropagation(); onSelect(); if (!editing) { setEditing(true); setLocalText(el.text); } }}
+      onClick={(e) => { e.stopPropagation(); onSelect(); }}
+      onDoubleClick={(e) => { e.stopPropagation(); setEditing(true); setLocalText(el.text); }}
+      onTouchEnd={(e) => { e.stopPropagation(); if (!editing) { setEditing(true); setLocalText(el.text); } }}
     >
       {editing ? (
         <textarea
