@@ -622,6 +622,7 @@ export default function CreatePage() {
   const [selectedCover, setSelectedCover] = useState<string | null>(null);
   const [coverSearch, setCoverSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("Tous");
+  const [coverTitleInput, setCoverTitleInput] = useState("");
 
   // ── Auto mode ──────────────────────────────────────────────────────
   const [autoFiles, setAutoFiles] = useState<File[]>([]);
@@ -653,11 +654,14 @@ export default function CreatePage() {
   const [library, setLibrary] = useState<string[]>([]);
   const [pages, setPages] = useState<EditorPage[]>(DEFAULT_PAGES.map(p=>({...p,texts:[...p.texts]})));
 
-  function enterManualMode() {
+  function enterManualMode(title?: string) {
     setPages(DEFAULT_PAGES.map((p, i) => ({
       ...p,
       texts: [...p.texts],
-      ...(i === 0 && selectedCover ? { photos: [selectedCover], bgColor: "#0f172a" } : {}),
+      ...(i === 0 ? {
+        ...(selectedCover ? { photos: [selectedCover], bgColor: "#0f172a" } : {}),
+        ...(title ? { title } : {}),
+      } : {}),
     })));
     setMode("manual");
   }
@@ -848,7 +852,7 @@ export default function CreatePage() {
                 <button
                   key={tpl.id}
                   type="button"
-                  onClick={() => { setSelectedCover(tpl.src); setMode("mode-select"); }}
+                  onClick={() => { setSelectedCover(p => p === tpl.src ? p : tpl.src); }}
                   className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
                     selected
                       ? "border-slate-900 ring-2 ring-slate-900 ring-offset-2 shadow-xl"
@@ -872,27 +876,33 @@ export default function CreatePage() {
             })}
           </div>
 
+          {/* Title input */}
+          <div className="mt-8 mb-4">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-slate-400">Titre de l&apos;album</label>
+            <input
+              type="text"
+              placeholder="Ex : Italie 2025, Notre Mariage, Été à Marseille…"
+              value={coverTitleInput}
+              onChange={e => setCoverTitleInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && enterManualMode(coverTitleInput || undefined)}
+              className="w-full rounded-2xl border border-gray-200 bg-[#f8f7f4] px-5 py-3.5 text-sm font-[family-name:var(--font-playfair)] outline-none focus:border-slate-400 focus:bg-white transition"
+            />
+          </div>
+
           {/* Actions */}
-          <div className="mt-8 flex items-center justify-between">
-            {selectedCover && (
-              <button onClick={() => setSelectedCover(null)} className="text-sm text-slate-400 hover:text-slate-600">
-                Désélectionner
-              </button>
-            )}
-            <div className={`flex gap-3 ${!selectedCover ? "ml-auto" : ""}`}>
-              <button
-                onClick={() => { setSelectedCover(null); setMode("mode-select"); }}
-                className="rounded-full border border-gray-200 px-6 py-3 text-sm text-slate-600 transition hover:border-slate-400"
-              >
-                Passer cette étape
-              </button>
-              <button
-                onClick={() => setMode("mode-select")}
-                className="rounded-full bg-slate-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
-              >
-                {selectedCover ? "Continuer avec ce template →" : "Continuer →"}
-              </button>
-            </div>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => enterManualMode(coverTitleInput || undefined)}
+              className="text-xs text-slate-400 hover:text-slate-600 transition"
+            >
+              Passer cette étape →
+            </button>
+            <button
+              onClick={() => enterManualMode(coverTitleInput || undefined)}
+              className="rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+            >
+              {selectedCover ? "Créer mon album →" : "Continuer sans template →"}
+            </button>
           </div>
         </div>
       </main>
@@ -1393,6 +1403,9 @@ export default function CreatePage() {
                     onUpdate={u=>updateCurrentSticker(el.id,u)} onDelete={()=>removeCurrentSticker(el.id)}/>
                 ))}
                 <button onClick={()=>updateCurrent({photos:[null]})} className="absolute right-2 top-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-xs text-white opacity-60 hover:opacity-100 transition">×</button>
+                <button onClick={()=>{addTextElement();setOpenPanel("text");}} className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1.5 text-[11px] font-medium text-white opacity-70 hover:opacity-100 transition backdrop-blur-sm">
+                  <span>Aa</span><span>Ajouter du texte</span>
+                </button>
               </div>
               <div className="mt-2 flex w-full justify-between px-2 text-[10px] text-slate-400">
                 <span>Couverture arrière</span>
