@@ -16,7 +16,7 @@ interface CoverTemplate {
   src: string;
 }
 
-const COVER_CATEGORIES = ["Tous", "Voyage", "2025", "Couple", "Amis", "Famille"];
+const COVER_CATEGORIES = ["Tous", "Voyage", "Couple", "Amis", "Famille", "Mariage", "Bébé"];
 
 const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
@@ -204,12 +204,13 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   const [editing, setEditing] = useState(false);
   const [localText, setLocalText] = useState(el.text);
   const elRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lastClickRef = useRef<number>(0);
 
   const fontFamily = el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)";
 
   function startDrag(e: React.MouseEvent) {
     if (editing) return;
-    e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
@@ -277,22 +278,34 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       className={`absolute z-20 ${editing ? "cursor-text" : "cursor-move"} ${isSelected ? "outline outline-2 outline-offset-1 outline-blue-400" : ""}`}
       style={{ left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%` }}
       onMouseDown={startDrag}
-      onClick={(e) => { e.stopPropagation(); onSelect(); if (!editing) { setEditing(true); setLocalText(el.text); } }}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (isSelected) { setEditing(true); setLocalText(el.text); textareaRef.current?.focus(); }
+        else { onSelect(); }
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault(); // prevent synthesized mouse events
+        e.stopPropagation();
+        onSelect();
+        setLocalText(el.text);
+        setEditing(true);
+        textareaRef.current?.focus(); // synchronous focus → keyboard appears on iOS
+      }}
     >
-      {editing ? (
-        <textarea
-          autoFocus
-          value={localText}
-          onChange={e => setLocalText(e.target.value)}
-          onBlur={() => { setEditing(false); onUpdate({ text: localText }); }}
-          onKeyDown={e => { if (e.key === "Escape") { setEditing(false); onUpdate({ text: localText }); }}}
-          onClick={e => e.stopPropagation()}
-          style={{ ...textStyle, background: "transparent", border: "none", outline: "none", resize: "none", padding: 0, display: "block" }}
-          rows={3}
-        />
-      ) : (
+      {/* Textarea always in DOM so we can focus() synchronously on iOS */}
+      <textarea
+        ref={textareaRef}
+        value={localText}
+        onChange={e => setLocalText(e.target.value)}
+        onBlur={() => { setEditing(false); onUpdate({ text: localText }); }}
+        onKeyDown={e => { if (e.key === "Escape") { setEditing(false); onUpdate({ text: localText }); }}}
+        onClick={e => e.stopPropagation()}
+        style={{ ...textStyle, background: "transparent", border: "none", outline: "none", resize: "none", padding: 0, display: editing ? "block" : "none" }}
+        rows={3}
+      />
+      {!editing && (
         <div style={textStyle} className="whitespace-pre-wrap break-words select-none">
-          {el.text || <span style={{ opacity: 0.35, fontStyle: "italic", fontSize: Math.max(10, el.size * 0.7) }}>Double-clic pour écrire</span>}
+          {el.text || <span style={{ opacity: 0.35, fontStyle: "italic", fontSize: Math.max(10, el.size * 0.7) }}>Toucher pour écrire</span>}
         </div>
       )}
 
@@ -325,7 +338,6 @@ function StickerElComponent({ el, isSelected, containerRef, onSelect, onUpdate, 
   const elRef = useRef<HTMLDivElement>(null);
 
   function startDrag(e: React.MouseEvent) {
-    e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
@@ -716,6 +728,14 @@ export default function CreatePage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const undoStackRef = useRef<EditorPage[][]>([]);
   const [canUndo, setCanUndo] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Read ?mode=manual and selected template from sessionStorage on mount
   useEffect(() => {
@@ -938,6 +958,13 @@ export default function CreatePage() {
           </div>
 
           {/* Grid */}
+          {filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <span className="mb-3 text-4xl">🎨</span>
+              <p className="text-sm font-semibold text-slate-700">Bientôt disponible</p>
+              <p className="mt-1 text-xs text-slate-400">Ces templates arrivent prochainement.</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {filtered.map(tpl => {
               const selected = selectedCover === tpl.src;
@@ -1099,6 +1126,180 @@ export default function CreatePage() {
     <SidebarIcon active={openPanel==="stickers"} onClick={()=>togglePanel("stickers")} icon="✨" label="Stickers"/>
   </>;
 
+  // ── MOBILE EDITOR ──────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div className="flex h-dvh flex-col overflow-hidden bg-[#e8e5e0] text-slate-900">
+
+        {/* Top bar */}
+        <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
+          <button onClick={()=>setMode(null)} className="text-sm text-slate-400">← Retour</button>
+          {editingTitle
+            ? <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none max-w-[140px]"/>
+            : <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
+          }
+          <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander</button>
+        </div>
+
+        {/* Canvas pleine largeur */}
+        <div className="relative flex flex-1 items-center justify-center overflow-hidden p-3">
+          <button
+            onClick={()=>{setCurrentPageIdx(p=>Math.max(0,p-1));setActiveSlot(null);setSelectedTextId(null);}}
+            disabled={currentPageIdx===0}
+            className="absolute left-1 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-xl text-slate-600 shadow-md disabled:opacity-20 transition">‹</button>
+
+          <div
+            ref={pageRef}
+            className="relative overflow-hidden shadow-2xl"
+            style={{
+              width: "100%",
+              maxWidth: isCoverPage && currentPage.photos[0] ? "100%" : "calc(100vw - 88px)",
+              aspectRatio: isCoverPage && currentPage.photos[0] ? "2000/1389" : "210/297",
+            }}
+            onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
+          >
+            <div className="absolute inset-0" data-pagebackdrop="1">
+              <PageRenderer page={currentPage} activeSlot={activeSlot}
+                onSlotClick={handleSlotClick} onSlotDblClick={removeFromSlot}
+                onSlotDrop={assignToSlot} onSlotReposition={handleSlotReposition}/>
+            </div>
+            {(currentPage.texts||[]).map(el=>(
+              <TextElComponent key={el.id} el={el} isSelected={selectedTextId===el.id} containerRef={pageRef}
+                onSelect={()=>{setSelectedTextId(el.id);setSelectedStickerId(null);setActiveSlot(null);setOpenPanel("text");}}
+                onUpdate={u=>updateCurrentText(el.id,u)} onDelete={()=>removeCurrentText(el.id)}/>
+            ))}
+            {(currentPage.stickers||[]).map(el=>(
+              <StickerElComponent key={el.id} el={el} isSelected={selectedStickerId===el.id} containerRef={pageRef}
+                onSelect={()=>{setSelectedStickerId(el.id);setSelectedTextId(null);setActiveSlot(null);setOpenPanel("stickers");}}
+                onUpdate={u=>updateCurrentSticker(el.id,u)} onDelete={()=>removeCurrentSticker(el.id)}/>
+            ))}
+          </div>
+
+          <button
+            onClick={()=>{setCurrentPageIdx(p=>Math.min(pages.length-1,p+1));setActiveSlot(null);setSelectedTextId(null);}}
+            disabled={currentPageIdx>=pages.length-1}
+            className="absolute right-1 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-xl text-slate-600 shadow-md disabled:opacity-20 transition">›</button>
+
+          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/30 px-3 py-1 text-[10px] text-white pointer-events-none">
+            {currentPageIdx===0 ? "Couverture" : `Page ${currentPageIdx} / ${pages.length-1}`}
+          </span>
+        </div>
+
+        {/* Toolbar + panel mobile */}
+        <div className="shrink-0 bg-white border-t border-gray-200 z-10">
+
+          {/* Panel dépliable */}
+          {openPanel && (
+            <div className="max-h-56 overflow-y-auto border-b border-gray-100 p-3">
+
+              {openPanel==="photos" && (
+                <div>
+                  <button onClick={()=>editorInputRef.current?.click()} className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2 text-xs font-semibold text-white">+ Ajouter des photos</button>
+                  <input ref={editorInputRef} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={e=>addLibraryFiles(e.target.files)}/>
+                  {library.length===0 ? (
+                    <p className="py-2 text-center text-xs text-slate-400">Ajoute tes photos — clique sur un emplacement puis tape une photo pour la placer</p>
+                  ) : (
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {library.map((src,idx)=>(
+                        <div key={idx} className="group relative aspect-square overflow-hidden rounded-lg" onClick={()=>activeSlot!==null&&assignToSlot(activeSlot,src)}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={src} alt="" className={`h-full w-full object-cover ${activeSlot!==null?"brightness-75":""}`}/>
+                          <button onClick={e=>{e.stopPropagation();setLibrary(p=>p.filter((_,i)=>i!==idx));}} className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-[9px] text-white">×</button>
+                        </div>
+                      ))}
+                      <button onClick={()=>editorInputRef.current?.click()} className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-slate-300"><span className="text-xl">+</span></button>
+                    </div>
+                  )}
+                  {activeSlot!==null&&<p className="mt-2 rounded-xl bg-blue-50 px-3 py-1.5 text-[10px] font-semibold text-blue-600">Emplacement {activeSlot+1} actif — tape une photo</p>}
+                </div>
+              )}
+
+              {openPanel==="layouts" && (
+                isCoverPage
+                  ? <p className="py-2 text-center text-xs text-slate-400">La couverture a sa propre mise en page.</p>
+                  : <div className="grid grid-cols-4 gap-2">
+                      {CONTENT_LAYOUTS.map(layout=>(
+                        <button key={layout.id} onClick={()=>changeLayout(layout.id)} className={`flex flex-col items-center gap-1 rounded-xl border p-2 transition ${currentPage.layoutId===layout.id?"border-slate-900 bg-slate-50":"border-gray-200"}`}>
+                          <div className="h-10 w-7"><LayoutPreviewIcon id={layout.id}/></div>
+                          <span className="text-[8px] text-center text-slate-500 leading-tight">{layout.label}</span>
+                        </button>
+                      ))}
+                    </div>
+              )}
+
+              {openPanel==="colors" && (
+                <div className="grid grid-cols-8 gap-2">
+                  {BG_COLORS.map(color=>(
+                    <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110":"border-gray-200"}`} style={{backgroundColor:color}}/>
+                  ))}
+                </div>
+              )}
+
+              {openPanel==="text" && (
+                <div>
+                  <button onClick={addTextElement} className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2 text-xs font-semibold text-white">+ Ajouter un texte</button>
+                  {selectedText && (
+                    <div className="space-y-2">
+                      <div className="flex gap-1.5">
+                        <button onClick={()=>updateCurrentText(selectedText.id,{font:"playfair"})} className={`flex-1 rounded-lg border py-1.5 text-[11px] ${selectedText.font==="playfair"?"border-slate-900 bg-slate-50 font-bold":"border-gray-200"}`} style={{fontFamily:"var(--font-playfair)"}}>Serif</button>
+                        <button onClick={()=>updateCurrentText(selectedText.id,{font:"inter"})} className={`flex-1 rounded-lg border py-1.5 text-[11px] ${selectedText.font==="inter"?"border-slate-900 bg-slate-50":"border-gray-200"}`}>Sans</button>
+                        <button onClick={()=>updateCurrentText(selectedText.id,{bold:!selectedText.bold})} className={`w-10 rounded-lg border py-1.5 text-sm font-bold ${selectedText.bold?"border-slate-900 bg-slate-50":"border-gray-200"}`}>B</button>
+                        <button onClick={()=>updateCurrentText(selectedText.id,{italic:!selectedText.italic})} className={`w-10 rounded-lg border py-1.5 text-sm italic ${selectedText.italic?"border-slate-900 bg-slate-50":"border-gray-200"}`}>I</button>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {FONT_SIZES.filter(s=>s>=12&&s<=48).map(s=>(
+                          <button key={s} onClick={()=>updateCurrentText(selectedText.id,{size:s})} className={`rounded px-2 py-1 text-[10px] ${selectedText.size===s?"bg-slate-900 text-white":"bg-gray-100 text-slate-600"}`}>{s}</button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {TEXT_COLORS.map(c=>(
+                          <button key={c} onClick={()=>updateCurrentText(selectedText.id,{color:c})} className={`h-7 w-7 rounded-full border-2 transition ${selectedText.color===c?"border-slate-900 scale-110":"border-gray-200"}`} style={{backgroundColor:c}}/>
+                        ))}
+                      </div>
+                      <button onClick={()=>removeCurrentText(selectedText.id)} className="text-xs text-red-400 hover:text-red-600">Supprimer ce texte</button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {openPanel==="stickers" && (
+                <div>
+                  <div className="mb-2 flex gap-1 overflow-x-auto pb-1">
+                    {STICKER_CATS.map(c=>(
+                      <button key={c.label} onClick={()=>setActiveStickerCat(c.label)} className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium ${activeStickerCat===c.label?"border-slate-900 bg-slate-900 text-white":"border-gray-200 text-slate-500"}`}>{c.label}</button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-6 gap-1">
+                    {(STICKER_CATS.find(c=>c.label===activeStickerCat)?.items||[]).map(emoji=>(
+                      <button key={emoji} onClick={()=>addSticker(emoji)} className="flex aspect-square items-center justify-center rounded-lg text-2xl active:scale-90 transition">{emoji}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* Icônes outils */}
+          <div className="flex items-center justify-around px-1 py-1.5 pb-safe">
+            <SidebarIcon active={openPanel==="photos"}   onClick={()=>togglePanel("photos")}   icon="📸" label="Photos"/>
+            <SidebarIcon active={openPanel==="layouts"}  onClick={()=>togglePanel("layouts")}  label="Layout"
+              icon={<svg viewBox="0 0 16 16" className="w-5 h-5 fill-current"><rect x="1" y="1" width="6" height="6" rx="0.5"/><rect x="9" y="1" width="6" height="6" rx="0.5"/><rect x="1" y="9" width="6" height="6" rx="0.5"/><rect x="9" y="9" width="6" height="6" rx="0.5"/></svg>}/>
+            <SidebarIcon active={openPanel==="colors"}   onClick={()=>togglePanel("colors")}   icon="🎨" label="Couleurs"/>
+            <SidebarIcon active={openPanel==="text"}     onClick={()=>togglePanel("text")}     icon={<span className="font-bold text-sm">Aa</span>} label="Texte"/>
+            <SidebarIcon active={openPanel==="stickers"} onClick={()=>togglePanel("stickers")} icon="✨" label="Stickers"/>
+            <button onClick={addPage} className="flex flex-col items-center justify-center gap-0.5 rounded-xl p-2 w-full text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition">
+              <span className="text-lg leading-none">+</span>
+              <span className="text-[8px] font-medium leading-none mt-0.5">Page</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  // ── DESKTOP EDITOR ─────────────────────────────────────────────────────
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#e8e5e0] text-slate-900">
 
