@@ -1470,9 +1470,6 @@ export default function CreatePage() {
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
           <span className="hidden sm:block text-xs text-slate-300">|</span>
           <span className="hidden sm:block text-xs font-semibold text-slate-700">à partir de {formatPrice(calculatePrice("physique",contentPageCount))}</span>
-          <button onClick={handleDownloadPDF} disabled={pdfProgress!==null} title="Télécharger le PDF" className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-50">
-            {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
-          </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
         </div>
