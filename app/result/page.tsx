@@ -416,17 +416,6 @@ function ResultContent() {
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <Link href="/create" className="hidden text-xs text-slate-400 hover:text-slate-700 sm:block">← Modifier</Link>
-              {album?.type === "manual" && (
-                <button
-                  onClick={onDownloadPDF}
-                  disabled={pdfProgress !== null}
-                  className="hidden items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:border-slate-400 disabled:opacity-60 sm:flex"
-                >
-                  {pdfProgress
-                    ? `PDF… ${pdfProgress.current}/${pdfProgress.total}`
-                    : "⬇ PDF"}
-                </button>
-              )}
               <button
                 onClick={() => onCheckout(selectedPack)}
                 disabled={loadingPack !== null}
