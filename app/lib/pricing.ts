@@ -2,29 +2,13 @@ export const INCLUDED_PAGES = 24;
 
 export const PACKS = [
   {
-    id: "digital" as const,
-    name: "Digital",
-    basePrice: 10,
-    extraPerPage: 0.25,
-    desc: "Album PDF HD — téléchargement immédiat",
-    perks: ["Album haute résolution", "PDF prêt à partager", "Téléchargement immédiat"],
-  },
-  {
     id: "physique" as const,
-    name: "Physique",
+    name: "Album imprimé",
     basePrice: 29,
     extraPerPage: 0.5,
     desc: "Livre imprimé livré chez toi",
     perks: ["Livre imprimé finition premium", "Livraison en France", "Pour offrir ou garder"],
     featured: true,
-  },
-  {
-    id: "duo" as const,
-    name: "Duo",
-    basePrice: 35,
-    extraPerPage: 0.6,
-    desc: "Digital + Physique — le meilleur des deux",
-    perks: ["Pack Digital inclus", "Livre imprimé inclus", "Meilleure valeur"],
   },
 ];
 

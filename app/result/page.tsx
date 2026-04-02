@@ -16,7 +16,7 @@ type Album =
   | { type: "manual"; title: string; pages: EditorPage[] };
 
 // ── Checkout ───────────────────────────────────────────────────────────
-async function redirectToCheckout(pack: "digital" | "physique" | "duo", pageCount: number, albumTitle?: string) {
+async function redirectToCheckout(pack: "physique", pageCount: number, albumTitle?: string) {
   const res = await fetch("/api/stripe/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -304,7 +304,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
 function ResultContent() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
-  const [selectedPack, setSelectedPack] = useState<"digital"|"physique"|"duo">("physique");
+  const [selectedPack] = useState<"physique">("physique");
   const [pdfProgress, setPdfProgress] = useState<{ current: number; total: number } | null>(null);
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
@@ -313,8 +313,6 @@ function ResultContent() {
     try {
       const raw = sessionStorage.getItem("linstantane:album");
       if (raw) setAlbum(JSON.parse(raw) as Album);
-      const savedPack = sessionStorage.getItem("linstantane:pack") as "digital"|"physique"|"duo"|null;
-      if (savedPack) setSelectedPack(savedPack);
     } catch {
       // nothing
     }
@@ -347,7 +345,7 @@ function ResultContent() {
     }
   }
 
-  async function onCheckout(pack: "digital" | "physique" | "duo") {
+  async function onCheckout(pack: "physique") {
     setLoadingPack(pack);
     try {
       await redirectToCheckout(pack, pageCount, album?.title);
