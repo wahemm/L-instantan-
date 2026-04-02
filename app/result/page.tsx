@@ -409,17 +409,10 @@ function ResultContent() {
       {album && !success && (
         <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
-            <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
-              {PACKS.map(p => {
-                const pr = formatPrice(calculatePrice(p.id, pageCount));
-                return (
-                  <button key={p.id} onClick={() => setSelectedPack(p.id as "digital"|"physique"|"duo")}
-                    className={`shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${selectedPack===p.id ? "border-slate-900 bg-slate-900 text-white" : "border-gray-200 text-slate-600 hover:border-slate-400"}`}
-                  >
-                    {p.name} <span className={selectedPack===p.id ? "text-slate-300" : "text-slate-400"}>{pr}</span>
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-700">{pageCount} page{pageCount > 1 ? "s" : ""}</span>
+              <span className="text-slate-300">·</span>
+              <span className="text-sm text-slate-500">Album imprimé A4 · Papier brillant 170g/m²</span>
             </div>
             <div className="flex shrink-0 items-center gap-3">
               <Link href="/create" className="hidden text-xs text-slate-400 hover:text-slate-700 sm:block">← Modifier</Link>
@@ -499,28 +492,13 @@ function ResultContent() {
               </p>
             )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {PACKS.map((pack) => {
-              const price = calculatePrice(pack.id, pageCount);
-              const priceLabel = formatPrice(price);
-              const isSelected = selectedPack === pack.id;
-              return (
-                <button
-                  key={pack.id}
-                  onClick={() => setSelectedPack(pack.id as "digital"|"physique"|"duo")}
-                  className={`relative flex flex-col items-center gap-1.5 rounded-xl border py-5 text-center transition ${
-                    isSelected ? "border-slate-900 bg-slate-900 text-white shadow-md" : "border-gray-200 text-slate-700 hover:border-slate-400"
-                  }`}
-                >
-                  {pack.featured && (
-                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">Populaire</span>
-                  )}
-                  <span className="text-sm font-semibold">{pack.name}</span>
-                  <span className={`text-xs ${isSelected ? "text-slate-300" : "text-slate-400"}`}>{pack.desc}</span>
-                  <span className={`font-[family-name:var(--font-playfair)] text-2xl font-bold ${isSelected ? "text-white" : "text-slate-900"}`}>{priceLabel}</span>
-                </button>
-              );
-            })}
+          <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6 text-center">
+            <p className="text-sm text-slate-500 mb-1">Album imprimé A4 · Papier brillant 170g/m²</p>
+            <p className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900 my-3">{selectedPrice}</p>
+            <p className="text-xs text-slate-400 mb-5">Livraison en France incluse · {pageCount} pages</p>
+            <ul className="mb-6 space-y-2 text-sm text-slate-600 text-left max-w-xs mx-auto">
+              {PACKS[0].perks.map(p => <li key={p} className="flex items-center gap-2"><span className="text-green-500">✓</span>{p}</li>)}
+            </ul>
           </div>
           <button
             onClick={() => onCheckout(selectedPack)}
