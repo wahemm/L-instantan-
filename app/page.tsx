@@ -350,6 +350,7 @@ export default function Home() {
             <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">À propos</Link>
             <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
             <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
+            <Link href="/politique-confidentialite" className="transition hover:text-slate-700">Confidentialité</Link>
           </div>
           <span>© 2026 L&apos;Instantané</span>
         </div>

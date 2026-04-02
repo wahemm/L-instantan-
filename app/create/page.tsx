@@ -903,6 +903,26 @@ export default function CreatePage() {
     router.push("/result");
   }
 
+  const [savedMsg, setSavedMsg] = useState<string|null>(null);
+
+  function handleSave() {
+    const albumData = JSON.stringify({type:"manual",title:albumTitle,pages});
+    // Check if restoring an existing album
+    const existingId = sessionStorage.getItem("linstantane:restore-id");
+    const id = existingId ?? `album-${Date.now()}`;
+    sessionStorage.setItem("linstantane:restore-id", id);
+    // Save full data
+    localStorage.setItem(`linstantane:album:${id}`, albumData);
+    // Save metadata index
+    const cover = pages[0]?.photos?.[0] ?? null;
+    const meta = { id, title: albumTitle, pageCount: pages.length, cover, savedAt: new Date().toISOString() };
+    const existing: object[] = JSON.parse(localStorage.getItem("linstantane:saved-albums") ?? "[]");
+    const updated = [meta, ...existing.filter((a: object) => (a as {id:string}).id !== id)];
+    localStorage.setItem("linstantane:saved-albums", JSON.stringify(updated));
+    setSavedMsg("Sauvegardé ✓");
+    setTimeout(() => setSavedMsg(null), 2000);
+  }
+
   async function handleDownloadPDF() {
     const { generateAlbumPDF } = await import("@/app/lib/generatePDF");
     setPdfProgress({current:0,total:pages.length});
@@ -1152,6 +1172,9 @@ export default function CreatePage() {
             ? <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none max-w-[140px]"/>
             : <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
           }
+          <button onClick={handleSave} className="rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition">
+            {savedMsg ?? "💾 Sauver"}
+          </button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander</button>
         </div>
 
@@ -1470,6 +1493,9 @@ export default function CreatePage() {
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
           <span className="hidden sm:block text-xs text-slate-300">|</span>
           <span className="hidden sm:block text-xs font-semibold text-slate-700">à partir de {formatPrice(calculatePrice("physique",contentPageCount))}</span>
+          <button onClick={handleSave} className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition">
+            {savedMsg ?? "💾 Sauvegarder"}
+          </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
         </div>

@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { UserButton, SignInButton, useUser } from "@clerk/nextjs";
 
 const NAV_LINKS = [
-  { href: "/shop",              label: "Albums"           },
+  { href: "/shop",              label: "Albums"            },
   { href: "/comment-ca-marche", label: "Comment ça marche" },
-  { href: "/faq",               label: "FAQ"              },
+  { href: "/faq",               label: "FAQ"               },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -39,6 +41,24 @@ export default function Nav() {
 
         {/* Right */}
         <div className="ml-auto flex items-center gap-3">
+          {isSignedIn ? (
+            <>
+              <Link
+                href="/mon-compte"
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition"
+              >
+                Mon compte
+              </Link>
+              <UserButton />
+            </>
+          ) : (
+            <SignInButton mode="modal">
+              <button className="hidden sm:inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm text-slate-600 hover:border-slate-400 transition">
+                Se connecter
+              </button>
+            </SignInButton>
+          )}
+
           <Link
             href="/create"
             className="hidden sm:inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
@@ -72,6 +92,19 @@ export default function Nav() {
                 {l.label}
               </Link>
             ))}
+            {isSignedIn ? (
+              <Link href="/mon-compte" onClick={() => setOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 transition"
+              >
+                Mon compte
+              </Link>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="rounded-xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 transition text-left w-full">
+                  Se connecter
+                </button>
+              </SignInButton>
+            )}
           </nav>
           <Link href="/create" onClick={() => setOpen(false)}
             className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
