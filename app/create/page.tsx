@@ -713,12 +713,13 @@ export default function CreatePage() {
   const [library, setLibrary] = useState<string[]>([]);
   const [pages, setPages] = useState<EditorPage[]>(DEFAULT_PAGES.map(p=>({...p,texts:[...p.texts]})));
 
-  function enterManualMode(title?: string) {
+  function enterManualMode(title?: string, cover?: string) {
+    const usedCover = cover ?? selectedCover;
     setPages(DEFAULT_PAGES.map((p, i) => ({
       ...p,
       texts: [...p.texts],
       ...(i === 0 ? {
-        ...(selectedCover ? { photos: [selectedCover], bgColor: "#0f172a" } : {}),
+        ...(usedCover ? { photos: [usedCover], bgColor: "#0f172a" } : {}),
         ...(title ? { title } : {}),
       } : {}),
     })));
@@ -982,7 +983,7 @@ export default function CreatePage() {
                   key={tpl.id}
                   type="button"
                   onClick={() => { setSelectedCover(p => p === tpl.src ? p : tpl.src); }}
-                  onDoubleClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined); }}
+                  onDoubleClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }}
                   className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
                     selected
                       ? "border-slate-900 ring-2 ring-slate-900 ring-offset-2 shadow-xl"
