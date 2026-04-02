@@ -982,6 +982,7 @@ export default function CreatePage() {
                   key={tpl.id}
                   type="button"
                   onClick={() => { setSelectedCover(p => p === tpl.src ? p : tpl.src); }}
+                  onDoubleClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined); }}
                   className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
                     selected
                       ? "border-slate-900 ring-2 ring-slate-900 ring-offset-2 shadow-xl"
