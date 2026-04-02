@@ -982,7 +982,10 @@ export default function CreatePage() {
                 <button
                   key={tpl.id}
                   type="button"
-                  onClick={() => { setSelectedCover(p => p === tpl.src ? p : tpl.src); }}
+                  onClick={() => {
+                    if (isMobile) { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }
+                    else { setSelectedCover(p => p === tpl.src ? p : tpl.src); }
+                  }}
                   onDoubleClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }}
                   className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
                     selected
