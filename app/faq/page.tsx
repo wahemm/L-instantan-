@@ -35,16 +35,16 @@ const FAQS = [
       },
       {
         q: "Livrez-vous en dehors de France ?",
-        a: "Pour l'instant, nous livrons uniquement en France métropolitaine. Si tu es à l'étranger, le pack Digital (PDF HD) est disponible immédiatement après commande, partout dans le monde.",
+        a: "Pour l'instant, nous livrons en France métropolitaine, en Belgique, en Suisse, au Luxembourg et à Monaco. Contacte-nous pour toute autre destination.",
       },
     ],
   },
   {
-    category: "Packs & tarifs",
+    category: "Tarifs",
     items: [
       {
-        q: "Quelle est la différence entre Digital, Physique et Duo ?",
-        a: "Le pack Digital (10 €) te donne accès à un PDF haute résolution à télécharger immédiatement. Le pack Physique (29 €) comprend un livre imprimé livré chez toi. Le pack Duo (35 €) combine les deux : PDF HD + livre imprimé, pour le meilleur rapport qualité-prix.",
+        q: "Combien coûte un album ?",
+        a: "L'album imprimé démarre à 29 € pour 24 pages, livraison incluse. Chaque page supplémentaire coûte 0,50 €. C'est tout, pas de frais cachés.",
       },
       {
         q: "Comment fonctionne le paiement ?",

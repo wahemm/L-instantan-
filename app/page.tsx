@@ -24,7 +24,7 @@ const DEMOS = [
 const TESTIMONIALS = [
   {
     name: "Camille",
-    role: "Pack Physique",
+    role: "Album voyage",
     stars: 5,
     quote: "On a envoyé les photos du week-end et le livre est magnifique. Un souvenir inoubliable à feuilleter.",
   },
@@ -49,44 +49,67 @@ const PERKS = [
   { icon: "🚚", label: "Livraison offerte", desc: "France, 5–7 jours" },
 ];
 
-// Inline CSS book mockup component
-function BookMockup({ bgColor, textColor, title, rotate = 0, scale = 1, zIndex = 0 }: {
-  bgColor: string; textColor: string; title: string; rotate?: number; scale?: number; zIndex?: number;
+// Realistic book mockup using actual cover images
+function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0 }: {
+  src: string; alt: string; rotate?: number; scale?: number; zIndex?: number;
 }) {
   return (
     <div
       style={{
-        backgroundColor: bgColor,
-        transform: `rotate(${rotate}deg) scale(${scale})`,
+        transform: `perspective(800px) rotateY(${rotate}deg) scale(${scale})`,
         zIndex,
-        width: 140,
-        height: 190,
-        borderRadius: 6,
+        width: 160,
+        height: 220,
+        borderRadius: 4,
         position: "relative",
         flexShrink: 0,
-        boxShadow: "8px 8px 24px rgba(0,0,0,0.35), inset -3px 0 8px rgba(0,0,0,0.15)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "12px 10px",
-        overflow: "hidden",
+        transformStyle: "preserve-3d",
       }}
     >
-      {/* Spine */}
-      <div style={{ position:"absolute", left:0, top:0, bottom:0, width:8, background:"rgba(0,0,0,0.2)", borderRadius:"6px 0 0 6px" }} />
-      {/* Top line */}
-      <div style={{ position:"absolute", top:12, left:16, right:12, height:1, backgroundColor:textColor, opacity:0.25 }} />
-      {/* Bottom line */}
-      <div style={{ position:"absolute", bottom:12, left:16, right:12, height:1, backgroundColor:textColor, opacity:0.25 }} />
-      {/* Title */}
-      <p style={{ color:textColor, fontFamily:"Georgia, serif", fontSize:15, fontStyle:"italic", textAlign:"center", lineHeight:1.3, padding:"0 4px", opacity:0.9 }}>
-        {title}
-      </p>
-      {/* Branding */}
-      <p style={{ position:"absolute", bottom:18, color:textColor, opacity:0.35, fontSize:7, letterSpacing:"0.15em", textTransform:"uppercase" }}>
-        L&apos;Instantané
-      </p>
+      {/* Book spine */}
+      <div style={{
+        position: "absolute",
+        left: -6,
+        top: 2,
+        bottom: 2,
+        width: 12,
+        background: "linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.15))",
+        borderRadius: "4px 0 0 4px",
+        transform: "translateZ(-1px)",
+      }} />
+      {/* Cover image — show only right half (front cover) */}
+      <div style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: 4,
+        overflow: "hidden",
+        boxShadow: "8px 12px 28px rgba(0,0,0,0.45), 2px 2px 8px rgba(0,0,0,0.2)",
+      }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} style={{ width: "200%", height: "100%", objectFit: "cover", objectPosition: "100% center", display: "block" }} />
+      </div>
+      {/* Page edges (right side) */}
+      <div style={{
+        position: "absolute",
+        right: -3,
+        top: 4,
+        bottom: 4,
+        width: 6,
+        background: "linear-gradient(to right, #e8e4df, #f5f2ed, #e8e4df)",
+        borderRadius: "0 2px 2px 0",
+        zIndex: -1,
+      }} />
+      {/* Bottom page edges */}
+      <div style={{
+        position: "absolute",
+        left: 4,
+        right: 4,
+        bottom: -3,
+        height: 6,
+        background: "linear-gradient(to bottom, #e8e4df, #f5f2ed, #e8e4df)",
+        borderRadius: "0 0 2px 2px",
+        zIndex: -1,
+      }} />
     </div>
   );
 }
@@ -139,17 +162,19 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating book mockups */}
-          <div className="relative mt-14 flex items-end justify-center gap-4 pb-0" style={{ minHeight: 220 }}>
-            <div className="hidden sm:block" style={{ marginBottom: 8 }}>
-              <BookMockup bgColor="#0d9488" textColor="#ffffff" title="Italie 2024" rotate={-8} scale={0.88} zIndex={1} />
+          {/* Floating book mockups with real covers */}
+          <div className="relative mx-auto mt-14 flex items-end justify-center gap-6 sm:gap-10 pb-0" style={{ minHeight: 250 }}>
+            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+              <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1} />
             </div>
-            <BookMockup bgColor="#0f172a" textColor="#ffffff" title="Mon Album" rotate={0} scale={1.1} zIndex={3} />
-            <div className="hidden sm:block" style={{ marginBottom: 8 }}>
-              <BookMockup bgColor="#f5e6d3" textColor="#3d2b1f" title="Voyage en Provence" rotate={8} scale={0.88} zIndex={1} />
+            <div style={{ marginBottom: 0 }}>
+              <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} />
+            </div>
+            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+              <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1} />
             </div>
             {/* Shadow under books */}
-            <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-10 w-64 rounded-full opacity-40" style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)", filter: "blur(8px)" }} />
+            <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-12 w-80 rounded-full opacity-50" style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)", filter: "blur(10px)" }} />
           </div>
         </div>
       </section>
@@ -193,7 +218,7 @@ export default function Home() {
                     src={tpl.src}
                     alt={tpl.name}
                     className="w-full h-auto object-cover"
-                    loading="eager"
+                    loading="lazy"
                   />
                 </div>
                 <span className="text-[11px] text-slate-400 group-hover:text-slate-700 transition">{tpl.name}</span>
@@ -224,7 +249,7 @@ export default function Home() {
               Provence, Italie, Miami, Espagne, Marrakech… Chaque voyage mérite son beau livre.
             </p>
           </div>
-          <div className="scroll-visible flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
+          <div className="flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
             {DEMOS.map((demo) => (
               <div
                 key={demo.alt}
@@ -340,19 +365,69 @@ export default function Home() {
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
-          <span className="font-[family-name:var(--font-playfair)] text-slate-900">L&apos;Instantané</span>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link href="/comment-ca-marche" className="transition hover:text-slate-700">Comment ça marche</Link>
-            <Link href="/shop" className="transition hover:text-slate-700">Albums</Link>
-            <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">À propos</Link>
-            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
-            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
-            <Link href="/politique-confidentialite" className="transition hover:text-slate-700">Confidentialité</Link>
+      <footer className="bg-[#0c1220] text-white">
+        <div className="mx-auto max-w-6xl px-6 pt-16 pb-10">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div className="flex flex-col gap-4">
+              <span className="font-[family-name:var(--font-playfair)] text-xl">L&apos;Instantané</span>
+              <p className="text-sm leading-relaxed text-slate-400">
+                Tes souvenirs méritent un beau livre. Albums photo premium imprimés et livrés chez toi.
+              </p>
+              {/* Social */}
+              <div className="flex items-center gap-4 mt-2">
+                <a href="https://instagram.com/linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="text-slate-400 transition hover:text-white" aria-label="Instagram">
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <a href="https://tiktok.com/@linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="text-slate-400 transition hover:text-white" aria-label="TikTok">
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Pages */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Pages</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><Link href="/" className="transition hover:text-white">Accueil</Link></li>
+                <li><Link href="/create" className="transition hover:text-white">Créer un album</Link></li>
+                <li><Link href="/comment-ca-marche" className="transition hover:text-white">Comment ça marche</Link></li>
+                <li><Link href="/faq" className="transition hover:text-white">FAQ</Link></li>
+                <li><Link href="/qui-sommes-nous" className="transition hover:text-white">À propos</Link></li>
+              </ul>
+            </div>
+
+            {/* Légal */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Légal</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><Link href="/cgv" className="transition hover:text-white">CGV</Link></li>
+                <li><Link href="/mentions-legales" className="transition hover:text-white">Mentions légales</Link></li>
+                <li><Link href="/politique-confidentialite" className="transition hover:text-white">Politique de confidentialité</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Contact</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><a href="mailto:contact@linstantane.fr" className="transition hover:text-white">contact@linstantane.fr</a></li>
+                <li><a href="https://instagram.com/linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">@linstantane_souvenir</a></li>
+              </ul>
+            </div>
           </div>
-          <span>© 2026 L&apos;Instantané</span>
+
+          {/* Bottom bar */}
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-slate-500 sm:flex-row">
+            <span>© 2026 L&apos;Instantané · Tous droits réservés</span>
+            <div className="flex items-center gap-4">
+              <span>Paiement sécurisé</span>
+              <span>·</span>
+              <span>Satisfait ou remboursé</span>
+              <span>·</span>
+              <span>Livraison offerte</span>
+            </div>
+          </div>
         </div>
       </footer>
     </main>
