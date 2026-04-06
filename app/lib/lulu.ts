@@ -68,7 +68,21 @@ export async function getCoverDimensions(pageCount: number) {
 }
 
 /** Calculate print + shipping cost */
-export async function calculateCost(pageCount: number, countryCode = "FR", postcode = "75001") {
+export async function calculateCost(pageCount: number, countryCode = "FR") {
+  // Default postcodes per country for cost estimation
+  const defaultPostcodes: Record<string, string> = {
+    FR: "75001", BE: "1000", CH: "1200", LU: "1111", MC: "98000",
+    DE: "10115", ES: "28001", IT: "00100", NL: "1011", PT: "1000-001",
+    AT: "1010", IE: "D01", GB: "W1A 1AA",
+  };
+  const postcode = defaultPostcodes[countryCode] || "75001";
+  const cityDefaults: Record<string, string> = {
+    FR: "Paris", BE: "Bruxelles", CH: "Genève", LU: "Luxembourg", MC: "Monaco",
+    DE: "Berlin", ES: "Madrid", IT: "Roma", NL: "Amsterdam", PT: "Lisboa",
+    AT: "Wien", IE: "Dublin", GB: "London",
+  };
+  const city = cityDefaults[countryCode] || "Paris";
+
   const res = await luluFetch("/print-job-cost-calculations/", {
     method: "POST",
     body: JSON.stringify({
@@ -79,8 +93,8 @@ export async function calculateCost(pageCount: number, countryCode = "FR", postc
       }],
       shipping_address: {
         name: "Cost Estimate",
-        street1: "1 Rue Test",
-        city: "Paris",
+        street1: "1 Rue Estimation",
+        city,
         country_code: countryCode,
         postcode,
         phone_number: "+33600000000",

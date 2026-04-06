@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
+
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || key.includes("placeholder")) return null;
+  return new Resend(key);
+}
 
 /**
  * POST /api/lulu/webhook
@@ -38,7 +45,33 @@ export async function POST(req: NextRequest) {
 
     if (status === "REJECTED" || status === "ERROR" || status === "CANCELED") {
       console.error(`[Lulu] Order ${externalId} failed with status: ${status}`);
-      // TODO: Alert admin, potentially refund via Stripe
+
+      // Alert admin via email
+      try {
+        const resend = getResend();
+        if (resend) {
+          const statusMessage = printJob.status?.message || "Aucun détail fourni";
+          await resend.emails.send({
+            from: "L'Instantané <contact@linstantane.fr>",
+            to: "contact@linstantane.fr",
+            subject: `[URGENT] Impression Lulu ${status} — Job ${printJobId}`,
+            html: `
+<h2>Job d'impression Lulu en échec</h2>
+<p><strong>Statut :</strong> ${status}</p>
+<p><strong>Détail :</strong> ${statusMessage}</p>
+<hr />
+<table>
+  <tr><td><strong>Print Job ID</strong></td><td>${printJobId}</td></tr>
+  <tr><td><strong>Commande Stripe (external_id)</strong></td><td>${externalId ?? "N/A"}</td></tr>
+  <tr><td><strong>Topic</strong></td><td>${topic}</td></tr>
+</table>
+<p>Merci de vérifier la commande et procéder au remboursement si nécessaire.</p>`,
+          });
+          console.log(`Admin alert sent for Lulu job ${printJobId} (${status})`);
+        }
+      } catch (alertErr) {
+        console.error("Failed to send admin alert email:", alertErr);
+      }
     }
 
     return NextResponse.json({ received: true });

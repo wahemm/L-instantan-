@@ -414,13 +414,25 @@ export async function generateLuluCoverPDF(
   drawTexts(ctx, coverPage.texts ?? [], W, H);
   drawStickers(ctx, coverPage.stickers ?? [], W, H);
 
-  const imgData = canvas.toDataURL("image/jpeg", 0.95);
+  // Use canvas.toBlob for reliable JPEG extraction (toDataURL fails on large canvases)
+  const jpegBytes = await new Promise<Uint8Array>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return reject(new Error("Canvas toBlob returned null"));
+        blob.arrayBuffer().then(buf => resolve(new Uint8Array(buf)));
+      },
+      "image/jpeg",
+      0.95
+    );
+  });
 
-  const { jsPDF } = await import("jspdf");
-  const wIn = coverWidthPt / 72;
-  const hIn = coverHeightPt / 72;
-  const pdf = new jsPDF({ unit: "in", format: [wIn, hIn] });
-  pdf.addImage(imgData, "JPEG", 0, 0, wIn, hIn);
+  // Use pdf-lib for robust custom page sizes (jsPDF has a scale bug with large formats)
+  const { PDFDocument } = await import("pdf-lib");
+  const pdfDoc = await PDFDocument.create();
+  const jpegImage = await pdfDoc.embedJpg(jpegBytes);
+  const page = pdfDoc.addPage([coverWidthPt, coverHeightPt]);
+  page.drawImage(jpegImage, { x: 0, y: 0, width: coverWidthPt, height: coverHeightPt });
 
-  return pdf.output("blob");
+  const pdfBytes = await pdfDoc.save();
+  return new Blob([pdfBytes.buffer as ArrayBuffer], { type: "application/pdf" });
 }
