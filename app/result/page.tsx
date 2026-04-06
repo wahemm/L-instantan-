@@ -313,18 +313,20 @@ function ResultContent() {
   async function onCheckout() {
     if (!album || album.type !== "manual") return;
 
-    try {
-      // 1. Get cover dimensions from Lulu (with fallback)
-      setCheckoutStep("generating-cover");
-      setProgress("Préparation…");
+    setCheckoutStep("generating-cover");
+    setProgress("Préparation…");
 
-      const interiorPageCount = album.pages.length - 1; // exclude cover
+    let interiorUrl = "";
+    let coverUrl = "";
+
+    // Try to generate and upload PDFs for Lulu printing
+    try {
+      const interiorPageCount = album.pages.length - 1;
       const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
 
-      // Default dimensions for 24-page 8.5x11" hardcover (safe fallback)
+      // Cover dimensions (fallback to 24-page defaults)
       let coverWidthPt = 1368;
       let coverHeightPt = 918;
-
       try {
         const dimsRes = await fetch("/api/lulu/cover-dimensions", {
           method: "POST",
@@ -335,16 +337,10 @@ function ResultContent() {
           const dims = await dimsRes.json();
           const w = parseFloat(dims.width);
           const h = parseFloat(dims.height);
-          if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
-            coverWidthPt = w;
-            coverHeightPt = h;
-          }
+          if (w > 0 && h > 0) { coverWidthPt = w; coverHeightPt = h; }
         }
-      } catch (e) {
-        console.warn("Lulu dimensions fallback used:", e);
-      }
+      } catch { /* use defaults */ }
 
-      // 2. Generate cover PDF
       setProgress("Génération de la couverture…");
       const { generateLuluCoverPDF, generateLuluInteriorPDF } = await import("@/app/lib/generatePDF");
       const coverBlob = await generateLuluCoverPDF(
@@ -352,7 +348,6 @@ function ResultContent() {
         coverWidthPt, coverHeightPt
       );
 
-      // 3. Generate interior PDF
       setCheckoutStep("generating-interior");
       setProgress("Génération des pages…");
       const interiorBlob = await generateLuluInteriorPDF(
@@ -360,7 +355,6 @@ function ResultContent() {
         (current, total) => setProgress(`Page ${current}/${total}…`)
       );
 
-      // 4. Upload PDFs
       setCheckoutStep("uploading");
       setProgress("Envoi des fichiers…");
       const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -370,13 +364,18 @@ function ResultContent() {
       formData.append("orderId", orderId);
 
       const uploadRes = await fetch("/api/upload-pdf", { method: "POST", body: formData });
-      const { interiorUrl, coverUrl } = await uploadRes.json();
+      const uploadData = await uploadRes.json();
+      interiorUrl = uploadData.interiorUrl || "";
+      coverUrl = uploadData.coverUrl || "";
+    } catch (pdfErr) {
+      console.error("PDF generation/upload failed (proceeding to checkout anyway):", pdfErr);
+      // Continue to Stripe without PDFs — order will need manual PDF handling
+    }
 
-      if (!interiorUrl || !coverUrl) throw new Error("Upload failed");
-
-      // 5. Create Stripe checkout
+    // Always redirect to Stripe checkout, even without PDFs
+    try {
       setCheckoutStep("redirecting");
-      setProgress("Redirection…");
+      setProgress("Redirection vers le paiement…");
 
       const checkoutRes = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -393,11 +392,11 @@ function ResultContent() {
       if (checkoutData.url) {
         window.location.href = checkoutData.url;
       } else {
-        throw new Error("No checkout URL");
+        throw new Error("Pas de lien de paiement");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Une erreur est survenue lors de la préparation de votre commande. Veuillez réessayer.");
+      console.error("Stripe checkout error:", err);
+      alert("Impossible de créer la session de paiement. Veuillez réessayer.");
       setCheckoutStep("idle");
       setProgress("");
     }
