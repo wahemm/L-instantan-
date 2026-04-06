@@ -260,10 +260,11 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
 }
 
 // ── Checkout flow with PDF generation & upload ────────────────────────
-type CheckoutStep = "idle" | "generating-interior" | "generating-cover" | "uploading" | "redirecting";
+type CheckoutStep = "idle" | "summary" | "generating-interior" | "generating-cover" | "uploading" | "redirecting";
 
 const STEP_LABELS: Record<CheckoutStep, string> = {
   idle: "",
+  summary: "",
   "generating-interior": "Génération des pages intérieures…",
   "generating-cover": "Génération de la couverture…",
   uploading: "Envoi des fichiers…",
@@ -308,6 +309,11 @@ function ResultContent() {
       a.href = url; a.download = `${album.title || "mon-album"}.pdf`; a.click();
       URL.revokeObjectURL(url);
     } finally { setPdfProgress(null); }
+  }
+
+  function showSummary() {
+    if (!album || album.type !== "manual") return;
+    setCheckoutStep("summary");
   }
 
   async function onCheckout() {
@@ -402,7 +408,7 @@ function ResultContent() {
     }
   }
 
-  const isProcessing = checkoutStep !== "idle";
+  const isProcessing = checkoutStep !== "idle" && checkoutStep !== "summary";
 
   return (
     <>
@@ -452,6 +458,77 @@ function ResultContent() {
         </div>
       )}
 
+      {/* Order summary modal */}
+      {checkoutStep === "summary" && album && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+            <div className="bg-slate-900 px-6 py-5 text-center">
+              <h2 className="font-[family-name:var(--font-playfair)] text-xl text-white italic">Récapitulatif</h2>
+            </div>
+            <div className="px-6 py-6">
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Album</span>
+                  <span className="font-semibold text-slate-900">&ldquo;{album.type === "manual" ? (album.title || "Mon Album") : album.title}&rdquo;</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Format</span>
+                  <span className="font-semibold text-slate-900">Hardcover 21×28 cm</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Papier</span>
+                  <span className="font-semibold text-slate-900">Glacé premium 170 g/m²</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Pages</span>
+                  <span className="font-semibold text-slate-900">{pageCount} pages</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Livraison</span>
+                  <span className="font-semibold text-green-600">Offerte (7-10 jours)</span>
+                </div>
+                <hr className="border-gray-100" />
+                {pageCount > INCLUDED_PAGES && (
+                  <div className="space-y-1 text-xs text-slate-400">
+                    <div className="flex justify-between">
+                      <span>Album {INCLUDED_PAGES} pages incluses</span>
+                      <span>29 €</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{pageCount - INCLUDED_PAGES} page{pageCount - INCLUDED_PAGES > 1 ? "s" : ""} supplémentaire{pageCount - INCLUDED_PAGES > 1 ? "s" : ""}</span>
+                      <span>{formatPrice((pageCount - INCLUDED_PAGES) * 0.5)}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="text-base font-bold text-slate-900">Total</span>
+                  <span className="text-2xl font-bold text-slate-900">{price}</span>
+                </div>
+              </div>
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={onCheckout}
+                  className="w-full rounded-full bg-slate-900 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+                >
+                  Payer {price}
+                </button>
+                <button
+                  onClick={() => setCheckoutStep("idle")}
+                  className="w-full rounded-full border border-gray-200 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-400 hover:text-slate-700"
+                >
+                  Annuler
+                </button>
+              </div>
+              <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-slate-400">
+                <span>🔒 Paiement sécurisé Stripe</span>
+                <span>·</span>
+                <span>Satisfait ou remboursé</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Processing overlay */}
       {isProcessing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -479,7 +556,7 @@ function ResultContent() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-500">{pageCount} pages</span>
-              <button onClick={onCheckout} disabled={isProcessing}
+              <button onClick={showSummary} disabled={isProcessing}
                 className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
                 Commander — {price}
               </button>
