@@ -366,13 +366,10 @@ export async function generateLuluCoverPDF(
   coverWidthPt: number,
   coverHeightPt: number,
 ): Promise<Blob> {
-  // Convert points to pixels at 300 DPI (1 pt = 1/72 inch)
-  const DPI = 300;
+  // Convert points to pixels at 150 DPI (lower to avoid canvas size limits in browsers)
+  const DPI = 150;
   const W = Math.round((coverWidthPt / 72) * DPI);
   const H = Math.round((coverHeightPt / 72) * DPI);
-  // Convert points to mm for PDF
-  const W_MM = (coverWidthPt / 72) * 25.4;
-  const H_MM = (coverHeightPt / 72) * 25.4;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
