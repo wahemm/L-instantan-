@@ -420,8 +420,10 @@ export async function generateLuluCoverPDF(
   const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ unit: "pt", format: [coverWidthPt, coverHeightPt] });
-  pdf.addImage(imgData, "JPEG", 0, 0, coverWidthPt, coverHeightPt);
+  const wIn = coverWidthPt / 72;
+  const hIn = coverHeightPt / 72;
+  const pdf = new jsPDF({ unit: "in", format: [wIn, hIn] });
+  pdf.addImage(imgData, "JPEG", 0, 0, wIn, hIn);
 
   return pdf.output("blob");
 }
