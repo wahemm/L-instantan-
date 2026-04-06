@@ -327,8 +327,16 @@ function ResultContent() {
         body: JSON.stringify({ pageCount: evenPageCount }),
       });
       const dims = await dimsRes.json();
+      if (!dimsRes.ok || dims.error) {
+        console.error("Lulu cover dimensions error:", dims);
+        throw new Error(dims.error || "Erreur Lulu");
+      }
       const coverWidthPt = parseFloat(dims.width);
       const coverHeightPt = parseFloat(dims.height);
+      if (isNaN(coverWidthPt) || isNaN(coverHeightPt)) {
+        console.error("Invalid cover dimensions:", dims);
+        throw new Error("Dimensions de couverture invalides");
+      }
 
       // 2. Generate cover PDF
       setProgress("Génération de la couverture…");

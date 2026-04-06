@@ -224,7 +224,7 @@ export default function Home() {
               Provence, Italie, Miami, Espagne, Marrakech… Chaque voyage mérite son beau livre.
             </p>
           </div>
-          <div className="flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
+          <div className="scroll-visible flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
             {DEMOS.map((demo) => (
               <div
                 key={demo.alt}
