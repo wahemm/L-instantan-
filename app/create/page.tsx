@@ -71,6 +71,7 @@ interface EditorPage {
   caption: string;
   texts: TextEl[];
   stickers: StickerEl[];
+  coverHue: number;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────
@@ -129,6 +130,7 @@ function makePage(layoutId: LayoutId, overrides: Partial<EditorPage> = {}): Edit
     caption: "",
     texts: [],
     stickers: [],
+    coverHue: 0,
     ...overrides,
   };
 }
@@ -541,7 +543,7 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
         onDragOver={e=>{e.preventDefault();setDragOver(0);}} onDragLeave={()=>setDragOver(null)}
         onDrop={e=>{e.preventDefault();const s=e.dataTransfer.getData("application/linstantane-photo");if(s)onSlotDrop(0,s);setDragOver(null);}}>
         {/* Template Canva : pleine page, moitié droite = couverture avant */}
-        {has && <img src={page.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>}
+        {has && <img src={page.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center", filter: page.coverHue ? `hue-rotate(${page.coverHue}deg)` : undefined}}/>}
         {dragOver===0&&<div className="absolute inset-0 flex items-center justify-center bg-blue-400/20 ring-4 ring-inset ring-blue-400 z-20"><span className="rounded-full bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white shadow">{has?"Remplacer":"Déposer la photo"}</span></div>}
         {/* Titre uniquement si pas de template */}
         {!has && (
@@ -584,7 +586,7 @@ function PageThumb({ page, label, isActive, onClick, onDuplicate, onDelete }: {
         <button onClick={onClick} className={`relative overflow-hidden rounded border-2 transition ${isActive?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`} style={{width:48,height:68,backgroundColor:page.bgColor}}>
           {isCover ? (
             <>
-              {page.photos[0]&&<img src={page.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30"/>}
+              {page.photos[0]&&<img src={page.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" style={{filter: page.coverHue ? `hue-rotate(${page.coverHue}deg)` : undefined}}/>}
               <div className="relative flex h-full items-center justify-center px-1">
                 <span className={`text-[6px] font-bold text-center leading-tight ${dark?"text-white/80":"text-slate-600"}`}>{page.title||"Album"}</span>
               </div>
@@ -1265,10 +1267,22 @@ export default function CreatePage() {
               )}
 
               {openPanel==="colors" && (
-                <div className="grid grid-cols-8 gap-2">
-                  {BG_COLORS.map(color=>(
-                    <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110":"border-gray-200"}`} style={{backgroundColor:color}}/>
-                  ))}
+                <div>
+                  <div className="grid grid-cols-8 gap-2">
+                    {BG_COLORS.map(color=>(
+                      <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110":"border-gray-200"}`} style={{backgroundColor:color}}/>
+                    ))}
+                  </div>
+                  {isCoverPage && currentPage.photos[0] && (
+                    <div className="mt-3 border-t border-gray-100 pt-3">
+                      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                          <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1390,7 +1404,7 @@ export default function CreatePage() {
               <div className="flex flex-col items-center">
                 {cur.isCover && pages[0].photos[0] ? (
                   <div className="overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
-                    <img src={pages[0].photos[0]!} alt="" className="h-full w-full object-cover"/>
+                    <img src={pages[0].photos[0]!} alt="" className="h-full w-full object-cover" style={{filter: pages[0].coverHue ? `hue-rotate(${pages[0].coverHue}deg)` : undefined}}/>
                   </div>
                 ) : (
                   <div className="flex overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2/1.41"}}>
@@ -1564,6 +1578,17 @@ export default function CreatePage() {
                         <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} title={color} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{backgroundColor:color}}/>
                       ))}
                     </div>
+                    {isCoverPage && currentPage.photos[0] && (
+                      <div className="mt-5 border-t border-gray-100 pt-4">
+                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
+                        <div className="grid grid-cols-6 gap-2">
+                          {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                            <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
+                          ))}
+                        </div>
+                        <p className="mt-2 text-[10px] text-slate-400">Change la teinte de l&apos;image de couverture</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1724,7 +1749,7 @@ export default function CreatePage() {
                 style={{width:"min(1040px, calc(100vw - 160px))", aspectRatio:"2000/1389"}}
                 onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
               >
-                <img src={currentPage.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" data-pagebackdrop="1"/>
+                <img src={currentPage.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" data-pagebackdrop="1" style={{filter: currentPage.coverHue ? `hue-rotate(${currentPage.coverHue}deg)` : undefined}}/>
                 <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"3%",right:"53%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
                 <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"53%",right:"3%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
                 {(currentPage.texts||[]).map(el=>(

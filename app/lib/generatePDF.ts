@@ -302,3 +302,126 @@ export async function generateAlbumPDF(
 
   return pdf.output("blob");
 }
+
+/**
+ * Generate interior PDF for Lulu (8.5×11", skip cover page)
+ * All pages except the first (cover) page, at 300 DPI.
+ */
+export async function generateLuluInteriorPDF(
+  pages: PDFPage[],
+  albumTitle: string,
+  onProgress?: (current: number, total: number) => void
+): Promise<Blob> {
+  // 8.5×11" at 300 DPI
+  const W = 2550;
+  const H = 3300;
+  // 8.5×11" in mm
+  const W_MM = 215.9;
+  const H_MM = 279.4;
+
+  const interiorPages = pages.slice(1); // Skip cover
+  if (interiorPages.length === 0) throw new Error("No interior pages");
+
+  // Lulu requires even page count
+  const needsBlank = interiorPages.length % 2 !== 0;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+
+  const { jsPDF } = await import("jspdf");
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [W_MM, H_MM] });
+
+  const totalPages = interiorPages.length + (needsBlank ? 1 : 0);
+
+  for (let i = 0; i < interiorPages.length; i++) {
+    onProgress?.(i + 1, totalPages);
+
+    ctx.clearRect(0, 0, W, H);
+    await renderPage(ctx, interiorPages[i], W, H, albumTitle);
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    if (i > 0) pdf.addPage();
+    pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
+  }
+
+  // Add blank page if needed for even count
+  if (needsBlank) {
+    pdf.addPage();
+    // Leave blank white page
+  }
+
+  return pdf.output("blob");
+}
+
+/**
+ * Generate cover PDF for Lulu.
+ * Single landscape page: back cover + spine + front cover.
+ * coverWidthPt and coverHeightPt come from the Lulu cover-dimensions API.
+ */
+export async function generateLuluCoverPDF(
+  coverPage: PDFPage,
+  albumTitle: string,
+  coverWidthPt: number,
+  coverHeightPt: number,
+): Promise<Blob> {
+  // Convert points to pixels at 300 DPI (1 pt = 1/72 inch)
+  const DPI = 300;
+  const W = Math.round((coverWidthPt / 72) * DPI);
+  const H = Math.round((coverHeightPt / 72) * DPI);
+  // Convert points to mm for PDF
+  const W_MM = (coverWidthPt / 72) * 25.4;
+  const H_MM = (coverHeightPt / 72) * 25.4;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+
+  // Fill background
+  ctx.fillStyle = coverPage.bgColor || "#0f172a";
+  ctx.fillRect(0, 0, W, H);
+
+  if (coverPage.photos[0]) {
+    // The cover template is a spread image (back + front).
+    // Draw it stretched to fill the full Lulu cover (which includes spine).
+    try {
+      const img = await loadImage(coverPage.photos[0]);
+      drawImageCover(ctx, img, 0, 0, W, H, 50, 50);
+    } catch {
+      // If image fails, just use background color
+    }
+  } else {
+    // Text-based cover — draw title centered on right half (front cover)
+    const frontX = W / 2;
+    const frontW = W / 2;
+    const dark = ["#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340","#7c3aed","#be185d","#0369a1","#15803d","#b45309"].includes(coverPage.bgColor || "");
+
+    ctx.save();
+    ctx.fillStyle = dark ? "#ffffff" : "#1e293b";
+    ctx.font = `italic ${Math.round(frontW * 0.08)}px Georgia, serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(coverPage.title || albumTitle || "Mon Album", frontX + frontW / 2, H / 2, frontW * 0.8);
+
+    if (coverPage.subtitle) {
+      ctx.font = `${Math.round(frontW * 0.025)}px Arial, sans-serif`;
+      ctx.fillStyle = dark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)";
+      ctx.fillText(coverPage.subtitle, frontX + frontW / 2, H / 2 + Math.round(frontW * 0.12), frontW * 0.7);
+    }
+    ctx.restore();
+  }
+
+  // Draw texts and stickers
+  drawTexts(ctx, coverPage.texts ?? [], W, H);
+  drawStickers(ctx, coverPage.stickers ?? [], W, H);
+
+  const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+  const { jsPDF } = await import("jspdf");
+  const pdf = new jsPDF({ unit: "pt", format: [coverWidthPt, coverHeightPt] });
+  pdf.addImage(imgData, "JPEG", 0, 0, coverWidthPt, coverHeightPt);
+
+  return pdf.output("blob");
+}

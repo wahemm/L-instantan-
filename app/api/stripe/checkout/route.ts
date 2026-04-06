@@ -17,6 +17,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const pageCount = typeof body.pageCount === "number" ? body.pageCount : INCLUDED_PAGES;
     const albumTitle = (body.albumTitle as string) || "Mon Album";
+    const interiorUrl = (body.interiorUrl as string) || "";
+    const coverUrl = (body.coverUrl as string) || "";
+
     const origin = req.headers.get("origin") ?? "http://localhost:3000";
     const totalCents = calculatePrice(pageCount);
     const pageDesc = pageCount > INCLUDED_PAGES ? ` (${pageCount} pages)` : "";
@@ -24,6 +27,9 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_creation: "always",
+      shipping_address_collection: {
+        allowed_countries: ["FR", "BE", "CH", "LU", "MC"],
+      },
       line_items: [
         {
           quantity: 1,
@@ -32,7 +38,7 @@ export async function POST(req: NextRequest) {
             unit_amount: totalCents,
             product_data: {
               name: `Album imprimé — L'Instantané${pageDesc}`,
-              description: `"${albumTitle}" · Format A4 · Papier brillant 170g/m² · Livraison incluse`,
+              description: `"${albumTitle}" · Hardcover 8.5×11" · Papier glacé premium · Livraison incluse`,
             },
           },
         },
@@ -41,6 +47,8 @@ export async function POST(req: NextRequest) {
         pack: "physique",
         pageCount: String(pageCount),
         albumTitle,
+        interiorUrl,
+        coverUrl,
       },
       success_url: `${origin}/result?success=true`,
       cancel_url: `${origin}/result`,

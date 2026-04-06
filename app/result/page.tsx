@@ -4,30 +4,28 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
-import { PACKS, calculatePrice, formatPrice, INCLUDED_PAGES } from "@/app/lib/pricing";
+import { INCLUDED_PAGES } from "@/app/lib/pricing";
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
 interface TextEl { id: string; x: number; y: number; w: number; text: string; size: number; color: string; bold: boolean; italic: boolean; align: "left"|"center"|"right"; font: "playfair"|"inter"; }
 interface StickerEl { id: string; emoji: string; x: number; y: number; size: number; }
-type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; photoPositions?: {x:number;y:number}[]; caption: string; bgColor: string; title?: string; subtitle?: string; texts?: TextEl[]; stickers?: StickerEl[]; };
+type EditorPage = { layoutId: LayoutId; photos: (string | null)[]; photoPositions?: {x:number;y:number}[]; caption: string; bgColor: string; title?: string; subtitle?: string; texts?: TextEl[]; stickers?: StickerEl[]; coverHue?: number; };
 type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
-// ── Checkout ───────────────────────────────────────────────────────────
-async function redirectToCheckout(pack: "physique", pageCount: number, albumTitle?: string) {
-  const res = await fetch("/api/stripe/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pack, pageCount, albumTitle }),
-  });
-  const data = await res.json();
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert("Une erreur est survenue. Veuillez réessayer.");
-  }
+// ── Price calculation (single product) ────────────────────────────────
+const BASE_PRICE = 29;
+const EXTRA_PER_PAGE = 0.5;
+
+function calculatePrice(pageCount: number): number {
+  const extra = Math.max(0, pageCount - INCLUDED_PAGES);
+  return Math.round((BASE_PRICE + extra * EXTRA_PER_PAGE) * 100) / 100;
+}
+
+function formatPrice(price: number): string {
+  return price % 1 === 0 ? `${price} €` : `${price.toFixed(2).replace(".", ",")} €`;
 }
 
 // ── Auto layout: group photos 2 per spread ─────────────────────────────
@@ -35,10 +33,7 @@ function AutoBookViewer({ album }: { album: Extract<Album, { type: "auto" }> }) 
   const [current, setCurrent] = useState(0);
   const spreads: (string | null)[][] = [];
 
-  // Cover page
-  spreads.push([null]);
-
-  // Photos by pairs
+  spreads.push([null]); // Cover
   for (let i = 0; i < album.photos.length; i += 2) {
     spreads.push([album.photos[i], album.photos[i + 1] ?? null]);
   }
@@ -49,58 +44,27 @@ function AutoBookViewer({ album }: { album: Extract<Album, { type: "auto" }> }) 
 
   return (
     <div className="flex flex-col items-center">
-      {/* Page */}
-      <div
-        className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl"
-        style={{ aspectRatio: isCover ? "3/4" : "3/4" }}
-      >
+      <div className="w-full max-w-md overflow-hidden rounded-xl shadow-2xl" style={{ aspectRatio: "3/4" }}>
         {isCover ? (
           <div className="flex h-full flex-col items-center justify-center bg-[#121212] px-8 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">
-              L&apos;Instantané
-            </p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic text-white">
-              {album.title}
-            </h2>
-            {album.subtitle && (
-              <p className="mt-2 text-sm text-white/50">{album.subtitle}</p>
-            )}
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/30 mb-3">L&apos;Instantané</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic text-white">{album.title}</h2>
+            {album.subtitle && <p className="mt-2 text-sm text-white/50">{album.subtitle}</p>}
           </div>
         ) : (
-          <div
-            className={`grid h-full gap-0.5 bg-gray-100 ${
-              spread[1] ? "grid-cols-1 grid-rows-2" : "grid-cols-1"
-            }`}
-          >
+          <div className={`grid h-full gap-0.5 bg-gray-100 ${spread[1] ? "grid-cols-1 grid-rows-2" : "grid-cols-1"}`}>
             {spread.map((photo, idx) =>
-              photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={idx} src={photo} alt="" className="h-full w-full object-cover" />
-              ) : null
+              photo ? <img key={idx} src={photo} alt="" className="h-full w-full object-cover" /> : null
             )}
           </div>
         )}
       </div>
-
-      {/* Navigation */}
       <div className="mt-5 flex items-center gap-4">
-        <button
-          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-          disabled={current === 0}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30"
-        >
-          ←
-        </button>
-        <span className="text-sm text-slate-400">
-          {current + 1} / {total}
-        </span>
-        <button
-          onClick={() => setCurrent((c) => Math.min(total - 1, c + 1))}
-          disabled={current === total - 1}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30"
-        >
-          →
-        </button>
+        <button onClick={() => setCurrent(c => Math.max(0, c - 1))} disabled={current === 0}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">←</button>
+        <span className="text-sm text-slate-400">{current + 1} / {total}</span>
+        <button onClick={() => setCurrent(c => Math.min(total - 1, c + 1))} disabled={current === total - 1}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-slate-600 transition hover:border-slate-400 disabled:opacity-30">→</button>
       </div>
     </div>
   );
@@ -149,7 +113,6 @@ function renderPage(p: EditorPage, albumTitle: string) {
     if (p.photos[0]) {
       return (
         <div className="relative h-full w-full overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>
           {textOverlays()}{stickerOverlays()}
         </div>
@@ -220,7 +183,6 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
 
   return (
     <div className="flex h-full flex-col">
-      {/* Canvas zone — flex-1 comme dans la modale */}
       <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         <button onClick={()=>setIdx(p=>Math.max(0,p-1))} disabled={!canPrev}
           className="absolute left-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition">‹</button>
@@ -229,7 +191,6 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
           {cur.isCover && pages[0].photos[0] ? (
             <div className="overflow-hidden rounded shadow-2xl border border-black/10"
               style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover"/>
             </div>
           ) : (
@@ -259,7 +220,6 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
           className="absolute right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md text-xl text-slate-600 hover:bg-gray-50 disabled:opacity-20 transition">›</button>
       </div>
 
-      {/* Bottom bar */}
       <div className="shrink-0 border-t border-gray-200 bg-white">
         <div className="flex items-center justify-center px-4 py-1.5">
           <div className="flex items-center gap-3 text-xs text-slate-500">
@@ -276,7 +236,6 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
                 <div className={`overflow-hidden rounded border-2 transition ${idx===i?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`}
                   style={{width:90,height:63,display:"flex",backgroundColor:pg?.bgColor||"#fff"}}>
                   {s.isCover&&pg?.photos[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>
                   ) : (
                     <>
@@ -300,11 +259,22 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
   );
 }
 
+// ── Checkout flow with PDF generation & upload ────────────────────────
+type CheckoutStep = "idle" | "generating-interior" | "generating-cover" | "uploading" | "redirecting";
+
+const STEP_LABELS: Record<CheckoutStep, string> = {
+  idle: "",
+  "generating-interior": "Génération des pages intérieures…",
+  "generating-cover": "Génération de la couverture…",
+  uploading: "Envoi des fichiers…",
+  redirecting: "Redirection vers le paiement…",
+};
+
 // ── Main result content ────────────────────────────────────────────────
 function ResultContent() {
   const [album, setAlbum] = useState<Album | null>(null);
-  const [loadingPack, setLoadingPack] = useState<string | null>(null);
-  const [selectedPack] = useState<"physique">("physique");
+  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>("idle");
+  const [progress, setProgress] = useState<string>("");
   const [pdfProgress, setPdfProgress] = useState<{ current: number; total: number } | null>(null);
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
@@ -313,16 +283,16 @@ function ResultContent() {
     try {
       const raw = sessionStorage.getItem("linstantane:album");
       if (raw) setAlbum(JSON.parse(raw) as Album);
-    } catch {
-      // nothing
-    }
+    } catch { /* nothing */ }
   }, []);
 
   const pageCount = album
     ? album.type === "manual"
-      ? album.pages.filter((p) => p.layoutId !== "cover").length
+      ? album.pages.filter(p => p.layoutId !== "cover").length
       : Math.ceil((album.photos?.length ?? 0) / 2)
     : INCLUDED_PAGES;
+
+  const price = formatPrice(calculatePrice(pageCount));
 
   async function onDownloadPDF() {
     if (!album || album.type !== "manual") return;
@@ -330,32 +300,96 @@ function ResultContent() {
     setPdfProgress({ current: 0, total: album.pages.length });
     try {
       const blob = await generateAlbumPDF(
-        album.pages,
-        album.title || "Mon Album",
+        album.pages, album.title || "Mon Album",
         (current, total) => setPdfProgress({ current, total })
       );
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `${album.title || "mon-album"}.pdf`;
-      a.click();
+      a.href = url; a.download = `${album.title || "mon-album"}.pdf`; a.click();
       URL.revokeObjectURL(url);
-    } finally {
-      setPdfProgress(null);
-    }
+    } finally { setPdfProgress(null); }
   }
 
-  async function onCheckout(pack: "physique") {
-    setLoadingPack(pack);
+  async function onCheckout() {
+    if (!album || album.type !== "manual") return;
+
     try {
-      await redirectToCheckout(pack, pageCount, album?.title);
-    } finally {
-      setLoadingPack(null);
+      // 1. Get cover dimensions from Lulu
+      setCheckoutStep("generating-cover");
+      setProgress("Calcul des dimensions…");
+
+      const interiorPageCount = album.pages.length - 1; // exclude cover
+      const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
+
+      const dimsRes = await fetch("/api/lulu/cover-dimensions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageCount: evenPageCount }),
+      });
+      const dims = await dimsRes.json();
+      const coverWidthPt = parseFloat(dims.width);
+      const coverHeightPt = parseFloat(dims.height);
+
+      // 2. Generate cover PDF
+      setProgress("Génération de la couverture…");
+      const { generateLuluCoverPDF, generateLuluInteriorPDF } = await import("@/app/lib/generatePDF");
+      const coverBlob = await generateLuluCoverPDF(
+        album.pages[0], album.title || "Mon Album",
+        coverWidthPt, coverHeightPt
+      );
+
+      // 3. Generate interior PDF
+      setCheckoutStep("generating-interior");
+      setProgress("Génération des pages…");
+      const interiorBlob = await generateLuluInteriorPDF(
+        album.pages, album.title || "Mon Album",
+        (current, total) => setProgress(`Page ${current}/${total}…`)
+      );
+
+      // 4. Upload PDFs
+      setCheckoutStep("uploading");
+      setProgress("Envoi des fichiers…");
+      const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const formData = new FormData();
+      formData.append("interior", new File([interiorBlob], "interior.pdf", { type: "application/pdf" }));
+      formData.append("cover", new File([coverBlob], "cover.pdf", { type: "application/pdf" }));
+      formData.append("orderId", orderId);
+
+      const uploadRes = await fetch("/api/upload-pdf", { method: "POST", body: formData });
+      const { interiorUrl, coverUrl } = await uploadRes.json();
+
+      if (!interiorUrl || !coverUrl) throw new Error("Upload failed");
+
+      // 5. Create Stripe checkout
+      setCheckoutStep("redirecting");
+      setProgress("Redirection…");
+
+      const checkoutRes = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pageCount,
+          albumTitle: album.title || "Mon Album",
+          interiorUrl,
+          coverUrl,
+        }),
+      });
+      const checkoutData = await checkoutRes.json();
+
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
+      } else {
+        throw new Error("No checkout URL");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      alert("Une erreur est survenue lors de la préparation de votre commande. Veuillez réessayer.");
+      setCheckoutStep("idle");
+      setProgress("");
     }
   }
 
-  const selectedPackData = PACKS.find(p => p.id === selectedPack)!;
-  const selectedPrice = formatPrice(calculatePrice(selectedPack, pageCount));
+  const isProcessing = checkoutStep !== "idle";
 
   return (
     <>
@@ -371,12 +405,12 @@ function ResultContent() {
               Commande confirmée !
             </h1>
             <p className="mx-auto mt-4 max-w-md text-slate-500">
-              Ton paiement a bien été reçu. Ton album est maintenant en cours de fabrication.
+              Ton paiement a bien été reçu. Ton album est en cours de fabrication et sera livré sous 7 à 10 jours ouvrés.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-3 text-left">
               {[
                 { icon: "📦", title: "Fabrication", desc: "Ton album est envoyé en production sous 24h." },
-                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 5 à 7 jours ouvrés." },
+                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 7 à 10 jours ouvrés." },
                 { icon: "📧", title: "Confirmation", desc: "Un email de confirmation va t'être envoyé." },
               ].map(step => (
                 <div key={step.title} className="flex gap-3 rounded-xl border border-gray-100 p-4">
@@ -405,23 +439,36 @@ function ResultContent() {
         </div>
       )}
 
+      {/* Processing overlay */}
+      {isProcessing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 max-w-sm rounded-2xl bg-white p-8 text-center shadow-2xl">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
+            <p className="text-sm font-semibold text-slate-900">{STEP_LABELS[checkoutStep]}</p>
+            <p className="mt-1 text-xs text-slate-500">{progress}</p>
+            <p className="mt-4 text-[10px] text-slate-400">Ne ferme pas cette page</p>
+          </div>
+        </div>
+      )}
+
       {/* Sticky order bar */}
       {album && !success && (
         <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-slate-700">{pageCount} page{pageCount > 1 ? "s" : ""}</span>
-              <span className="text-slate-300">·</span>
-              <span className="text-sm text-slate-500">Album imprimé A4 · Papier brillant 170g/m²</span>
+            <div className="flex items-center gap-3">
+              <Link href="/create" className="text-xs text-slate-400 hover:text-slate-700">← Modifier</Link>
+              {album?.type === "manual" && (
+                <button onClick={onDownloadPDF} disabled={pdfProgress !== null}
+                  className="hidden items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:border-slate-400 disabled:opacity-60 sm:flex">
+                  {pdfProgress ? `PDF… ${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
+                </button>
+              )}
             </div>
-            <div className="flex shrink-0 items-center gap-3">
-              <Link href="/create" className="hidden text-xs text-slate-400 hover:text-slate-700 sm:block">← Modifier</Link>
-              <button
-                onClick={() => onCheckout(selectedPack)}
-                disabled={loadingPack !== null}
-                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
-              >
-                {loadingPack ? "…" : `Commander — ${selectedPrice}`}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-500">{pageCount} pages</span>
+              <button onClick={onCheckout} disabled={isProcessing}
+                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
+                Commander — {price}
               </button>
             </div>
           </div>
@@ -441,7 +488,7 @@ function ResultContent() {
         ) : null}
       </div>}
 
-      {/* Viewer pleine largeur */}
+      {/* Viewer */}
       {album && !success && (
         <div className="w-full bg-[#f0eeeb]" style={{height:"calc(100vh - 200px)"}}>
           {album.type === "auto" ? (
@@ -468,42 +515,45 @@ function ResultContent() {
         </div>
       )}
 
-      {!success && <div className="mx-auto max-w-4xl px-6 pb-20">
-        {/* Compact pricing section */}
-        <section className="mt-16 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <div className="mb-6 text-center">
-            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-slate-900">
-              Commander mon album
-            </h2>
-            {pageCount > INCLUDED_PAGES && (
+      {/* Bottom order section */}
+      {album && !success && (
+        <div className="mx-auto max-w-4xl px-6 pb-20">
+          <section className="mt-16 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+            <div className="mb-6 text-center">
+              <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-slate-900">
+                Commander mon album
+              </h2>
               <p className="mt-2 text-sm text-slate-500">
-                {pageCount} pages · {pageCount - INCLUDED_PAGES} pages supplémentaires incluses
+                Hardcover 8.5×11&quot; · Papier glacé premium · Livraison offerte
               </p>
-            )}
-          </div>
-          <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6 text-center">
-            <p className="text-sm text-slate-500 mb-1">Album imprimé A4 · Papier brillant 170g/m²</p>
-            <p className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900 my-3">{selectedPrice}</p>
-            <p className="text-xs text-slate-400 mb-5">Livraison en France incluse · {pageCount} pages</p>
-            <ul className="mb-6 space-y-2 text-sm text-slate-600 text-left max-w-xs mx-auto">
-              {PACKS[0].perks.map(p => <li key={p} className="flex items-center gap-2"><span className="text-green-500">✓</span>{p}</li>)}
-            </ul>
-          </div>
-          <button
-            onClick={() => onCheckout(selectedPack)}
-            disabled={loadingPack !== null}
-            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
-          >
-            {loadingPack ? "Redirection…" : `Commander — ${selectedPrice}`}
-          </button>
-          <p className="mt-4 text-center text-xs text-slate-400">
-            🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
-          </p>
-        </section>
-      </div>}
+            </div>
+            <div className="mx-auto max-w-sm">
+              <div className="rounded-xl border border-gray-100 bg-[#f8f7f4] p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold text-slate-900">Album Photo Premium</span>
+                  <span className="font-[family-name:var(--font-playfair)] text-2xl font-bold text-slate-900">{price}</span>
+                </div>
+                <ul className="space-y-2 text-xs text-slate-600">
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Couverture rigide premium</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier glacé 170 g/m²</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> {pageCount} pages intérieures</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison offerte en France</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 7–10 jours ouvrés</li>
+                </ul>
+              </div>
+              <button onClick={onCheckout} disabled={isProcessing}
+                className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
+                {isProcessing ? "Préparation…" : `Commander — ${price}`}
+              </button>
+              <p className="mt-4 text-center text-xs text-slate-400">
+                🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
+              </p>
+            </div>
+          </section>
+        </div>
+      )}
     </>
   );
-
 }
 
 export default function ResultPage() {
