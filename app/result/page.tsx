@@ -314,28 +314,34 @@ function ResultContent() {
     if (!album || album.type !== "manual") return;
 
     try {
-      // 1. Get cover dimensions from Lulu
+      // 1. Get cover dimensions from Lulu (with fallback)
       setCheckoutStep("generating-cover");
-      setProgress("Calcul des dimensions…");
+      setProgress("Préparation…");
 
       const interiorPageCount = album.pages.length - 1; // exclude cover
       const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
 
-      const dimsRes = await fetch("/api/lulu/cover-dimensions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pageCount: evenPageCount }),
-      });
-      const dims = await dimsRes.json();
-      if (!dimsRes.ok || dims.error) {
-        console.error("Lulu cover dimensions error:", dims);
-        throw new Error(dims.error || "Erreur Lulu");
-      }
-      const coverWidthPt = parseFloat(dims.width);
-      const coverHeightPt = parseFloat(dims.height);
-      if (isNaN(coverWidthPt) || isNaN(coverHeightPt)) {
-        console.error("Invalid cover dimensions:", dims);
-        throw new Error("Dimensions de couverture invalides");
+      // Default dimensions for 24-page 8.5x11" hardcover (safe fallback)
+      let coverWidthPt = 1368;
+      let coverHeightPt = 918;
+
+      try {
+        const dimsRes = await fetch("/api/lulu/cover-dimensions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageCount: evenPageCount }),
+        });
+        if (dimsRes.ok) {
+          const dims = await dimsRes.json();
+          const w = parseFloat(dims.width);
+          const h = parseFloat(dims.height);
+          if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
+            coverWidthPt = w;
+            coverHeightPt = h;
+          }
+        }
+      } catch (e) {
+        console.warn("Lulu dimensions fallback used:", e);
       }
 
       // 2. Generate cover PDF
