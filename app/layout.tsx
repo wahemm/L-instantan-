@@ -10,7 +10,7 @@ import "./globals.css";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"], style: ["normal", "italic"] });
 
-const BASE_URL = "https://linstantane.vercel.app";
+const BASE_URL = "https://linstantane.fr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 brand: { "@type": "Brand", name: "L'Instantané" },
                 offers: {
                   "@type": "Offer",
-                  url: "https://linstantane.vercel.app/create",
+                  url: "https://linstantane.fr/create",
                   priceCurrency: "EUR",
                   price: "29.00",
                   availability: "https://schema.org/InStock",

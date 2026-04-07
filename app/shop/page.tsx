@@ -218,7 +218,9 @@ export default function ShopPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link href="/comment-ca-marche" className="transition hover:text-slate-700">Comment ça marche</Link>
             <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">À propos</Link>
+            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
+            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
+            <Link href="/politique-confidentialite" className="transition hover:text-slate-700">Confidentialité</Link>
           </div>
           <span>© 2026 L&apos;Instantané</span>
         </div>

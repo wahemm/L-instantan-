@@ -16,7 +16,7 @@ export default function PolitiqueConfidentialitePage() {
             <p>Entreprise individuelle / auto-entrepreneur</p>
             <p>Si&egrave;ge social : France</p>
             <p>Email : contact@linstantane.fr</p>
-            <p>Site : https://linstantane.vercel.app</p>
+            <p>Site : https://linstantane.fr</p>
           </div>
         </section>
 

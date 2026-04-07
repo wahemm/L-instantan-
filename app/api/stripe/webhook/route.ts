@@ -201,7 +201,7 @@ function buildConfirmationEmail(name: string, albumTitle: string, pageCount: str
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="https://linstantane.vercel.app/create"
+                    <a href="https://linstantane.fr/create"
                        style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.04em;padding:14px 32px;border-radius:100px;font-family:Arial,sans-serif;">
                       Créer un nouvel album →
                     </a>

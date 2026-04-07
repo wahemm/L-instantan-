@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/connexion/", "/inscription/", "/result"],
     },
-    sitemap: "https://linstantane.vercel.app/sitemap.xml",
+    sitemap: "https://linstantane.fr/sitemap.xml",
   };
 }
