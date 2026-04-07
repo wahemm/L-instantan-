@@ -425,13 +425,18 @@ function ResultContent() {
           shippingCountry,
         }),
       });
-      const checkoutData = await checkoutRes.json();
+
+      let checkoutData: { url?: string; error?: string } = {};
+      try {
+        checkoutData = await checkoutRes.json();
+      } catch {
+        throw new Error(`HTTP ${checkoutRes.status} — réponse invalide du serveur`);
+      }
 
       if (checkoutData.url) {
         window.location.href = checkoutData.url;
       } else {
-        const apiError = checkoutData.error || "Pas de lien de paiement";
-        throw new Error(apiError);
+        throw new Error(checkoutData.error || `Erreur ${checkoutRes.status}`);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
