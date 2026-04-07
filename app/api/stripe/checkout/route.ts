@@ -23,9 +23,13 @@ export async function POST(req: NextRequest) {
     const shippingCents = typeof body.shippingCents === "number" ? body.shippingCents : 0;
     const shippingCountry = (body.shippingCountry as string) || "FR";
 
-    const origin = req.headers.get("origin") ?? "http://localhost:3000";
+    // Utilise toujours une URL absolue de prod pour éviter les rejets Stripe live
+    const origin = process.env.NEXT_PUBLIC_SITE_URL
+      || req.headers.get("origin")
+      || "https://linstantane.vercel.app";
     const albumCents = calculatePrice(pageCount);
     const pageDesc = pageCount > INCLUDED_PAGES ? ` (${pageCount} pages)` : "";
+    console.log(`[Stripe] Creating session: ${albumCents/100}€ + shipping ${shippingCents/100}€, origin: ${origin}`);
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
@@ -76,7 +80,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    console.error("Stripe checkout error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Stripe checkout error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
