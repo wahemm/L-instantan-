@@ -35,6 +35,13 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "mykonos",   name: "Mykonos",   category: "Voyage", src: "/covers/mykonos.png" },
   { id: "perou",     name: "Pérou",     category: "Voyage", src: "/covers/Perou.png" },
   { id: "amor",      name: "Amor",      category: "Couple", src: "/covers/amor.png" },
+  { id: "grece-1",     name: "Grèce",      category: "Voyage", src: "/covers/Grece1.png" },
+  { id: "grece-2",     name: "Grèce 2",    category: "Voyage", src: "/covers/Grece2.png" },
+  { id: "allemagne",   name: "Allemagne",  category: "Voyage", src: "/covers/Allemagne.png" },
+  { id: "berlin",      name: "Berlin",     category: "Voyage", src: "/covers/Berlin.png" },
+  { id: "argentine-1", name: "Argentine",  category: "Voyage", src: "/covers/Argentine1.png" },
+  { id: "argentine-2", name: "Argentine 2", category: "Voyage", src: "/covers/Argentine2.png" },
+  { id: "belgique",    name: "Belgique",   category: "Voyage", src: "/covers/Belgique.png" },
 ];
 type LayoutId = "cover"|"full"|"two-h"|"two-v"|"three-top"|"three-left"|"grid4"|"photo-text"|"text-only";
 type PanelId = "photos"|"layouts"|"colors"|"text"|"stickers";
