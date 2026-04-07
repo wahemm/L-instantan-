@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { INCLUDED_PAGES, PACKS } from "@/app/lib/pricing";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
+const stripe = new Stripe(stripeKey, {
+  timeout: 20000,
+  maxNetworkRetries: 0,
+});
 
 const PACK = PACKS.find(p => p.id === "physique")!;
 const BASE_PRICE_CENTS = Math.round(PACK.basePrice * 100);
