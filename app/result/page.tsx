@@ -108,7 +108,7 @@ function renderPage(p: EditorPage, albumTitle: string) {
     if (p.photos[0]) {
       return (
         <div className="relative h-full w-full overflow-hidden">
-          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>
+          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center", filter: p.coverHue ? `hue-rotate(${p.coverHue}deg)` : undefined}}/>
           {textOverlays()}{stickerOverlays()}
         </div>
       );
@@ -186,7 +186,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
           {cur.isCover && pages[0].photos[0] ? (
             <div className="overflow-hidden rounded shadow-2xl border border-black/10"
               style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
-              <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover"/>
+              <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover" style={{filter: pages[0].coverHue ? `hue-rotate(${pages[0].coverHue}deg)` : undefined}}/>
             </div>
           ) : (
             <div className="flex overflow-hidden rounded shadow-2xl border border-black/10"
@@ -231,7 +231,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
                 <div className={`overflow-hidden rounded border-2 transition ${idx===i?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`}
                   style={{width:90,height:63,display:"flex",backgroundColor:pg?.bgColor||"#fff"}}>
                   {s.isCover&&pg?.photos[0] ? (
-                    <img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>
+                    <img src={pg.photos[0]} alt="" className="h-full w-full object-cover" style={{filter: pg.coverHue ? `hue-rotate(${pg.coverHue}deg)` : undefined}}/>
                   ) : (
                     <>
                       <div className="flex-1 overflow-hidden" style={{background:s.isCover?"#1e293b":i===1?"#2a2a2a":s.left?.bgColor||"#f0ede8"}}>
