@@ -430,11 +430,13 @@ function ResultContent() {
       if (checkoutData.url) {
         window.location.href = checkoutData.url;
       } else {
-        throw new Error("Pas de lien de paiement");
+        const apiError = checkoutData.error || "Pas de lien de paiement";
+        throw new Error(apiError);
       }
     } catch (err) {
-      console.error("Stripe checkout error:", err);
-      alert("Impossible de créer la session de paiement. Veuillez réessayer.");
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Stripe checkout error:", msg);
+      alert(`Erreur paiement : ${msg}`);
       setCheckoutStep("idle");
       setProgress("");
     }
