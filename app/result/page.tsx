@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
-import { INCLUDED_PAGES } from "@/app/lib/pricing";
+import { INCLUDED_PAGES, PACKS, formatPrice } from "@/app/lib/pricing";
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
@@ -15,17 +15,12 @@ type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
-// ── Price calculation (single product) ────────────────────────────────
-const BASE_PRICE = 29;
-const EXTRA_PER_PAGE = 0.5;
+// ── Price calculation — source unique : pricing.ts ─────────────────────
+const PACK = PACKS.find(p => p.id === "physique")!;
 
 function calculatePrice(pageCount: number): number {
   const extra = Math.max(0, pageCount - INCLUDED_PAGES);
-  return Math.round((BASE_PRICE + extra * EXTRA_PER_PAGE) * 100) / 100;
-}
-
-function formatPrice(price: number): string {
-  return price % 1 === 0 ? `${price} €` : `${price.toFixed(2).replace(".", ",")} €`;
+  return Math.round((PACK.basePrice + extra * PACK.extraPerPage) * 100) / 100;
 }
 
 // ── Auto layout: group photos 2 per spread ─────────────────────────────
@@ -345,13 +340,13 @@ function ResultContent() {
   }
 
   function showSummary() {
-    if (!album || album.type !== "manual") return;
+    if (!album) return;
     setCheckoutStep("summary");
     fetchShippingCost(shippingCountry);
   }
 
   async function onCheckout() {
-    if (!album || album.type !== "manual") return;
+    if (!album) return;
 
     setCheckoutStep("generating-cover");
     setProgress("Préparation…");
@@ -359,8 +354,9 @@ function ResultContent() {
     let interiorUrl = "";
     let coverUrl = "";
 
-    // Try to generate and upload PDFs for Lulu printing
+    // Try to generate and upload PDFs for Lulu printing (manual albums only)
     try {
+      if (album.type !== "manual") throw new Error("Auto album — skipping PDF generation");
       const interiorPageCount = album.pages.length - 1;
       const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
 

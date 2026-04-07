@@ -196,7 +196,7 @@ function buildConfirmationEmail(name: string, albumTitle: string, pageCount: str
                 Livraison
               </p>
               <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
-                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison offerte sous 7–10 jours ouvrés
+                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 5 à 7 jours ouvrés
               </p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>

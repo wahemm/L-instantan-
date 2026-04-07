@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { INCLUDED_PAGES, PACKS } from "@/app/lib/pricing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const BASE_PRICE_CENTS = 2900; // 29 €
-const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
-const INCLUDED_PAGES = 24;
+const PACK = PACKS.find(p => p.id === "physique")!;
+const BASE_PRICE_CENTS = Math.round(PACK.basePrice * 100);
+const EXTRA_PER_PAGE_CENTS = Math.round(PACK.extraPerPage * 100);
 
 function calculatePrice(pageCount: number): number {
   const extraPages = Math.max(0, pageCount - INCLUDED_PAGES);
