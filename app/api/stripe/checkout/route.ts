@@ -6,6 +6,7 @@ const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
 const stripe = new Stripe(stripeKey, {
   timeout: 20000,
   maxNetworkRetries: 0,
+  httpClient: Stripe.createNodeHttpClient(),
 });
 
 const PACK = PACKS.find(p => p.id === "physique")!;
