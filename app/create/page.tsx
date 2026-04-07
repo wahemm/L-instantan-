@@ -7,7 +7,7 @@ import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 import { COVER_TEMPLATES as COLOR_TEMPLATES } from "@/app/lib/templates";
 
 // ── Types ─────────────────────────────────────────────────────────────
-type Mode = null | "mode-select" | "auto" | "manual";
+type Mode = null | "manual";
 
 interface CoverTemplate {
   id: string;
@@ -637,7 +637,6 @@ function SidebarIcon({ active, onClick, icon, label }: { active:boolean; onClick
 // ── Main ───────────────────────────────────────────────────────────────
 export default function CreatePage() {
   const router = useRouter();
-  const autoInputRef = useRef<HTMLInputElement>(null);
   const editorInputRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(null);
@@ -645,71 +644,6 @@ export default function CreatePage() {
   const [coverSearch, setCoverSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [coverTitleInput, setCoverTitleInput] = useState("");
-
-  // ── Auto mode ──────────────────────────────────────────────────────
-  const [autoFiles, setAutoFiles] = useState<File[]>([]);
-  const [autoPreviews, setAutoPreviews] = useState<string[]>([]);
-  const [autoTitle, setAutoTitle] = useState("");
-  const [autoSubtitle, setAutoSubtitle] = useState("");
-  const [autoLoading, setAutoLoading] = useState(false);
-  const [autoDragging, setAutoDragging] = useState(false);
-
-  function addAutoFiles(files: FileList|null) {
-    if (!files) return;
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => setAutoPreviews(p=>[...p, e.target?.result as string]);
-      reader.readAsDataURL(file);
-    });
-    setAutoFiles(p=>[...p,...Array.from(files)]);
-  }
-
-  async function handleAutoSubmit() {
-    if (!autoFiles.length) return;
-    setAutoLoading(true);
-    const resized = await Promise.all(autoFiles.map(f=>resizeImage(f)));
-
-    // Génère des pages éditables à partir des photos
-    const autoPages: EditorPage[] = [
-      makePage("cover", {
-        title: autoTitle || "Mon Album",
-        subtitle: autoSubtitle,
-        photos: selectedCover ? [selectedCover] : [],
-        bgColor: "#0f172a",
-      }),
-    ];
-
-    let i = 0;
-    while (i < resized.length) {
-      const remaining = resized.length - i;
-      let layoutId: LayoutId;
-      let count: number;
-
-      if (remaining === 1) {
-        layoutId = "full"; count = 1;
-      } else if (remaining === 2) {
-        layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2;
-      } else if (remaining === 3) {
-        layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3;
-      } else {
-        const r = Math.random();
-        if (r < 0.25) { layoutId = "grid4"; count = 4; }
-        else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
-        else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
-      }
-
-      autoPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
-      i += count;
-    }
-
-    setPages(autoPages);
-    setAutoTitle("");
-    setAutoSubtitle("");
-    setAutoFiles([]);
-    setAutoPreviews([]);
-    setAutoLoading(false);
-    setMode("manual");
-  }
 
   // ── Manual editor state ────────────────────────────────────────────
   const [library, setLibrary] = useState<string[]>([]);
@@ -803,6 +737,50 @@ export default function CreatePage() {
     const resized = await Promise.all(Array.from(files).map(f=>resizeImage(f)));
     setLibrary(p=>[...p,...resized]);
   }, []);
+
+  const [bulkImporting, setBulkImporting] = useState(false);
+
+  function triggerBulkImport() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/jpeg,image/png";
+    input.multiple = true;
+    input.onchange = () => { handleBulkImport(input.files); };
+    input.click();
+  }
+
+  async function handleBulkImport(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setBulkImporting(true);
+    const resized = await Promise.all(Array.from(files).map(f => resizeImage(f)));
+
+    // Also add to library for manual repositioning later
+    setLibrary(p => [...p, ...resized]);
+
+    // Auto-distribute photos across new pages after the cover
+    snapshot();
+    const newPages: EditorPage[] = [pages[0]];
+    let i = 0;
+    while (i < resized.length) {
+      const remaining = resized.length - i;
+      let layoutId: LayoutId;
+      let count: number;
+      if (remaining === 1) { layoutId = "full"; count = 1; }
+      else if (remaining === 2) { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
+      else if (remaining === 3) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
+      else {
+        const r = Math.random();
+        if (r < 0.25) { layoutId = "grid4"; count = 4; }
+        else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
+        else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
+      }
+      newPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
+      i += count;
+    }
+    setPages(newPages);
+    setCurrentPageIdx(1);
+    setBulkImporting(false);
+  }
 
   function updatePage(idx: number, u: Partial<EditorPage>) { setPages(p=>p.map((pg,i)=>i===idx?{...pg,...u}:pg)); }
   function updateCurrent(u: Partial<EditorPage>) { updatePage(currentPageIdx,u); }
@@ -905,26 +883,6 @@ export default function CreatePage() {
     router.push("/result");
   }
 
-  const [savedMsg, setSavedMsg] = useState<string|null>(null);
-
-  function handleSave() {
-    const albumData = JSON.stringify({type:"manual",title:albumTitle,pages});
-    // Check if restoring an existing album
-    const existingId = sessionStorage.getItem("linstantane:restore-id");
-    const id = existingId ?? `album-${Date.now()}`;
-    sessionStorage.setItem("linstantane:restore-id", id);
-    // Save full data
-    localStorage.setItem(`linstantane:album:${id}`, albumData);
-    // Save metadata index
-    const cover = pages[0]?.photos?.[0] ?? null;
-    const meta = { id, title: albumTitle, pageCount: pages.length, cover, savedAt: new Date().toISOString() };
-    const existing: object[] = JSON.parse(localStorage.getItem("linstantane:saved-albums") ?? "[]");
-    const updated = [meta, ...existing.filter((a: object) => (a as {id:string}).id !== id)];
-    localStorage.setItem("linstantane:saved-albums", JSON.stringify(updated));
-    setSavedMsg("Sauvegardé ✓");
-    setTimeout(() => setSavedMsg(null), 2000);
-  }
-
   async function handleDownloadPDF() {
     const { generateAlbumPDF } = await import("@/app/lib/generatePDF");
     setPdfProgress({current:0,total:pages.length});
@@ -955,7 +913,7 @@ export default function CreatePage() {
         <Nav />
         <div className="mx-auto max-w-4xl px-6 py-12">
           <div className="mb-8 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 1 sur 3</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 1 sur 2</p>
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Choisis ta couverture</h1>
             <p className="mt-2 text-sm text-slate-500">Sélectionne un design ou continue sans template.</p>
           </div>
@@ -1004,11 +962,7 @@ export default function CreatePage() {
                 <button
                   key={tpl.id}
                   type="button"
-                  onClick={() => {
-                    if (isMobile) { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }
-                    else { setSelectedCover(p => p === tpl.src ? p : tpl.src); }
-                  }}
-                  onDoubleClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }}
+                  onClick={() => { setSelectedCover(tpl.src); enterManualMode(coverTitleInput || undefined, tpl.src); }}
                   className={`group relative overflow-hidden rounded-2xl border-2 bg-white text-left transition-all ${
                     selected
                       ? "border-slate-900 ring-2 ring-slate-900 ring-offset-2 shadow-xl"
@@ -1065,74 +1019,6 @@ export default function CreatePage() {
     );
   }
 
-  // ── MODE SELECTION ─────────────────────────────────────────────────
-  if (mode === "mode-select") {
-    return (
-      <main className="min-h-screen bg-white text-slate-900">
-        <Nav />
-        <div className="mx-auto max-w-4xl px-6 py-16">
-          <button onClick={()=>setMode(null)} className="mb-10 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700">← Retour</button>
-          {selectedCover && (
-            <div className="mb-8 flex items-center gap-3 rounded-2xl border border-gray-200 bg-[#f8f7f4] px-4 py-3">
-              <img src={selectedCover} alt="Couverture choisie" className="h-12 w-9 rounded object-cover border border-gray-200"/>
-              <div>
-                <p className="text-xs font-semibold text-slate-700">Couverture sélectionnée</p>
-                <button onClick={()=>setSelectedCover(null)} className="text-xs text-slate-400 hover:text-slate-600">Changer</button>
-              </div>
-            </div>
-          )}
-          <div className="mb-12 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 2 sur 3</p>
-            <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-slate-900 sm:text-5xl">Comment veux-tu créer<br/>ton album ?</h1>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <button onClick={()=>setMode("auto")} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-left transition hover:border-slate-900 hover:shadow-lg">
-              <div className="mb-5 text-4xl">✨</div>
-              <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">Mise en page automatique</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">Uploade tes photos, on s&apos;occupe du reste. Mise en page élégante en quelques secondes.</p>
-              <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900">Choisir <span className="transition group-hover:translate-x-1">→</span></div>
-            </button>
-            <button onClick={()=>enterManualMode()} className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-left transition hover:border-slate-900 hover:shadow-lg">
-              <div className="mb-5 text-4xl">🎨</div>
-              <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">Je personnalise moi-même</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">Choisis le layout, place tes photos, ajoute du texte où tu veux. Contrôle total.</p>
-              <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900">Choisir <span className="transition group-hover:translate-x-1">→</span></div>
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // ── AUTO MODE ─────────────────────────────────────────────────────
-  if (mode === "auto") {
-    return (
-      <main className="min-h-screen bg-white text-slate-900">
-        <Nav />
-        <div className="mx-auto max-w-2xl px-6 py-12">
-          <button onClick={()=>setMode("mode-select")} className="mb-8 flex items-center gap-2 text-sm text-slate-400 hover:text-slate-700">← Retour</button>
-          <div className="mb-10 text-center">
-            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Mise en page automatique</h1>
-            <p className="mt-3 text-sm text-slate-500">Uploade tes photos et on s&apos;occupe du reste.</p>
-          </div>
-          <div onDragOver={e=>{e.preventDefault();setAutoDragging(true);}} onDragLeave={()=>setAutoDragging(false)} onDrop={e=>{e.preventDefault();setAutoDragging(false);addAutoFiles(e.dataTransfer.files);}} onClick={()=>!autoLoading&&autoInputRef.current?.click()} className={`flex cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed py-14 transition ${autoDragging?"border-slate-400 bg-slate-50":"border-gray-200 bg-[#f8f7f4] hover:border-slate-300"}`}>
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm text-3xl">📸</div>
-            <div className="text-center"><p className="font-medium text-slate-700">Glisse tes photos ici ou clique pour sélectionner</p><p className="mt-1 text-xs text-slate-400">JPG, PNG</p></div>
-            <input ref={autoInputRef} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={e=>addAutoFiles(e.target.files)}/>
-          </div>
-          {autoPreviews.length>0&&<div className="mt-6 grid grid-cols-4 gap-2 sm:grid-cols-6">{autoPreviews.map((src,idx)=><div key={idx} className="aspect-square overflow-hidden rounded-lg"><img src={src} alt="" className="h-full w-full object-cover"/></div>)}{!autoLoading&&<button onClick={()=>autoInputRef.current?.click()} className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-slate-300 hover:border-slate-300"><span className="text-2xl">+</span></button>}</div>}
-          <div className="mt-8 flex flex-col gap-3">
-            <input type="text" placeholder="Titre de l'album" value={autoTitle} onChange={e=>setAutoTitle(e.target.value)} className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-slate-400"/>
-            <input type="text" placeholder="Sous-titre (optionnel)" value={autoSubtitle} onChange={e=>setAutoSubtitle(e.target.value)} className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-slate-400"/>
-          </div>
-          <button onClick={handleAutoSubmit} disabled={autoFiles.length===0||autoLoading} className="mt-8 w-full rounded-full bg-slate-900 py-4 text-base font-medium text-white transition hover:bg-slate-700 disabled:opacity-40">
-            {autoLoading?<span className="flex items-center justify-center gap-3"><span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"/>Préparation…</span>:"Voir l'aperçu →"}
-          </button>
-        </div>
-      </main>
-    );
-  }
-
   // ── MANUAL EDITOR ─────────────────────────────────────────────────
 
   // Spread logic (livre standard) :
@@ -1174,9 +1060,6 @@ export default function CreatePage() {
             ? <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none max-w-[140px]"/>
             : <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
           }
-          <button onClick={handleSave} className="rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition">
-            {savedMsg ?? "💾 Sauver"}
-          </button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander</button>
         </div>
 
@@ -1233,7 +1116,10 @@ export default function CreatePage() {
 
               {openPanel==="photos" && (
                 <div>
-                  <button onClick={()=>editorInputRef.current?.click()} className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2 text-xs font-semibold text-white">+ Ajouter des photos</button>
+                  <button onClick={()=>editorInputRef.current?.click()} className="mb-1.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2 text-xs font-semibold text-white">+ Ajouter des photos</button>
+                  <button onClick={()=>triggerBulkImport()} disabled={bulkImporting} className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-1.5 text-[11px] font-semibold text-slate-500 hover:border-slate-400 transition disabled:opacity-50">
+                    {bulkImporting ? "Importation..." : "Importer toutes mes photos"}
+                  </button>
                   <input ref={editorInputRef} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={e=>addLibraryFiles(e.target.files)}/>
                   {library.length===0 ? (
                     <p className="py-2 text-center text-xs text-slate-400">Ajoute tes photos — clique sur un emplacement puis tape une photo pour la placer</p>
@@ -1494,7 +1380,7 @@ export default function CreatePage() {
       {/* Top bar */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
         <div className="flex items-center gap-3">
-          <button onClick={()=>setMode("mode-select")} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
+          <button onClick={()=>setMode(null)} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
           <span className="text-gray-200">|</span>
           {editingTitle ? (
             <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none"/>
@@ -1507,8 +1393,8 @@ export default function CreatePage() {
           <span className="hidden sm:block text-xs text-slate-400">{contentPageCount} page{contentPageCount>1?"s":""}</span>
           <span className="hidden sm:block text-xs text-slate-300">|</span>
           <span className="hidden sm:block text-xs font-semibold text-slate-700">à partir de {formatPrice(calculatePrice("physique",contentPageCount))}</span>
-          <button onClick={handleSave} className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition">
-            {savedMsg ?? "💾 Sauvegarder"}
+          <button onClick={handleDownloadPDF} disabled={pdfProgress!==null} title="Télécharger le PDF" className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-50">
+            {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
           </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
@@ -1529,8 +1415,11 @@ export default function CreatePage() {
 
                 {openPanel==="photos" && (
                   <div>
-                    <button onClick={()=>editorInputRef.current?.click()} className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2.5 text-xs font-semibold text-white hover:bg-slate-700 transition">+ Ajouter des photos</button>
+                    <button onClick={()=>editorInputRef.current?.click()} className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 py-2.5 text-xs font-semibold text-white hover:bg-slate-700 transition">+ Ajouter des photos</button>
                     <input ref={editorInputRef} type="file" accept="image/jpeg,image/png" multiple className="hidden" onChange={e=>addLibraryFiles(e.target.files)}/>
+                    <button onClick={()=>triggerBulkImport()} disabled={bulkImporting} className="mb-3 flex w-full items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gray-200 py-2 text-xs font-semibold text-slate-500 hover:border-slate-400 hover:text-slate-700 transition disabled:opacity-50">
+                      {bulkImporting ? <><span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-slate-500 border-t-transparent"/>Importation...</> : "Importer toutes mes photos"}
+                    </button>
                     {library.length===0 ? (
                       <div className="mt-6 text-center"><div className="text-3xl mb-2">📸</div><p className="text-xs text-slate-400 leading-relaxed">Ajoute tes photos puis<br/>glisse-les sur la page</p></div>
                     ) : (

@@ -23,22 +23,28 @@ const DEMOS = [
 
 const TESTIMONIALS = [
   {
-    name: "Camille",
-    role: "Album voyage",
+    name: "Camille Dupont",
+    city: "Lyon",
+    date: "Mars 2025",
+    detail: "Album Vacances Grèce, 32 pages",
     stars: 5,
-    quote: "On a envoyé les photos du week-end et le livre est magnifique. Un souvenir inoubliable à feuilleter.",
+    quote: "On a envoyé les photos du week-end et le livre est magnifique. La qualité du papier est bluffante, un souvenir inoubliable à feuilleter en famille.",
   },
   {
-    name: "Yanis",
-    role: "Album imprimé",
+    name: "Yanis Belkacem",
+    city: "Paris",
+    date: "Février 2025",
+    detail: "Album Famille Noël, 48 pages",
     stars: 5,
-    quote: "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium.",
+    quote: "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium. Ma femme a pleuré en le feuilletant.",
   },
   {
-    name: "Sarah",
-    role: "Album imprimé",
+    name: "Sarah Martin",
+    city: "Bordeaux",
+    date: "Janvier 2025",
+    detail: "Album Cadeau Anniversaire, 24 pages",
     stars: 5,
-    quote: "Offrir le livre imprimé à ma mère pour son anniversaire, c'était le cadeau parfait. Elle a adoré.",
+    quote: "Offrir le livre imprimé à ma mère pour ses 60 ans, c'était le cadeau parfait. Elle l'a montré à toute la famille.",
   },
 ];
 
@@ -156,7 +162,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span className="flex items-center gap-1.5"><span className="text-amber-400">★★★★★</span> 4,9 / 5</span>
               <span>·</span>
-              <span>500+ albums créés</span>
+              <span>À partir de 29 €</span>
               <span>·</span>
               <span>Satisfait ou remboursé</span>
             </div>
@@ -339,7 +345,7 @@ export default function Home() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">{t.name.charAt(0)}</div>
                   <div>
                     <div className="text-sm font-semibold text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-400">{t.role}</div>
+                    <div className="text-xs text-slate-400">{t.city} · {t.date} · {t.detail}</div>
                   </div>
                 </footer>
               </blockquote>
