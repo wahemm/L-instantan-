@@ -16,8 +16,8 @@ export async function getLuluToken(): Promise<string> {
     return cachedToken.token;
   }
 
-  const clientId = process.env.LULU_CLIENT_KEY!;
-  const clientSecret = process.env.LULU_CLIENT_SECRET!;
+  const clientId = (process.env.LULU_CLIENT_KEY ?? "").trim();
+  const clientSecret = (process.env.LULU_CLIENT_SECRET ?? "").trim();
 
   const res = await fetch(LULU_AUTH_URL, {
     method: "POST",
