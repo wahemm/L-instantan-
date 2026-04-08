@@ -31,11 +31,11 @@ const FAQS = [
     items: [
       {
         q: "Quel est le délai de livraison ?",
-        a: "Ton album est imprimé et livré en France métropolitaine sous 5 à 7 jours ouvrés après confirmation de ta commande. La livraison est offerte pour tous les packs incluant un livre physique.",
+        a: "Ton album est imprimé et livré en France métropolitaine sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de livraison sont calculés automatiquement lors de la commande selon ta destination.",
       },
       {
         q: "Livrez-vous en dehors de France ?",
-        a: "Nous livrons en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. La livraison est offerte pour tous les albums imprimés. Pour d'autres pays, contacte-nous à contact@linstantane.fr.",
+        a: "Nous livrons en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. Les frais de livraison sont calculés automatiquement lors de la commande. Pour d'autres pays, contacte-nous à contact@linstantane.fr.",
       },
     ],
   },

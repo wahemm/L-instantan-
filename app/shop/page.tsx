@@ -110,7 +110,7 @@ export default function ShopPage() {
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livre imprimé finition premium</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Papier brillant 170g/m²</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Couverture rigide personnalisée</li>
-                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livraison offerte en France</li>
+                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livraison France & Europe</li>
               </ul>
             </div>
 
@@ -147,7 +147,7 @@ export default function ShopPage() {
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs text-slate-400">
               <span>🔒 Paiement sécurisé Stripe</span>
               <span>↩️ Satisfait ou remboursé</span>
-              <span>📦 Livraison offerte</span>
+              <span>📦 Livraison France & Europe</span>
             </div>
 
             {/* Accordions */}
@@ -161,7 +161,7 @@ export default function ShopPage() {
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Livraison offerte. Satisfait ou remboursé sous 14 jours.",
+                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Frais calculés au checkout. Satisfait ou remboursé sous 14 jours.",
                 },
               ].map(item => (
                 <div key={item.key}>

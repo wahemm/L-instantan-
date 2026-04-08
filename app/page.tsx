@@ -52,7 +52,7 @@ const PERKS = [
   { icon: "📐", label: "Format A4", desc: "21 × 28 cm, portrait" },
   { icon: "✨", label: "Papier photo", desc: "170 g/m², finition brillante" },
   { icon: "📦", label: "Couverture rigide", desc: "Qualité premium" },
-  { icon: "🚚", label: "Livraison offerte", desc: "France, 5–7 jours" },
+  { icon: "🚚", label: "Livraison rapide", desc: "France & Europe, 5–7 jours" },
 ];
 
 // Realistic book mockup using actual cover images
@@ -162,7 +162,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span>À partir de 29 €</span>
               <span>·</span>
-              <span>Livraison offerte</span>
+              <span>Livraison rapide</span>
               <span>·</span>
               <span>Satisfait ou remboursé 14j</span>
             </div>
@@ -315,7 +315,7 @@ export default function Home() {
               <span className="mb-2 text-xs text-slate-400">paiement unique</span>
             </div>
             <ul className="mb-8 flex flex-col gap-3 text-left">
-              {["Livre imprimé finition premium","Format A4 · Papier brillant 170g/m²","Livraison en France offerte","Pour offrir ou garder"].map(p => (
+              {["Livre imprimé finition premium","Format A4 · Papier brillant 170g/m²","Livraison France & Europe","Pour offrir ou garder"].map(p => (
                 <li key={p} className="flex items-center gap-2 text-sm text-slate-300">
                   <span className="text-slate-400">✓</span>{p}
                 </li>
@@ -431,7 +431,7 @@ export default function Home() {
               <span>·</span>
               <span>Satisfait ou remboursé</span>
               <span>·</span>
-              <span>Livraison offerte</span>
+              <span>Livraison rapide</span>
             </div>
           </div>
         </div>

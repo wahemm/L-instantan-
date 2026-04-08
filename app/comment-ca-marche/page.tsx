@@ -27,7 +27,7 @@ const STEPS = [
     num: "04",
     emoji: "🚚",
     title: "Reçois ton livre",
-    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France en 5 à 7 jours ouvrés. Livraison offerte.",
+    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France & Europe en 5 à 7 jours ouvrés.",
     detail: "Emballage soigné, prêt à offrir.",
   },
 ];

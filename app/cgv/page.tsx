@@ -29,7 +29,7 @@ export default function CGVPage() {
         <Section title="2. Produits et services">
           <p>L&apos;Instantané propose la création d&apos;albums photo personnalisés imprimés sur papier brillant 170g/m², format A4, reliés.</p>
           <p>Les prix affichés sont en euros TTC. Le prix de base est de 29 € pour un album jusqu&apos;à 24 pages. Chaque page supplémentaire est facturée 0,50 €.</p>
-          <p>La livraison est incluse dans le prix pour la France, la Belgique, la Suisse, le Luxembourg et Monaco.</p>
+          <p>Les frais de livraison sont calculés automatiquement lors de la commande selon la destination (France, Belgique, Suisse, Luxembourg, Monaco).</p>
         </Section>
 
         <Section title="3. Commande">
