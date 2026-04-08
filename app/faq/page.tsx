@@ -35,7 +35,7 @@ const FAQS = [
       },
       {
         q: "Livrez-vous en dehors de France ?",
-        a: "Pour l'instant, nous livrons uniquement en France métropolitaine. Si tu es à l'étranger, le pack Digital (PDF HD) est disponible immédiatement après commande, partout dans le monde.",
+        a: "Nous livrons en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. La livraison est offerte pour tous les albums imprimés. Pour d'autres pays, contacte-nous à contact@linstantane.fr.",
       },
     ],
   },
@@ -43,8 +43,8 @@ const FAQS = [
     category: "Packs & tarifs",
     items: [
       {
-        q: "Quelle est la différence entre Digital, Physique et Duo ?",
-        a: "Le pack Digital (10 €) te donne accès à un PDF haute résolution à télécharger immédiatement. Le pack Physique (29 €) comprend un livre imprimé livré chez toi. Le pack Duo (35 €) combine les deux : PDF HD + livre imprimé, pour le meilleur rapport qualité-prix.",
+        q: "Comment fonctionne la tarification ?",
+        a: "L'album imprimé est à partir de 29 €, livraison incluse. Ce prix comprend 24 pages. Chaque page supplémentaire est facturée 0,50 €. Un album de 32 pages revient donc à 33 €, un album de 48 pages à 41 €, etc.",
       },
       {
         q: "Comment fonctionne le paiement ?",
@@ -149,7 +149,7 @@ export default function FaqPage() {
           </p>
           <div className="mt-6">
             <Link
-              href="/shop"
+              href="/create"
               className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
             >
               Créer mon album →

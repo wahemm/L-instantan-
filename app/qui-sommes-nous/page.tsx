@@ -85,8 +85,8 @@ export default function QuiSommesNousPage() {
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { value: "500+", label: "Albums créés" },
-              { value: "4,9★", label: "Note moyenne clients" },
+              { value: "A4", label: "Format premium" },
+              { value: "170g", label: "Papier brillant" },
               { value: "5–7j", label: "Délai de livraison" },
               { value: "14j", label: "Satisfait ou remboursé" },
             ].map((stat) => (
@@ -134,7 +134,7 @@ export default function QuiSommesNousPage() {
           </h2>
           <p className="mt-4 text-slate-400">Tu vois le résultat avant de payer.</p>
           <Link
-            href="/shop"
+            href="/create"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
           >
             Créer mon album →

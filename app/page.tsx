@@ -160,11 +160,11 @@ export default function Home() {
 
             {/* Trust badges */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
-              <span className="flex items-center gap-1.5"><span className="text-amber-400">★★★★★</span> 4,9 / 5</span>
-              <span>·</span>
               <span>À partir de 29 €</span>
               <span>·</span>
-              <span>Satisfait ou remboursé</span>
+              <span>Livraison offerte</span>
+              <span>·</span>
+              <span>Satisfait ou remboursé 14j</span>
             </div>
           </div>
 

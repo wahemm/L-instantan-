@@ -23,13 +23,13 @@ export default function CGVPage() {
 
         <Section title="1. Identité du vendeur">
           <p>L&apos;Instantané est une entreprise proposant des services de création et d&apos;impression d&apos;albums photo personnalisés.</p>
-          <p>Contact : <a href="mailto:bonjour@linstantane.fr" className="underline">bonjour@linstantane.fr</a></p>
+          <p>Contact : <a href="mailto:contact@linstantane.fr" className="underline">contact@linstantane.fr</a></p>
         </Section>
 
         <Section title="2. Produits et services">
           <p>L&apos;Instantané propose la création d&apos;albums photo personnalisés imprimés sur papier brillant 170g/m², format A4, reliés.</p>
           <p>Les prix affichés sont en euros TTC. Le prix de base est de 29 € pour un album jusqu&apos;à 24 pages. Chaque page supplémentaire est facturée 0,50 €.</p>
-          <p>La livraison en France métropolitaine est incluse dans le prix.</p>
+          <p>La livraison est incluse dans le prix pour la France, la Belgique, la Suisse, le Luxembourg et Monaco.</p>
         </Section>
 
         <Section title="3. Commande">
@@ -44,7 +44,7 @@ export default function CGVPage() {
 
         <Section title="5. Livraison">
           <p>Les albums sont produits et expédiés sous 5 à 7 jours ouvrés après validation de la commande.</p>
-          <p>La livraison est effectuée en France métropolitaine. Pour toute livraison hors France, contactez-nous.</p>
+          <p>La livraison est effectuée en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. Pour toute livraison dans un autre pays, contactez-nous à contact@linstantane.fr.</p>
         </Section>
 
         <Section title="6. Droit de rétractation">
@@ -53,7 +53,7 @@ export default function CGVPage() {
         </Section>
 
         <Section title="7. Réclamations">
-          <p>En cas de problème (défaut d&apos;impression, colis endommagé), contactez-nous dans les 14 jours suivant la livraison à <a href="mailto:bonjour@linstantane.fr" className="underline">bonjour@linstantane.fr</a>.</p>
+          <p>En cas de problème (défaut d&apos;impression, colis endommagé), contactez-nous dans les 14 jours suivant la livraison à <a href="mailto:contact@linstantane.fr" className="underline">contact@linstantane.fr</a>.</p>
         </Section>
 
         <Section title="8. Propriété intellectuelle">

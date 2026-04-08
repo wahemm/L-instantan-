@@ -92,7 +92,7 @@ export default function ShopPage() {
               </h1>
               <div className="mt-3 flex items-center gap-2">
                 <span className="text-amber-400 tracking-wide">★★★★★</span>
-                <span className="text-xs text-slate-400">4,9 / 5 — avis vérifiés</span>
+                <span className="text-xs text-slate-400">Qualité premium garantie</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
                 Format A4 · Papier photo 170g/m² · Couverture rigide · De 24 à 200 pages

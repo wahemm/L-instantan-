@@ -7,7 +7,7 @@ const STEPS = [
     emoji: "📚",
     title: "Choisis ta couverture",
     desc: "Rends-toi sur la page de création, sélectionne un modèle de couverture parmi nos thèmes soigneusement conçus, et personnalise le titre de ton album.",
-    detail: "Sur /shop — quelques secondes suffisent.",
+    detail: "Quelques secondes suffisent.",
   },
   {
     num: "02",
@@ -70,7 +70,7 @@ export default function CommentCaMarchePage() {
         </p>
         <div className="mt-8">
           <Link
-            href="/shop"
+            href="/create"
             className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
           >
             Commencer mon album →
@@ -157,7 +157,7 @@ export default function CommentCaMarchePage() {
             Tu vois l&apos;aperçu complet avant de payer. Lance-toi maintenant.
           </p>
           <Link
-            href="/shop"
+            href="/create"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
           >
             Choisir ma couverture →
