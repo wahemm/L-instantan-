@@ -81,12 +81,12 @@ export default function QuiSommesNousPage() {
       <section className="bg-[#f8f7f4] py-20">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-14 text-center font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
-            L&apos;Instantané en chiffres
+            Ce qu&apos;on vous garantit
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { value: "500+", label: "Albums créés" },
-              { value: "4,9★", label: "Note moyenne clients" },
+              { value: "A4", label: "Format premium 21×28 cm" },
+              { value: "170g", label: "Papier photo brillant" },
               { value: "5–7j", label: "Délai de livraison" },
               { value: "14j", label: "Satisfait ou remboursé" },
             ].map((stat) => (

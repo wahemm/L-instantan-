@@ -91,9 +91,9 @@ export default function ShopPage() {
               <h1 className="mt-2 font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
                 Album Photo Premium
               </h1>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="text-amber-400 tracking-wide">★★★★★</span>
-                <span className="text-xs text-slate-400">4,9 / 5 — avis vérifiés</span>
+              <div className="mt-3 flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">✓ Imprimé en Europe</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">🔒 Paiement sécurisé</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
                 Format A4 · Papier photo 170g/m² · Couverture rigide · De 24 à 200 pages
@@ -104,7 +104,7 @@ export default function ShopPage() {
             <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6">
               <div className="flex items-baseline gap-2">
                 <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">29 €</span>
-                <span className="text-sm text-slate-400">livraison incluse</span>
+                <span className="text-sm text-slate-400">+ livraison</span>
               </div>
               <p className="mt-2 text-xs text-slate-500">24 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
