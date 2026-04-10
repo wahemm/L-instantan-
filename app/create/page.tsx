@@ -31,6 +31,12 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "canada-2",  name: "Canada 2",  category: "Voyage", src: "/covers/canada 2.png" },
   { id: "marrakech", name: "Marrakech", category: "Voyage", src: "/covers/Marrakech.png" },
   { id: "mexique",   name: "Mexique",   category: "Voyage", src: "/covers/mexique.png" },
+  { id: "mexique-2", name: "Mexique 2", category: "Voyage", src: "/covers/mexique1.png" },
+  { id: "mexique-3", name: "Mexique 3", category: "Voyage", src: "/covers/mexique2.png" },
+  { id: "mexique-4", name: "Mexique 4", category: "Voyage", src: "/covers/mexique3.png" },
+  { id: "japon-1",   name: "Japon",     category: "Voyage", src: "/covers/japon1.png" },
+  { id: "japon-2",   name: "Japon 2",   category: "Voyage", src: "/covers/japon2.png" },
+  { id: "japon-3",   name: "Japon 3",   category: "Voyage", src: "/covers/japon3.png" },
   { id: "miami",     name: "Miami",     category: "Voyage", src: "/covers/Miami.png" },
   { id: "mykonos",   name: "Mykonos",   category: "Voyage", src: "/covers/mykonos.png" },
   { id: "perou",     name: "Pérou",     category: "Voyage", src: "/covers/Perou.png" },
@@ -95,20 +101,10 @@ const CONTENT_LAYOUTS: { id: LayoutId; label: string; slots: number }[] = [
 ];
 
 const BG_COLORS = [
-  // Blancs & crèmes
-  "#ffffff","#f8f7f4","#fef9f0","#fefce8","#fef3c7",
-  // Roses & pêches
-  "#fde8d8","#fce7f3","#ffd7d7","#ffe4e6","#fecdd3",
-  // Bleus & verts clairs
-  "#dbeafe","#e0f2fe","#ccfbf1","#d1fae5","#dcfce7",
-  // Lavandes & violets clairs
-  "#f3e8ff","#ede9fe","#e9d5ff","#ddd6fe","#c7d2fe",
-  // Foncés
+  "#ffffff","#f8f7f4","#fef9f0","#fef3c7","#fde8d8",
+  "#fce7f3","#dbeafe","#d1fae5","#f3e8ff","#e0f2fe",
   "#1e1e1e","#0f172a","#1a1a2e","#4a1942","#0c2340",
-  // Vifs
   "#7c3aed","#be185d","#0369a1","#15803d","#b45309",
-  "#dc2626","#ea580c","#ca8a04","#16a34a","#0891b2",
-  "#6366f1","#ec4899","#14b8a6","#f59e0b","#84cc16",
 ];
 
 const TEXT_COLORS = [
@@ -1176,19 +1172,13 @@ export default function CreatePage() {
                     {BG_COLORS.map(color=>(
                       <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110":"border-gray-200"}`} style={{backgroundColor:color}}/>
                     ))}
-                    {/* Couleur personnalisée */}
-                    <label className="relative h-8 w-8 cursor-pointer overflow-hidden rounded-full border-2 border-dashed border-gray-300 hover:border-slate-500 transition flex items-center justify-center" title="Couleur personnalisée">
-                      <span className="text-[10px] text-slate-400">+</span>
-                      <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" value={currentPage.bgColor} onChange={e=>{snapshot();updateCurrent({bgColor:e.target.value});}}/>
-                    </label>
                   </div>
                   {isCoverPage && currentPage.photos[0] && (
                     <div className="mt-3 border-t border-gray-100 pt-3">
                       <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
-                      <div className="grid grid-cols-8 gap-1">
-                        <button onClick={()=>{snapshot();updateCurrent({coverHue:0});}} className={`h-7 w-7 rounded-full border-2 transition text-[9px] font-bold ${(currentPage.coverHue||0)===0?"border-slate-900 scale-110 bg-slate-100":"border-gray-200 bg-white"}`}>∅</button>
-                        {[15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
-                          <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},75%,55%), hsl(${h+20},75%,45%))`}}/>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                          <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
                         ))}
                       </div>
                     </div>
@@ -1490,19 +1480,13 @@ export default function CreatePage() {
                       {BG_COLORS.map(color=>(
                         <button key={color} onClick={()=>{snapshot();updateCurrent({bgColor:color});}} title={color} className={`h-8 w-8 rounded-full border-2 transition ${currentPage.bgColor===color?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{backgroundColor:color}}/>
                       ))}
-                      {/* Couleur personnalisée */}
-                      <label className="relative h-8 w-8 cursor-pointer overflow-hidden rounded-full border-2 border-dashed border-gray-300 hover:border-slate-500 transition flex items-center justify-center" title="Couleur personnalisée">
-                        <span className="text-[10px] text-slate-400">+</span>
-                        <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" value={currentPage.bgColor} onChange={e=>{snapshot();updateCurrent({bgColor:e.target.value});}}/>
-                      </label>
                     </div>
                     {isCoverPage && currentPage.photos[0] && (
                       <div className="mt-5 border-t border-gray-100 pt-4">
                         <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
-                        <div className="grid grid-cols-7 gap-1.5">
-                          <button onClick={()=>{snapshot();updateCurrent({coverHue:0});}} title="Original" className={`h-8 w-8 rounded-full border-2 transition text-[9px] font-bold ${(currentPage.coverHue||0)===0?"border-slate-900 scale-110 shadow bg-slate-100":"border-gray-200 bg-white hover:border-slate-400"}`}>∅</button>
-                          {[15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
-                            <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},75%,55%), hsl(${h+20},75%,45%))`}}/>
+                        <div className="grid grid-cols-6 gap-2">
+                          {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                            <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
                           ))}
                         </div>
                         <p className="mt-2 text-[10px] text-slate-400">Change la teinte de l&apos;image de couverture</p>
