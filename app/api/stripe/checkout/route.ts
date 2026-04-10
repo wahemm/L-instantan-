@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { INCLUDED_PAGES, PACKS } from "@/app/lib/pricing";
 
-const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
-const stripe = new Stripe(stripeKey, {
-  timeout: 20000,
-  maxNetworkRetries: 0,
-  httpClient: Stripe.createNodeHttpClient(),
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const PACK = PACKS.find(p => p.id === "physique")!;
-const BASE_PRICE_CENTS = Math.round(PACK.basePrice * 100);
-const EXTRA_PER_PAGE_CENTS = Math.round(PACK.extraPerPage * 100);
+const BASE_PRICE_CENTS = 100; // 1 € TEST — remettre 2900 avant lancement
+const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
+const INCLUDED_PAGES = 24;
 
 function calculatePrice(pageCount: number): number {
   const extraPages = Math.max(0, pageCount - INCLUDED_PAGES);
@@ -28,13 +22,9 @@ export async function POST(req: NextRequest) {
     const shippingCents = typeof body.shippingCents === "number" ? body.shippingCents : 0;
     const shippingCountry = (body.shippingCountry as string) || "FR";
 
-    // Utilise toujours une URL absolue de prod pour éviter les rejets Stripe live
-    const origin = process.env.NEXT_PUBLIC_SITE_URL
-      || req.headers.get("origin")
-      || "https://linstantane.vercel.app";
+    const origin = req.headers.get("origin") ?? "http://localhost:3000";
     const albumCents = calculatePrice(pageCount);
     const pageDesc = pageCount > INCLUDED_PAGES ? ` (${pageCount} pages)` : "";
-    console.log(`[Stripe] Creating session: ${albumCents/100}€ + shipping ${shippingCents/100}€, origin: ${origin}`);
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
@@ -85,8 +75,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("Stripe checkout error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Stripe checkout error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
