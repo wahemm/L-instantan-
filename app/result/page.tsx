@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
-import { INCLUDED_PAGES, PACKS, formatPrice } from "@/app/lib/pricing";
+import { INCLUDED_PAGES } from "@/app/lib/pricing";
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
@@ -15,12 +15,17 @@ type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
-// ── Price calculation — source unique : pricing.ts ─────────────────────
-const PACK = PACKS.find(p => p.id === "physique")!;
+// ── Price calculation (single product) ────────────────────────────────
+const BASE_PRICE = 29;
+const EXTRA_PER_PAGE = 0.5;
 
 function calculatePrice(pageCount: number): number {
   const extra = Math.max(0, pageCount - INCLUDED_PAGES);
-  return Math.round((PACK.basePrice + extra * PACK.extraPerPage) * 100) / 100;
+  return Math.round((BASE_PRICE + extra * EXTRA_PER_PAGE) * 100) / 100;
+}
+
+function formatPrice(price: number): string {
+  return price % 1 === 0 ? `${price} €` : `${price.toFixed(2).replace(".", ",")} €`;
 }
 
 // ── Auto layout: group photos 2 per spread ─────────────────────────────
@@ -108,7 +113,7 @@ function renderPage(p: EditorPage, albumTitle: string) {
     if (p.photos[0]) {
       return (
         <div className="relative h-full w-full overflow-hidden">
-          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center", filter: p.coverHue ? `hue-rotate(${p.coverHue}deg)` : undefined}}/>
+          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>
           {textOverlays()}{stickerOverlays()}
         </div>
       );
@@ -186,7 +191,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
           {cur.isCover && pages[0].photos[0] ? (
             <div className="overflow-hidden rounded shadow-2xl border border-black/10"
               style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
-              <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover" style={{filter: pages[0].coverHue ? `hue-rotate(${pages[0].coverHue}deg)` : undefined}}/>
+              <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover"/>
             </div>
           ) : (
             <div className="flex overflow-hidden rounded shadow-2xl border border-black/10"
@@ -231,7 +236,7 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
                 <div className={`overflow-hidden rounded border-2 transition ${idx===i?"border-slate-900 shadow-md":"border-transparent hover:border-gray-300"}`}
                   style={{width:90,height:63,display:"flex",backgroundColor:pg?.bgColor||"#fff"}}>
                   {s.isCover&&pg?.photos[0] ? (
-                    <img src={pg.photos[0]} alt="" className="h-full w-full object-cover" style={{filter: pg.coverHue ? `hue-rotate(${pg.coverHue}deg)` : undefined}}/>
+                    <img src={pg.photos[0]} alt="" className="h-full w-full object-cover"/>
                   ) : (
                     <>
                       <div className="flex-1 overflow-hidden" style={{background:s.isCover?"#1e293b":i===1?"#2a2a2a":s.left?.bgColor||"#f0ede8"}}>
@@ -340,13 +345,13 @@ function ResultContent() {
   }
 
   function showSummary() {
-    if (!album) return;
+    if (!album || album.type !== "manual") return;
     setCheckoutStep("summary");
     fetchShippingCost(shippingCountry);
   }
 
   async function onCheckout() {
-    if (!album) return;
+    if (!album || album.type !== "manual") return;
 
     setCheckoutStep("generating-cover");
     setProgress("Préparation…");
@@ -354,9 +359,8 @@ function ResultContent() {
     let interiorUrl = "";
     let coverUrl = "";
 
-    // Try to generate and upload PDFs for Lulu printing (manual albums only)
+    // Try to generate and upload PDFs for Lulu printing
     try {
-      if (album.type !== "manual") throw new Error("Auto album — skipping PDF generation");
       const interiorPageCount = album.pages.length - 1;
       const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
 
@@ -425,23 +429,16 @@ function ResultContent() {
           shippingCountry,
         }),
       });
-
-      let checkoutData: { url?: string; error?: string } = {};
-      try {
-        checkoutData = await checkoutRes.json();
-      } catch {
-        throw new Error(`HTTP ${checkoutRes.status} — réponse invalide du serveur`);
-      }
+      const checkoutData = await checkoutRes.json();
 
       if (checkoutData.url) {
         window.location.href = checkoutData.url;
       } else {
-        throw new Error(checkoutData.error || `Erreur ${checkoutRes.status}`);
+        throw new Error("Pas de lien de paiement");
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error("Stripe checkout error:", msg);
-      alert(`Erreur paiement : ${msg}`);
+      console.error("Stripe checkout error:", err);
+      alert("Impossible de créer la session de paiement. Veuillez réessayer.");
       setCheckoutStep("idle");
       setProgress("");
     }
@@ -491,7 +488,7 @@ function ResultContent() {
           </div>
           <div className="border-t border-gray-100 bg-[#f8f7f4] py-8">
             <p className="text-center text-xs text-slate-400">
-              Une question ? Contacte-nous à <a href="mailto:contact@linstantane.fr" className="underline hover:text-slate-700">contact@linstantane.fr</a>
+              Une question ? Contacte-nous à <a href="mailto:linstantane.officiel@gmail.com" className="underline hover:text-slate-700">linstantane.officiel@gmail.com</a>
             </p>
           </div>
         </div>

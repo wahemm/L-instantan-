@@ -15,8 +15,8 @@ export default function PolitiqueConfidentialitePage() {
             <p><strong>L&apos;Instantan&eacute;</strong></p>
             <p>Entreprise individuelle / auto-entrepreneur</p>
             <p>Si&egrave;ge social : France</p>
-            <p>Email : contact@linstantane.fr</p>
-            <p>Site : https://linstantane.fr</p>
+            <p>Email : linstantane.officiel@gmail.com</p>
+            <p>Site : https://linstantane.vercel.app</p>
           </div>
         </section>
 
@@ -96,7 +96,7 @@ export default function PolitiqueConfidentialitePage() {
               <li><strong>Droit &agrave; la limitation</strong> &mdash; Limiter le traitement de vos donn&eacute;es dans certains cas</li>
               <li><strong>Droit de retirer votre consentement</strong> &mdash; &Agrave; tout moment, sans affecter la lic&eacute;it&eacute; du traitement ant&eacute;rieur</li>
             </ul>
-            <p>Pour exercer vos droits, contactez-nous &agrave; <strong>contact@linstantane.fr</strong>. Nous r&eacute;pondrons dans un d&eacute;lai maximum de 30 jours.</p>
+            <p>Pour exercer vos droits, contactez-nous &agrave; <strong>linstantane.officiel@gmail.com</strong>. Nous r&eacute;pondrons dans un d&eacute;lai maximum de 30 jours.</p>
             <p>Vous pouvez &eacute;galement introduire une r&eacute;clamation aupr&egrave;s de la CNIL (Commission Nationale de l&apos;Informatique et des Libert&eacute;s) : <strong>www.cnil.fr</strong>.</p>
           </div>
         </section>
@@ -120,7 +120,7 @@ export default function PolitiqueConfidentialitePage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">10. Contact d&eacute;l&eacute;gu&eacute; &agrave; la protection des donn&eacute;es</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-1">
             <p>Pour toute question relative &agrave; la protection de vos donn&eacute;es personnelles :</p>
-            <p><strong>Email :</strong> contact@linstantane.fr</p>
+            <p><strong>Email :</strong> linstantane.officiel@gmail.com</p>
           </div>
         </section>
 

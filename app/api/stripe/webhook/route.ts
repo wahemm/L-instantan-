@@ -3,12 +3,10 @@ import Stripe from "stripe";
 import { Resend } from "resend";
 import { createPrintJob } from "@/app/lib/lulu";
 
-const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
-  httpClient: Stripe.createNodeHttpClient(),
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 function getResend() {
-  const key = (process.env.RESEND_API_KEY ?? "").trim();
+  const key = process.env.RESEND_API_KEY;
   if (!key || key.includes("placeholder")) return null;
   return new Resend(key);
 }
@@ -16,7 +14,7 @@ function getResend() {
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature") ?? "";
-  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
 
   let event: Stripe.Event;
 
@@ -78,7 +76,7 @@ export async function POST(req: NextRequest) {
               phoneNumber: session.customer_details?.phone || "+33600000000",
               email: email || "",
             },
-            contactEmail: "contact@linstantane.fr",
+            contactEmail: "linstantane.officiel@gmail.com",
           });
 
           console.log(`Lulu print job created: ${printJob.id} for session ${session.id}`);
@@ -90,7 +88,7 @@ export async function POST(req: NextRequest) {
             if (alertResend) {
               await alertResend.emails.send({
                 from: "L'Instantané <contact@linstantane.fr>",
-                to: "contact@linstantane.fr",
+                to: "linstantane.officiel@gmail.com",
                 subject: `[URGENT] Échec impression Lulu — Commande ${session.id}`,
                 html: `
 <h2>Échec de création du job d'impression Lulu</h2>
@@ -198,12 +196,12 @@ function buildConfirmationEmail(name: string, albumTitle: string, pageCount: str
                 Livraison
               </p>
               <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
-                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 5 à 7 jours ouvrés
+                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison offerte sous 7–10 jours ouvrés
               </p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="https://linstantane.fr/create"
+                    <a href="https://linstantane.vercel.app/create"
                        style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.04em;padding:14px 32px;border-radius:100px;font-family:Arial,sans-serif;">
                       Créer un nouvel album →
                     </a>
