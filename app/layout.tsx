@@ -15,13 +15,13 @@ const BASE_URL = "https://linstantane.fr";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: { default: "L'Instantané — Album photo premium, livré chez toi", template: "%s | L'Instantané" },
-  description: "Crée ton album photo premium en quelques minutes. Choisis ta couverture, place tes photos, personnalise chaque page. Imprimé sur papier brillant 170g/m² et livré chez toi en 5 jours.",
-  keywords: ["album photo", "livre photo", "photobook", "album premium", "cadeau photo", "souvenirs"],
+  description: "Crée ton album photo premium en quelques minutes. Choisis ta couverture, place tes photos, personnalise chaque page. Imprimé sur papier brillant 170g/m² et livré chez toi en 5–7 jours.",
+  keywords: ["album photo", "livre photo", "photobook", "album premium", "cadeau photo", "souvenirs", "album personnalisé", "impression photo"],
   authors: [{ name: "L'Instantané" }],
   openGraph: {
     type: "website", locale: "fr_FR", url: BASE_URL, siteName: "L'Instantané",
     title: "L'Instantané — Album photo premium, livré chez toi",
-    description: "Crée ton album photo premium en quelques minutes. Imprimé sur papier brillant 170g/m² et livré en 5 jours.",
+    description: "Crée ton album photo premium en quelques minutes. Imprimé sur papier brillant 170g/m² et livré en 5–7 jours.",
   },
   twitter: { card: "summary_large_image", title: "L'Instantané — Album photo premium", description: "Tes souvenirs méritent un beau livre." },
   robots: { index: true, follow: true },
@@ -39,22 +39,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 "@context": "https://schema.org",
                 "@type": "Product",
                 name: "Album Photo Premium — L'Instantané",
-                description: "Album photo personnalisé imprimé sur papier brillant 170g/m², format A4, couverture rigide. Livré en 5-7 jours.",
+                description: "Album photo personnalisé imprimé sur papier brillant 170g/m², format A4, couverture rigide. Livré en 5–7 jours.",
                 brand: { "@type": "Brand", name: "L'Instantané" },
                 offers: {
                   "@type": "Offer",
-                  url: "https://linstantane.fr/create",
+                  url: `${BASE_URL}/create`,
                   priceCurrency: "EUR",
                   price: "29.00",
                   availability: "https://schema.org/InStock",
                   shippingDetails: {
                     "@type": "OfferShippingDetails",
-                    shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "EUR" },
-                    deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 7, unitCode: "DAY" } },
-                    shippingDestination: { "@type": "DefinedRegion", addressCountry: "FR" },
+                    deliveryTime: {
+                      "@type": "ShippingDeliveryTime",
+                      handlingTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 7, unitCode: "DAY" },
+                    },
+                    shippingDestination: { "@type": "DefinedRegion", addressCountry: ["FR", "BE", "CH", "LU", "MC"] },
                   },
                 },
-                aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "127", bestRating: "5" },
               }),
             }}
           />

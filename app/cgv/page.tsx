@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Conditions Générales de Vente",
+  description: "Conditions générales de vente de L'Instantané — album photo premium livré en France et Europe.",
+  robots: { index: false, follow: false },
+};
 
 export default function CgvPage() {
   return (

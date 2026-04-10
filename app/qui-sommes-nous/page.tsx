@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
+
+export const metadata: Metadata = {
+  title: "Qui sommes-nous ?",
+  description: "L'Instantané est une marque française d'albums photo premium. Papier brillant 170g/m², format A4, couverture rigide, imprimé en Europe et livré en 5–7 jours.",
+  openGraph: {
+    title: "Qui sommes-nous ? — L'Instantané",
+    description: "L'Instantané, la marque française d'albums photo premium imprimés en Europe.",
+    url: "https://linstantane.fr/qui-sommes-nous",
+  },
+};
 
 export default function QuiSommesNousPage() {
   return (

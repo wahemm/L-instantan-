@@ -1,13 +1,24 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
+
+export const metadata: Metadata = {
+  title: "Comment ça marche ?",
+  description: "Créer ton album photo L'Instantané en 3 étapes : importe tes photos, personnalise ta couverture, et reçois ton livre imprimé chez toi en 5–7 jours.",
+  openGraph: {
+    title: "Comment ça marche ? — L'Instantané",
+    description: "3 étapes simples pour créer et recevoir ton album photo premium.",
+    url: "https://linstantane.fr/comment-ca-marche",
+  },
+};
 
 const STEPS = [
   {
     num: "01",
     emoji: "📚",
     title: "Choisis ta couverture",
-    desc: "Rends-toi sur la page de création, sélectionne un modèle de couverture parmi nos thèmes soigneusement conçus, et personnalise le titre de ton album.",
-    detail: "Quelques secondes suffisent.",
+    desc: "Rends-toi sur la boutique, sélectionne un modèle de couverture parmi nos thèmes soigneusement conçus, puis choisis ton pack : Digital, Physique ou Duo.",
+    detail: "Sur /shop — quelques secondes suffisent.",
   },
   {
     num: "02",
@@ -27,7 +38,7 @@ const STEPS = [
     num: "04",
     emoji: "🚚",
     title: "Reçois ton livre",
-    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France & Europe en 5 à 7 jours ouvrés.",
+    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France en 5 à 7 jours ouvrés. Livraison offerte.",
     detail: "Emballage soigné, prêt à offrir.",
   },
 ];
@@ -70,7 +81,7 @@ export default function CommentCaMarchePage() {
         </p>
         <div className="mt-8">
           <Link
-            href="/create"
+            href="/shop"
             className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
           >
             Commencer mon album →
@@ -157,7 +168,7 @@ export default function CommentCaMarchePage() {
             Tu vois l&apos;aperçu complet avant de payer. Lance-toi maintenant.
           </p>
           <Link
-            href="/create"
+            href="/shop"
             className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-100"
           >
             Choisir ma couverture →

@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Mentions Légales",
+  description: "Mentions légales de L'Instantané.",
+  robots: { index: false, follow: false },
+};
 
 export default function MentionsLegalesPage() {
   return (
@@ -7,7 +14,7 @@ export default function MentionsLegalesPage() {
       <Nav />
       <article className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 mb-2">Mentions légales</h1>
-        <p className="text-sm text-slate-400 mb-12">Dernière mise à jour : avril 2026</p>
+        <p className="text-sm text-slate-400 mb-12">Dernière mise à jour : mars 2026</p>
 
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">Éditeur du site</h2>

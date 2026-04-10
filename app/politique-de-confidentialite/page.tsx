@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Politique de Confidentialité",
+  description: "Politique de confidentialité et gestion des données personnelles de L'Instantané.",
+  robots: { index: false, follow: false },
+};
 
 export default function PolitiqueConfidentialitePage() {
   return (
