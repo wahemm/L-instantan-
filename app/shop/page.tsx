@@ -53,7 +53,7 @@ export default function ShopPage() {
             <div className="mx-auto w-full max-w-[340px]">
               <div className="relative overflow-hidden rounded-lg shadow-xl" style={{ aspectRatio: "210/297" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" />
+                <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
                 {/* Book spine effect */}
                 <div className="absolute inset-y-0 left-0 w-3" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.35), transparent)" }} />
               </div>
@@ -74,7 +74,7 @@ export default function ShopPage() {
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.src} alt={c.name} className="w-full h-auto object-cover" style={{ aspectRatio: "210/297" }} />
+                    <img src={c.src} alt={c.name} className="w-full h-full object-cover" style={{ aspectRatio: "210/297", objectPosition: "right center" }} />
                   </button>
                 ))}
               </div>
@@ -121,7 +121,7 @@ export default function ShopPage() {
               <div className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
                 <div className="h-11 w-8 shrink-0 overflow-hidden rounded" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" />
+                  <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-slate-900">{cover.name}</p>
