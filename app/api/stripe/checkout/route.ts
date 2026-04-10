@@ -3,7 +3,7 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const BASE_PRICE_CENTS = 2900; // 29 €
+const BASE_PRICE_CENTS = 100; // 1 € TEST — remettre 2900 avant lancement
 const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
 const INCLUDED_PAGES = 24;
 
@@ -19,10 +19,40 @@ export async function POST(req: NextRequest) {
     const albumTitle = (body.albumTitle as string) || "Mon Album";
     const interiorUrl = (body.interiorUrl as string) || "";
     const coverUrl = (body.coverUrl as string) || "";
+    const shippingCents = typeof body.shippingCents === "number" ? body.shippingCents : 0;
+    const shippingCountry = (body.shippingCountry as string) || "FR";
 
     const origin = req.headers.get("origin") ?? "http://localhost:3000";
-    const totalCents = calculatePrice(pageCount);
+    const albumCents = calculatePrice(pageCount);
     const pageDesc = pageCount > INCLUDED_PAGES ? ` (${pageCount} pages)` : "";
+
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: albumCents,
+          product_data: {
+            name: `Album Photo — L'Instantané${pageDesc}`,
+            description: `Album "${albumTitle}" · Hardcover 21×28 cm · Papier glacé premium 170 g/m²`,
+          },
+        },
+      },
+    ];
+
+    if (shippingCents > 0) {
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: shippingCents,
+          product_data: {
+            name: "Frais de livraison",
+            description: `Livraison standard vers ${shippingCountry}`,
+          },
+        },
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -30,25 +60,14 @@ export async function POST(req: NextRequest) {
       shipping_address_collection: {
         allowed_countries: ["FR", "BE", "CH", "LU", "MC"],
       },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "eur",
-            unit_amount: totalCents,
-            product_data: {
-              name: `Album Photo — L'Instantané${pageDesc}`,
-              description: `Album "${albumTitle}" · Hardcover 8.5×11" · Papier glacé premium · Livraison offerte`,
-            },
-          },
-        },
-      ],
+      line_items: lineItems,
       metadata: {
         pack: "physique",
         pageCount: String(pageCount),
         albumTitle,
         interiorUrl,
         coverUrl,
+        shippingCountry,
       },
       success_url: `${origin}/result?success=true`,
       cancel_url: `${origin}/result`,
