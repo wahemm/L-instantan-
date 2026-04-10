@@ -15,7 +15,7 @@ export default function MentionsLegalesPage() {
             <p><strong>L&apos;Instantané</strong></p>
             <p>Entreprise individuelle / auto-entrepreneur</p>
             <p>Siège social : France</p>
-            <p>Email : contact@linstantane.fr</p>
+            <p>Email : linstantane.officiel@gmail.com</p>
           </div>
         </section>
 
@@ -38,7 +38,7 @@ export default function MentionsLegalesPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">Données personnelles</h2>
           <p className="text-sm leading-relaxed text-slate-600">
-            Les données collectées lors de la commande (nom, adresse, email) sont utilisées uniquement pour le traitement et la livraison de votre commande. Elles ne sont pas transmises à des tiers à des fins commerciales. Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données en nous contactant à contact@linstantane.fr.
+            Les données collectées lors de la commande (nom, adresse, email) sont utilisées uniquement pour le traitement et la livraison de votre commande. Elles ne sont pas transmises à des tiers à des fins commerciales. Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données en nous contactant à linstantane.officiel@gmail.com.
           </p>
         </section>
 

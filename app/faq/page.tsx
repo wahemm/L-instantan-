@@ -140,10 +140,10 @@ export default function FaqPage() {
           <p className="mt-2 text-sm text-slate-500">
             Écris-nous à{" "}
             <a
-              href="mailto:hello@linstantane.fr"
+              href="mailto:linstantane.officiel@gmail.com"
               className="text-slate-900 underline underline-offset-2 hover:text-slate-600"
             >
-              hello@linstantane.fr
+              linstantane.officiel@gmail.com
             </a>{" "}
             — on répond sous 24h.
           </p>

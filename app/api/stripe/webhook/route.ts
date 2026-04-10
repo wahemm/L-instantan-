@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     if (email && resend) {
       try {
         await resend.emails.send({
-          from: "L'Instantané <bonjour@linstantane.fr>",
+          from: "L'Instantané <contact@linstantane.fr>",
           to: email,
           subject: `Votre album "${albumTitle}" est confirmé ✨`,
           html: buildConfirmationEmail(name, albumTitle, pageCount, amountPaid),
@@ -76,13 +76,38 @@ export async function POST(req: NextRequest) {
               phoneNumber: session.customer_details?.phone || "+33600000000",
               email: email || "",
             },
-            contactEmail: "bonjour@linstantane.fr",
+            contactEmail: "linstantane.officiel@gmail.com",
           });
 
           console.log(`Lulu print job created: ${printJob.id} for session ${session.id}`);
         } catch (luluErr) {
           console.error("Failed to create Lulu print job:", luluErr);
-          // TODO: Queue for retry or alert admin
+          // Alert admin via email
+          try {
+            const alertResend = getResend();
+            if (alertResend) {
+              await alertResend.emails.send({
+                from: "L'Instantané <contact@linstantane.fr>",
+                to: "linstantane.officiel@gmail.com",
+                subject: `[URGENT] Échec impression Lulu — Commande ${session.id}`,
+                html: `
+<h2>Échec de création du job d'impression Lulu</h2>
+<p><strong>Erreur :</strong> ${luluErr instanceof Error ? luluErr.message : String(luluErr)}</p>
+<hr />
+<table>
+  <tr><td><strong>Session Stripe</strong></td><td>${session.id}</td></tr>
+  <tr><td><strong>Album</strong></td><td>${albumTitle}</td></tr>
+  <tr><td><strong>Email client</strong></td><td>${email ?? "N/A"}</td></tr>
+  <tr><td><strong>Interior PDF</strong></td><td><a href="${interiorUrl}">${interiorUrl}</a></td></tr>
+  <tr><td><strong>Cover PDF</strong></td><td><a href="${coverUrl}">${coverUrl}</a></td></tr>
+</table>
+<p>Merci de traiter cette commande manuellement.</p>`,
+              });
+              console.log(`Admin alert sent for failed Lulu job (session ${session.id})`);
+            }
+          } catch (alertErr) {
+            console.error("Failed to send admin alert email:", alertErr);
+          }
         }
       } else {
         console.error("No shipping address found in Stripe session");

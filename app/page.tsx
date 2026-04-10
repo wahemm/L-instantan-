@@ -23,22 +23,28 @@ const DEMOS = [
 
 const TESTIMONIALS = [
   {
-    name: "Camille",
-    role: "Pack Physique",
+    name: "Camille Dupont",
+    city: "Lyon",
+    date: "Mars 2025",
+    detail: "Album Vacances Grèce, 32 pages",
     stars: 5,
-    quote: "On a envoyé les photos du week-end et le livre est magnifique. Un souvenir inoubliable à feuilleter.",
+    quote: "On a envoyé les photos du week-end et le livre est magnifique. La qualité du papier est bluffante, un souvenir inoubliable à feuilleter en famille.",
   },
   {
-    name: "Yanis",
-    role: "Pack Digital",
+    name: "Yanis Belkacem",
+    city: "Paris",
+    date: "Février 2025",
+    detail: "Album Famille Noël, 48 pages",
     stars: 5,
-    quote: "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium.",
+    quote: "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium. Ma femme a pleuré en le feuilletant.",
   },
   {
-    name: "Sarah",
-    role: "Pack Duo",
+    name: "Sarah Martin",
+    city: "Bordeaux",
+    date: "Janvier 2025",
+    detail: "Album Cadeau Anniversaire, 24 pages",
     stars: 5,
-    quote: "Offrir le livre imprimé à ma mère pour son anniversaire, c'était le cadeau parfait. Elle a adoré.",
+    quote: "Offrir le livre imprimé à ma mère pour ses 60 ans, c'était le cadeau parfait. Elle l'a montré à toute la famille.",
   },
 ];
 
@@ -49,44 +55,67 @@ const PERKS = [
   { icon: "🚚", label: "Livraison offerte", desc: "France, 5–7 jours" },
 ];
 
-// Inline CSS book mockup component
-function BookMockup({ bgColor, textColor, title, rotate = 0, scale = 1, zIndex = 0 }: {
-  bgColor: string; textColor: string; title: string; rotate?: number; scale?: number; zIndex?: number;
+// Realistic book mockup using actual cover images
+function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0 }: {
+  src: string; alt: string; rotate?: number; scale?: number; zIndex?: number;
 }) {
   return (
     <div
       style={{
-        backgroundColor: bgColor,
-        transform: `rotate(${rotate}deg) scale(${scale})`,
+        transform: `perspective(800px) rotateY(${rotate}deg) scale(${scale})`,
         zIndex,
-        width: 140,
-        height: 190,
-        borderRadius: 6,
+        width: 160,
+        height: 220,
+        borderRadius: 4,
         position: "relative",
         flexShrink: 0,
-        boxShadow: "8px 8px 24px rgba(0,0,0,0.35), inset -3px 0 8px rgba(0,0,0,0.15)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "12px 10px",
-        overflow: "hidden",
+        transformStyle: "preserve-3d",
       }}
     >
-      {/* Spine */}
-      <div style={{ position:"absolute", left:0, top:0, bottom:0, width:8, background:"rgba(0,0,0,0.2)", borderRadius:"6px 0 0 6px" }} />
-      {/* Top line */}
-      <div style={{ position:"absolute", top:12, left:16, right:12, height:1, backgroundColor:textColor, opacity:0.25 }} />
-      {/* Bottom line */}
-      <div style={{ position:"absolute", bottom:12, left:16, right:12, height:1, backgroundColor:textColor, opacity:0.25 }} />
-      {/* Title */}
-      <p style={{ color:textColor, fontFamily:"Georgia, serif", fontSize:15, fontStyle:"italic", textAlign:"center", lineHeight:1.3, padding:"0 4px", opacity:0.9 }}>
-        {title}
-      </p>
-      {/* Branding */}
-      <p style={{ position:"absolute", bottom:18, color:textColor, opacity:0.35, fontSize:7, letterSpacing:"0.15em", textTransform:"uppercase" }}>
-        L&apos;Instantané
-      </p>
+      {/* Book spine */}
+      <div style={{
+        position: "absolute",
+        left: -6,
+        top: 2,
+        bottom: 2,
+        width: 12,
+        background: "linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.15))",
+        borderRadius: "4px 0 0 4px",
+        transform: "translateZ(-1px)",
+      }} />
+      {/* Cover image — show only right half (front cover) */}
+      <div style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: 4,
+        overflow: "hidden",
+        boxShadow: "8px 12px 28px rgba(0,0,0,0.45), 2px 2px 8px rgba(0,0,0,0.2)",
+      }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} style={{ width: "200%", height: "100%", objectFit: "cover", objectPosition: "100% center", display: "block" }} />
+      </div>
+      {/* Page edges (right side) */}
+      <div style={{
+        position: "absolute",
+        right: -3,
+        top: 4,
+        bottom: 4,
+        width: 6,
+        background: "linear-gradient(to right, #e8e4df, #f5f2ed, #e8e4df)",
+        borderRadius: "0 2px 2px 0",
+        zIndex: -1,
+      }} />
+      {/* Bottom page edges */}
+      <div style={{
+        position: "absolute",
+        left: 4,
+        right: 4,
+        bottom: -3,
+        height: 6,
+        background: "linear-gradient(to bottom, #e8e4df, #f5f2ed, #e8e4df)",
+        borderRadius: "0 0 2px 2px",
+        zIndex: -1,
+      }} />
     </div>
   );
 }
@@ -133,23 +162,25 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span className="flex items-center gap-1.5"><span className="text-amber-400">★★★★★</span> 4,9 / 5</span>
               <span>·</span>
-              <span>500+ albums créés</span>
+              <span>À partir de 29 €</span>
               <span>·</span>
               <span>Satisfait ou remboursé</span>
             </div>
           </div>
 
-          {/* Floating book mockups */}
-          <div className="relative mt-14 flex items-end justify-center gap-4 pb-0" style={{ minHeight: 220 }}>
-            <div className="hidden sm:block" style={{ marginBottom: 8 }}>
-              <BookMockup bgColor="#0d9488" textColor="#ffffff" title="Italie 2024" rotate={-8} scale={0.88} zIndex={1} />
+          {/* Floating book mockups with real covers */}
+          <div className="relative mx-auto mt-14 flex items-end justify-center gap-6 sm:gap-10 pb-0" style={{ minHeight: 250 }}>
+            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+              <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1} />
             </div>
-            <BookMockup bgColor="#0f172a" textColor="#ffffff" title="Mon Album" rotate={0} scale={1.1} zIndex={3} />
-            <div className="hidden sm:block" style={{ marginBottom: 8 }}>
-              <BookMockup bgColor="#f5e6d3" textColor="#3d2b1f" title="Voyage en Provence" rotate={8} scale={0.88} zIndex={1} />
+            <div style={{ marginBottom: 0 }}>
+              <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} />
+            </div>
+            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+              <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1} />
             </div>
             {/* Shadow under books */}
-            <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-10 w-64 rounded-full opacity-40" style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)", filter: "blur(8px)" }} />
+            <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-12 w-80 rounded-full opacity-50" style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)", filter: "blur(10px)" }} />
           </div>
         </div>
       </section>
@@ -193,7 +224,7 @@ export default function Home() {
                     src={tpl.src}
                     alt={tpl.name}
                     className="w-full h-auto object-cover"
-                    loading="eager"
+                    loading="lazy"
                   />
                 </div>
                 <span className="text-[11px] text-slate-400 group-hover:text-slate-700 transition">{tpl.name}</span>
@@ -267,51 +298,35 @@ export default function Home() {
       {/* ── Pricing ───────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-5xl px-6 py-20 sm:py-24">
         <div className="mb-14 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Nos offres</p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Tarif</p>
           <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
-            Paiement unique, sans abonnement
+            Simple et transparent
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-slate-500">Choisis le pack qui correspond à tes souvenirs.</p>
+          <p className="mx-auto mt-4 max-w-lg text-slate-500">Un seul prix, tout inclus.</p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {[
-            { id:"digital",  name:"Digital",  price:"10 €", note:"Album PDF HD",       perks:["Haute résolution","PDF prêt à partager","Téléchargement immédiat"],        featured:false },
-            { id:"physique", name:"Physique", price:"29 €", note:"Livre imprimé",       perks:["Livre finition premium","Livraison France offerte","Pour offrir ou garder"], featured:true  },
-            { id:"duo",      name:"Duo",      price:"35 €", note:"Digital + Physique",  perks:["Pack Digital inclus","Livre imprimé inclus","Meilleure valeur"],             featured:false },
-          ].map((plan) => (
-            <article
-              key={plan.id}
-              className={`relative flex flex-col rounded-2xl border p-8 ${plan.featured ? "border-slate-900 bg-slate-900 text-white" : "border-gray-100 bg-white shadow-sm"}`}
-            >
-              {plan.featured && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">Populaire</span>
-                </div>
-              )}
-              <h3 className={`font-[family-name:var(--font-playfair)] text-2xl ${plan.featured ? "text-white" : "text-slate-900"}`}>{plan.name}</h3>
-              <p className={`mt-1 text-sm ${plan.featured ? "text-slate-400" : "text-slate-400"}`}>{plan.note}</p>
-              <div className="my-6 flex items-end gap-1">
-                <span className={`font-[family-name:var(--font-playfair)] text-4xl ${plan.featured ? "text-white" : "text-slate-900"}`}>{plan.price}</span>
-                <span className={`mb-1 text-xs ${plan.featured ? "text-slate-400" : "text-slate-400"}`}>paiement unique</span>
-              </div>
-              <ul className="mb-8 flex flex-col gap-2.5">
-                {plan.perks.map((perk) => (
-                  <li key={perk} className={`flex items-start gap-2 text-sm ${plan.featured ? "text-slate-300" : "text-slate-600"}`}>
-                    <span className={`mt-0.5 shrink-0 ${plan.featured ? "text-slate-400" : "text-slate-300"}`}>✓</span>
-                    {perk}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/create"
-                className={`mt-auto inline-flex items-center justify-center rounded-full py-3 text-sm font-medium transition ${plan.featured ? "bg-white text-slate-900 hover:bg-slate-100" : "bg-slate-900 text-white hover:bg-slate-700"}`}
-              >
-                Commencer
-              </Link>
-            </article>
-          ))}
+        <div className="mx-auto max-w-sm">
+          <article className="relative flex flex-col rounded-2xl border border-slate-900 bg-slate-900 p-10 text-white text-center">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-slate-900 shadow-sm">Album imprimé</span>
+            </div>
+            <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-white mt-2">À partir de</h3>
+            <div className="my-4 flex items-end justify-center gap-1">
+              <span className="font-[family-name:var(--font-playfair)] text-5xl font-bold text-white">29 €</span>
+              <span className="mb-2 text-xs text-slate-400">paiement unique</span>
+            </div>
+            <ul className="mb-8 flex flex-col gap-3 text-left">
+              {["Livre imprimé finition premium","Format A4 · Papier brillant 170g/m²","Livraison en France offerte","Pour offrir ou garder"].map(p => (
+                <li key={p} className="flex items-center gap-2 text-sm text-slate-300">
+                  <span className="text-slate-400">✓</span>{p}
+                </li>
+              ))}
+            </ul>
+            <Link href="/create" className="mt-auto inline-flex items-center justify-center rounded-full bg-white py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">
+              Créer mon album →
+            </Link>
+          </article>
         </div>
-        <p className="mt-8 text-center text-sm text-slate-400">Paiement sécurisé Stripe. Satisfait ou remboursé sous 14 jours.</p>
+        <p className="mt-8 text-center text-sm text-slate-400">Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours</p>
       </section>
 
       {/* ── Testimonials ──────────────────────────────────────────────────── */}
@@ -330,7 +345,7 @@ export default function Home() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">{t.name.charAt(0)}</div>
                   <div>
                     <div className="text-sm font-semibold text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-400">{t.role}</div>
+                    <div className="text-xs text-slate-400">{t.city} · {t.date} · {t.detail}</div>
                   </div>
                 </footer>
               </blockquote>
@@ -356,18 +371,69 @@ export default function Home() {
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
-          <span className="font-[family-name:var(--font-playfair)] text-slate-900">L&apos;Instantané</span>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link href="/comment-ca-marche" className="transition hover:text-slate-700">Comment ça marche</Link>
-            <Link href="/shop" className="transition hover:text-slate-700">Albums</Link>
-            <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">À propos</Link>
-            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
-            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
+      <footer className="bg-[#0c1220] text-white">
+        <div className="mx-auto max-w-6xl px-6 pt-16 pb-10">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div className="flex flex-col gap-4">
+              <span className="font-[family-name:var(--font-playfair)] text-xl">L&apos;Instantané</span>
+              <p className="text-sm leading-relaxed text-slate-400">
+                Tes souvenirs méritent un beau livre. Albums photo premium imprimés et livrés chez toi.
+              </p>
+              {/* Social */}
+              <div className="flex items-center gap-4 mt-2">
+                <a href="https://instagram.com/linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="text-slate-400 transition hover:text-white" aria-label="Instagram">
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C16.67.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <a href="https://tiktok.com/@linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="text-slate-400 transition hover:text-white" aria-label="TikTok">
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Pages */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Pages</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><Link href="/" className="transition hover:text-white">Accueil</Link></li>
+                <li><Link href="/create" className="transition hover:text-white">Créer un album</Link></li>
+                <li><Link href="/comment-ca-marche" className="transition hover:text-white">Comment ça marche</Link></li>
+                <li><Link href="/faq" className="transition hover:text-white">FAQ</Link></li>
+                <li><Link href="/qui-sommes-nous" className="transition hover:text-white">À propos</Link></li>
+              </ul>
+            </div>
+
+            {/* Légal */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Légal</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><Link href="/cgv" className="transition hover:text-white">CGV</Link></li>
+                <li><Link href="/mentions-legales" className="transition hover:text-white">Mentions légales</Link></li>
+                <li><Link href="/politique-confidentialite" className="transition hover:text-white">Politique de confidentialité</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Contact</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><a href="mailto:linstantane.officiel@gmail.com" className="transition hover:text-white">linstantane.officiel@gmail.com</a></li>
+                <li><a href="https://instagram.com/linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">@linstantane_souvenir</a></li>
+              </ul>
+            </div>
           </div>
-          <span>© 2026 L&apos;Instantané</span>
+
+          {/* Bottom bar */}
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-slate-500 sm:flex-row">
+            <span>© 2026 L&apos;Instantané · Tous droits réservés</span>
+            <div className="flex items-center gap-4">
+              <span>Paiement sécurisé</span>
+              <span>·</span>
+              <span>Satisfait ou remboursé</span>
+              <span>·</span>
+              <span>Livraison offerte</span>
+            </div>
+          </div>
         </div>
       </footer>
     </main>

@@ -259,11 +259,21 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
   );
 }
 
+// ── Shipping countries ────────────────────────────────────────────────
+const SHIPPING_COUNTRIES: { code: string; label: string }[] = [
+  { code: "FR", label: "France" },
+  { code: "BE", label: "Belgique" },
+  { code: "CH", label: "Suisse" },
+  { code: "LU", label: "Luxembourg" },
+  { code: "MC", label: "Monaco" },
+];
+
 // ── Checkout flow with PDF generation & upload ────────────────────────
-type CheckoutStep = "idle" | "generating-interior" | "generating-cover" | "uploading" | "redirecting";
+type CheckoutStep = "idle" | "summary" | "generating-interior" | "generating-cover" | "uploading" | "redirecting";
 
 const STEP_LABELS: Record<CheckoutStep, string> = {
   idle: "",
+  summary: "",
   "generating-interior": "Génération des pages intérieures…",
   "generating-cover": "Génération de la couverture…",
   uploading: "Envoi des fichiers…",
@@ -276,6 +286,9 @@ function ResultContent() {
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>("idle");
   const [progress, setProgress] = useState<string>("");
   const [pdfProgress, setPdfProgress] = useState<{ current: number; total: number } | null>(null);
+  const [shippingCountry, setShippingCountry] = useState("FR");
+  const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
 
@@ -310,27 +323,64 @@ function ResultContent() {
     } finally { setPdfProgress(null); }
   }
 
+  async function fetchShippingCost(country: string) {
+    setShippingLoading(true);
+    try {
+      const res = await fetch("/api/lulu/shipping-cost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageCount: pageCount + (pageCount % 2 !== 0 ? 1 : 0), countryCode: country }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setShippingCost(data.shippingCost);
+      } else {
+        setShippingCost(null);
+      }
+    } catch {
+      setShippingCost(null);
+    } finally {
+      setShippingLoading(false);
+    }
+  }
+
+  function showSummary() {
+    if (!album || album.type !== "manual") return;
+    setCheckoutStep("summary");
+    fetchShippingCost(shippingCountry);
+  }
+
   async function onCheckout() {
     if (!album || album.type !== "manual") return;
 
-    try {
-      // 1. Get cover dimensions from Lulu
-      setCheckoutStep("generating-cover");
-      setProgress("Calcul des dimensions…");
+    setCheckoutStep("generating-cover");
+    setProgress("Préparation…");
 
-      const interiorPageCount = album.pages.length - 1; // exclude cover
+    let interiorUrl = "";
+    let coverUrl = "";
+
+    // Try to generate and upload PDFs for Lulu printing
+    try {
+      const interiorPageCount = album.pages.length - 1;
       const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
 
-      const dimsRes = await fetch("/api/lulu/cover-dimensions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pageCount: evenPageCount }),
-      });
-      const dims = await dimsRes.json();
-      const coverWidthPt = parseFloat(dims.width);
-      const coverHeightPt = parseFloat(dims.height);
+      // Cover dimensions (fallback to 24-page defaults)
+      let coverWidthPt = 1368;
+      let coverHeightPt = 918;
+      try {
+        const dimsRes = await fetch("/api/lulu/cover-dimensions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageCount: evenPageCount }),
+        });
+        if (dimsRes.ok) {
+          const dims = await dimsRes.json();
+          const w = parseFloat(dims.width);
+          const h = parseFloat(dims.height);
+          if (w > 0 && h > 0) { coverWidthPt = w; coverHeightPt = h; }
+        }
+      } catch { /* use defaults */ }
 
-      // 2. Generate cover PDF
       setProgress("Génération de la couverture…");
       const { generateLuluCoverPDF, generateLuluInteriorPDF } = await import("@/app/lib/generatePDF");
       const coverBlob = await generateLuluCoverPDF(
@@ -338,7 +388,6 @@ function ResultContent() {
         coverWidthPt, coverHeightPt
       );
 
-      // 3. Generate interior PDF
       setCheckoutStep("generating-interior");
       setProgress("Génération des pages…");
       const interiorBlob = await generateLuluInteriorPDF(
@@ -346,7 +395,6 @@ function ResultContent() {
         (current, total) => setProgress(`Page ${current}/${total}…`)
       );
 
-      // 4. Upload PDFs
       setCheckoutStep("uploading");
       setProgress("Envoi des fichiers…");
       const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -356,13 +404,18 @@ function ResultContent() {
       formData.append("orderId", orderId);
 
       const uploadRes = await fetch("/api/upload-pdf", { method: "POST", body: formData });
-      const { interiorUrl, coverUrl } = await uploadRes.json();
+      const uploadData = await uploadRes.json();
+      interiorUrl = uploadData.interiorUrl || "";
+      coverUrl = uploadData.coverUrl || "";
+    } catch (pdfErr) {
+      console.error("PDF generation/upload failed (proceeding to checkout anyway):", pdfErr);
+      // Continue to Stripe without PDFs — order will need manual PDF handling
+    }
 
-      if (!interiorUrl || !coverUrl) throw new Error("Upload failed");
-
-      // 5. Create Stripe checkout
+    // Always redirect to Stripe checkout, even without PDFs
+    try {
       setCheckoutStep("redirecting");
-      setProgress("Redirection…");
+      setProgress("Redirection vers le paiement…");
 
       const checkoutRes = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -372,6 +425,8 @@ function ResultContent() {
           albumTitle: album.title || "Mon Album",
           interiorUrl,
           coverUrl,
+          shippingCents: shippingCost ? Math.round(shippingCost * 100) : 0,
+          shippingCountry,
         }),
       });
       const checkoutData = await checkoutRes.json();
@@ -379,17 +434,17 @@ function ResultContent() {
       if (checkoutData.url) {
         window.location.href = checkoutData.url;
       } else {
-        throw new Error("No checkout URL");
+        throw new Error("Pas de lien de paiement");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Une erreur est survenue lors de la préparation de votre commande. Veuillez réessayer.");
+      console.error("Stripe checkout error:", err);
+      alert("Impossible de créer la session de paiement. Veuillez réessayer.");
       setCheckoutStep("idle");
       setProgress("");
     }
   }
 
-  const isProcessing = checkoutStep !== "idle";
+  const isProcessing = checkoutStep !== "idle" && checkoutStep !== "summary";
 
   return (
     <>
@@ -433,8 +488,103 @@ function ResultContent() {
           </div>
           <div className="border-t border-gray-100 bg-[#f8f7f4] py-8">
             <p className="text-center text-xs text-slate-400">
-              Une question ? Contacte-nous à <a href="mailto:contact@linstantane.fr" className="underline hover:text-slate-700">contact@linstantane.fr</a>
+              Une question ? Contacte-nous à <a href="mailto:linstantane.officiel@gmail.com" className="underline hover:text-slate-700">linstantane.officiel@gmail.com</a>
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Order summary modal */}
+      {checkoutStep === "summary" && album && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+            <div className="bg-slate-900 px-6 py-5 text-center">
+              <h2 className="font-[family-name:var(--font-playfair)] text-xl text-white italic">Récapitulatif</h2>
+            </div>
+            <div className="px-6 py-6">
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Album</span>
+                  <span className="font-semibold text-slate-900">&ldquo;{album.type === "manual" ? (album.title || "Mon Album") : album.title}&rdquo;</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Format</span>
+                  <span className="font-semibold text-slate-900">Hardcover 21×28 cm</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Papier</span>
+                  <span className="font-semibold text-slate-900">Glacé premium 170 g/m²</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Pages</span>
+                  <span className="font-semibold text-slate-900">{pageCount} pages</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500">Livraison vers</span>
+                    <select
+                      value={shippingCountry}
+                      onChange={(e) => { setShippingCountry(e.target.value); fetchShippingCost(e.target.value); }}
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-semibold text-slate-900 bg-white"
+                    >
+                      {SHIPPING_COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Frais de livraison</span>
+                    {shippingLoading ? (
+                      <span className="text-slate-400 text-xs">Calcul…</span>
+                    ) : shippingCost !== null ? (
+                      <span className="font-semibold text-slate-900">{formatPrice(shippingCost)}</span>
+                    ) : (
+                      <span className="text-red-400 text-xs">Indisponible</span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400">Livraison standard 7-10 jours ouvrés</p>
+                </div>
+                <hr className="border-gray-100" />
+                {pageCount > INCLUDED_PAGES && (
+                  <div className="space-y-1 text-xs text-slate-400">
+                    <div className="flex justify-between">
+                      <span>Album {INCLUDED_PAGES} pages incluses</span>
+                      <span>29 €</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{pageCount - INCLUDED_PAGES} page{pageCount - INCLUDED_PAGES > 1 ? "s" : ""} supplémentaire{pageCount - INCLUDED_PAGES > 1 ? "s" : ""}</span>
+                      <span>{formatPrice((pageCount - INCLUDED_PAGES) * 0.5)}</span>
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="text-base font-bold text-slate-900">Total</span>
+                  <span className="text-2xl font-bold text-slate-900">
+                    {shippingCost !== null ? formatPrice(calculatePrice(pageCount) + shippingCost) : price}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={onCheckout}
+                  disabled={shippingLoading || shippingCost === null}
+                  className="w-full rounded-full bg-slate-900 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60"
+                >
+                  {shippingLoading ? "Calcul des frais…" : shippingCost !== null ? `Payer ${formatPrice(calculatePrice(pageCount) + shippingCost)}` : "Frais indisponibles"}
+                </button>
+                <button
+                  onClick={() => setCheckoutStep("idle")}
+                  className="w-full rounded-full border border-gray-200 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-400 hover:text-slate-700"
+                >
+                  Annuler
+                </button>
+              </div>
+              <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-slate-400">
+                <span>🔒 Paiement sécurisé Stripe</span>
+                <span>·</span>
+                <span>Satisfait ou remboursé</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -466,7 +616,7 @@ function ResultContent() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-500">{pageCount} pages</span>
-              <button onClick={onCheckout} disabled={isProcessing}
+              <button onClick={showSummary} disabled={isProcessing}
                 className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
                 Commander — {price}
               </button>
@@ -524,7 +674,7 @@ function ResultContent() {
                 Commander mon album
               </h2>
               <p className="mt-2 text-sm text-slate-500">
-                Hardcover 8.5×11&quot; · Papier glacé premium · Livraison offerte
+                Hardcover 21×28 cm · Papier glacé premium
               </p>
             </div>
             <div className="mx-auto max-w-sm">
@@ -537,11 +687,11 @@ function ResultContent() {
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Couverture rigide premium</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier glacé 170 g/m²</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> {pageCount} pages intérieures</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison offerte en France</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison en France et Europe</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 7–10 jours ouvrés</li>
                 </ul>
               </div>
-              <button onClick={onCheckout} disabled={isProcessing}
+              <button onClick={showSummary} disabled={isProcessing}
                 className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
                 {isProcessing ? "Préparation…" : `Commander — ${price}`}
               </button>

@@ -55,7 +55,7 @@ export default function CgvPage() {
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
             <p>Conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne s&apos;applique pas aux produits fabriqués selon les spécifications du consommateur (albums personnalisés).</p>
             <p>Cependant, L&apos;Instantané garantit la satisfaction de ses clients. Si l&apos;album reçu présente un défaut de fabrication ou ne correspond pas à l&apos;aperçu validé, nous vous proposerons soit un remplacement, soit un remboursement intégral, dans un délai de 14 jours après réception.</p>
-            <p>Pour toute réclamation : contact@linstantane.fr</p>
+            <p>Pour toute réclamation : linstantane.officiel@gmail.com</p>
           </div>
         </section>
 
