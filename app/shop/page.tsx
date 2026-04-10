@@ -91,9 +91,9 @@ export default function ShopPage() {
               <h1 className="mt-2 font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
                 Album Photo Premium
               </h1>
-              <div className="mt-3 flex items-center gap-2">
-                <span className="text-amber-400 tracking-wide">★★★★★</span>
-                <span className="text-xs text-slate-400">Qualité premium garantie</span>
+              <div className="mt-3 flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">✓ Imprimé en Europe</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">🔒 Paiement sécurisé</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
                 Format A4 · Papier photo 170g/m² · Couverture rigide · De 24 à 200 pages
@@ -104,7 +104,7 @@ export default function ShopPage() {
             <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6">
               <div className="flex items-baseline gap-2">
                 <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">29 €</span>
-                <span className="text-sm text-slate-400">livraison incluse</span>
+                <span className="text-sm text-slate-400">+ livraison</span>
               </div>
               <p className="mt-2 text-xs text-slate-500">24 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
@@ -162,7 +162,7 @@ export default function ShopPage() {
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Frais calculés au checkout. Satisfait ou remboursé sous 14 jours.",
+                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Livraison offerte. Satisfait ou remboursé sous 14 jours.",
                 },
               ].map(item => (
                 <div key={item.key}>
@@ -219,9 +219,7 @@ export default function ShopPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link href="/comment-ca-marche" className="transition hover:text-slate-700">Comment ça marche</Link>
             <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
-            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
-            <Link href="/politique-confidentialite" className="transition hover:text-slate-700">Confidentialité</Link>
+            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">À propos</Link>
           </div>
           <span>© 2026 L&apos;Instantané</span>
         </div>
