@@ -3,7 +3,7 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const BASE_PRICE_CENTS = 100; // 1 € TEST — remettre 2900 avant lancement
+const BASE_PRICE_CENTS = 2900; // 29 €
 const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
 const INCLUDED_PAGES = 24;
 
