@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { UserButton, SignInButton, useUser } from "@clerk/nextjs";
+import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 
 const NAV_LINKS = [
-  { href: "/shop",              label: "Albums"            },
+  { href: "/shop",              label: "Albums"           },
   { href: "/comment-ca-marche", label: "Comment ça marche" },
-  { href: "/faq",               label: "FAQ"               },
+  { href: "/faq",               label: "FAQ"              },
 ];
 
 export default function Nav() {
@@ -44,21 +44,20 @@ export default function Nav() {
           {isSignedIn ? (
             <>
               <Link
-                href="/mon-compte"
-                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition"
+                href="/commandes"
+                className={`hidden sm:inline-flex items-center text-sm transition ${pathname === "/commandes" ? "font-medium text-slate-900" : "text-slate-500 hover:text-slate-900"}`}
               >
-                Mon compte
+                Mes commandes
               </Link>
-              <UserButton />
+              <UserButton afterSignOutUrl="/" />
             </>
           ) : (
             <SignInButton mode="modal">
-              <button className="hidden sm:inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm text-slate-600 hover:border-slate-400 transition">
+              <button className="hidden sm:inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
                 Se connecter
               </button>
             </SignInButton>
           )}
-
           <Link
             href="/create"
             className="hidden sm:inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
@@ -92,18 +91,12 @@ export default function Nav() {
                 {l.label}
               </Link>
             ))}
-            {isSignedIn ? (
-              <Link href="/mon-compte" onClick={() => setOpen(false)}
-                className="rounded-xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 transition"
+            {isSignedIn && (
+              <Link href="/commandes" onClick={() => setOpen(false)}
+                className={`rounded-xl px-4 py-3 text-sm transition ${pathname === "/commandes" ? "bg-slate-50 font-medium text-slate-900" : "text-slate-600 hover:bg-slate-50"}`}
               >
-                Mon compte
+                Mes commandes
               </Link>
-            ) : (
-              <SignInButton mode="modal">
-                <button className="rounded-xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 transition text-left w-full">
-                  Se connecter
-                </button>
-              </SignInButton>
             )}
           </nav>
           <Link href="/create" onClick={() => setOpen(false)}
@@ -111,6 +104,13 @@ export default function Nav() {
           >
             Créer mon album →
           </Link>
+          {!isSignedIn && (
+            <SignInButton mode="modal">
+              <button className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-gray-200 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Se connecter
+              </button>
+            </SignInButton>
+          )}
         </div>
       )}
     </header>
