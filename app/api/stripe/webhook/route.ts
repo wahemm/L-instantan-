@@ -3,10 +3,12 @@ import Stripe from "stripe";
 import { Resend } from "resend";
 import { createPrintJob } from "@/app/lib/lulu";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
+  httpClient: Stripe.createNodeHttpClient(),
+});
 
 function getResend() {
-  const key = process.env.RESEND_API_KEY;
+  const key = (process.env.RESEND_API_KEY ?? "").trim();
   if (!key || key.includes("placeholder")) return null;
   return new Resend(key);
 }
@@ -14,7 +16,7 @@ function getResend() {
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature") ?? "";
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
 
   let event: Stripe.Event;
 
