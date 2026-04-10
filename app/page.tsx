@@ -21,30 +21,21 @@ const DEMOS = [
   { src: "/demos/marrakech.png", alt: "Album Marrakech Soleil" },
 ];
 
-const TESTIMONIALS = [
+const GUARANTEES = [
   {
-    name: "Camille Dupont",
-    city: "Lyon",
-    date: "Mars 2025",
-    detail: "Album Vacances Grèce, 32 pages",
-    stars: 5,
-    quote: "On a envoyé les photos du week-end et le livre est magnifique. La qualité du papier est bluffante, un souvenir inoubliable à feuilleter en famille.",
+    icon: "🖨️",
+    title: "Impression professionnelle",
+    desc: "Papier photo brillant 170 g/m², impression offset haute résolution. Le rendu est fidèle à tes photos, avec des couleurs vives et des détails nets.",
   },
   {
-    name: "Yanis Belkacem",
-    city: "Paris",
-    date: "Février 2025",
-    detail: "Album Famille Noël, 48 pages",
-    stars: 5,
-    quote: "En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium. Ma femme a pleuré en le feuilletant.",
+    icon: "🔒",
+    title: "Paiement 100 % sécurisé",
+    desc: "Paiement traité par Stripe, certifié PCI-DSS niveau 1. Tu vois l'aperçu complet de ton album avant de valider ta commande.",
   },
   {
-    name: "Sarah Martin",
-    city: "Bordeaux",
-    date: "Janvier 2025",
-    detail: "Album Cadeau Anniversaire, 24 pages",
-    stars: 5,
-    quote: "Offrir le livre imprimé à ma mère pour ses 60 ans, c'était le cadeau parfait. Elle l'a montré à toute la famille.",
+    icon: "↩️",
+    title: "Satisfait ou remboursé",
+    desc: "Si ton album présente un défaut de fabrication ou ne correspond pas à l'aperçu validé, on te rembourse intégralement — sans conditions, sous 14 jours.",
   },
 ];
 
@@ -52,7 +43,7 @@ const PERKS = [
   { icon: "📐", label: "Format A4", desc: "21 × 28 cm, portrait" },
   { icon: "✨", label: "Papier photo", desc: "170 g/m², finition brillante" },
   { icon: "📦", label: "Couverture rigide", desc: "Qualité premium" },
-  { icon: "🚚", label: "Livraison offerte", desc: "France, 5–7 jours" },
+  { icon: "🚚", label: "Livraison rapide", desc: "France, 5–7 jours ouvrés" },
 ];
 
 // Realistic book mockup using actual cover images
@@ -220,10 +211,12 @@ export default function Home() {
               >
                 <div className="w-full overflow-hidden rounded-lg shadow-md transition-all duration-200 group-hover:shadow-xl group-hover:-translate-y-1.5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={tpl.src}
                     alt={tpl.name}
-                    className="w-full h-auto object-cover"
+                    className="w-full object-cover"
+                    style={{ aspectRatio: "210/297", objectPosition: "right center" }}
                     loading="lazy"
                   />
                 </div>
@@ -329,26 +322,20 @@ export default function Home() {
         <p className="mt-8 text-center text-sm text-slate-400">Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours</p>
       </section>
 
-      {/* ── Testimonials ──────────────────────────────────────────────────── */}
+      {/* ── Guarantees ────────────────────────────────────────────────────── */}
       <section className="bg-[#f8f7f4] py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Ils ont testé</p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Témoignages</h2>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Notre promesse</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Pourquoi nous faire confiance</h2>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <blockquote key={t.name} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-                <div className="mb-4 flex text-amber-400">{"★★★★★".split("").map((s,i)=><span key={i}>{s}</span>)}</div>
-                <p className="flex-1 text-sm leading-relaxed text-slate-600">&ldquo;{t.quote}&rdquo;</p>
-                <footer className="mt-6 flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">{t.name.charAt(0)}</div>
-                  <div>
-                    <div className="text-sm font-semibold text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-400">{t.city} · {t.date} · {t.detail}</div>
-                  </div>
-                </footer>
-              </blockquote>
+            {GUARANTEES.map((g) => (
+              <div key={g.title} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <div className="text-4xl">{g.icon}</div>
+                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900">{g.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-500">{g.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -431,7 +418,7 @@ export default function Home() {
               <span>·</span>
               <span>Satisfait ou remboursé</span>
               <span>·</span>
-              <span>Livraison offerte</span>
+              <span>Livraison rapide 5–7j</span>
             </div>
           </div>
         </div>
