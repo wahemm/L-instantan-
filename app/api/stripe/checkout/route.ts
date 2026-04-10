@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
+const stripe = new Stripe(stripeKey, {
+  timeout: 20000,
+  maxNetworkRetries: 0,
+  httpClient: Stripe.createNodeHttpClient(),
+});
 
 const BASE_PRICE_CENTS = 2900; // 29 €
 const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
@@ -76,6 +81,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("Stripe checkout error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
