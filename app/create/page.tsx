@@ -534,6 +534,30 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
 }) {
   const [dragOver, setDragOver] = useState<number|null>(null);
 
+  function textOverlays() {
+    return (page.texts ?? []).map(el => (
+      <div key={el.id} className="pointer-events-none absolute" style={{
+        left:`${el.x}%`, top:`${el.y}%`, width:`${el.w}%`,
+        fontSize: el.size, color: el.color,
+        fontWeight: el.bold ? "bold" : "normal",
+        fontStyle: el.italic ? "italic" : "normal",
+        textAlign: el.align,
+        fontFamily: el.font === "playfair" ? "var(--font-playfair)" : "inherit",
+        zIndex: 10, whiteSpace: "pre-wrap",
+      }}>{el.text}</div>
+    ));
+  }
+  function stickerOverlays() {
+    return (page.stickers ?? []).map(el => (
+      <div key={el.id} className="pointer-events-none absolute" style={{left:`${el.x}%`, top:`${el.y}%`, fontSize: el.size, zIndex: 10}}>{el.emoji}</div>
+    ));
+  }
+  function wrap(content: React.ReactNode) {
+    const hasOverlays = (page.texts ?? []).length > 0 || (page.stickers ?? []).length > 0;
+    if (!hasOverlays) return content;
+    return <div className="relative h-full w-full">{content}{textOverlays()}{stickerOverlays()}</div>;
+  }
+
   function sp(idx: number, cls = ""): SlotProps {
     return {
       photo: page.photos[idx] ?? null, isActive: activeSlot === idx, isDragOver: dragOver === idx,
@@ -570,18 +594,19 @@ function PageRenderer({ page, activeSlot, onSlotClick, onSlotDblClick, onSlotDro
         )}
         {!has&&dragOver!==0&&<button onClick={()=>onSlotClick(0)} className={`absolute bottom-4 right-4 rounded-full border px-3 py-1.5 text-[10px] font-semibold transition ${dark?"border-white/25 text-white/50 hover:border-white/60":"border-slate-300 text-slate-400 hover:border-slate-500"}`}>+ Photo de fond</button>}
         {has&&<button onClick={()=>onSlotDblClick(0)} className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 text-[10px] text-white opacity-60 hover:opacity-100 transition">×</button>}
+        {textOverlays()}{stickerOverlays()}
       </div>
     );
   }
 
-  if (page.layoutId === "text-only") return <div className={`flex h-full flex-col items-center justify-center p-10 ${tc}`} style={{backgroundColor:page.bgColor}}><p className="text-center text-sm italic leading-relaxed">{page.caption||"Ajoute un bloc texte via le panneau Texte…"}</p></div>;
-  if (page.layoutId === "photo-text") return <div className="flex h-full flex-col" style={{backgroundColor:page.bgColor}}><div className="flex-1 min-h-0"><Slot {...sp(0,"h-full")}/></div><div className={`shrink-0 px-4 py-3 text-center text-xs italic leading-relaxed ${sc}`}>{page.caption||"Légende…"}</div></div>;
-  if (page.layoutId === "full") return <div className="flex h-full flex-col" style={{backgroundColor:page.bgColor}}><div className="flex-1"><Slot {...sp(0,"h-full")}/></div>{page.caption&&<div className={`shrink-0 px-3 py-2 text-center text-[10px] italic ${sc}`}>{page.caption}</div>}</div>;
-  if (page.layoutId === "two-h") return <div className="grid grid-cols-1 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"h-full")}/><Slot {...sp(1,"h-full")}/></div>;
-  if (page.layoutId === "two-v") return <div className="grid grid-cols-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"h-full")}/><Slot {...sp(1,"h-full")}/></div>;
-  if (page.layoutId === "three-top") return <div className="grid grid-cols-2 grid-rows-[2fr_1fr] h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"col-span-2 h-full")}/><Slot {...sp(1,"h-full")}/><Slot {...sp(2,"h-full")}/></div>;
-  if (page.layoutId === "three-left") return <div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"row-span-2 h-full")}/><Slot {...sp(1,"h-full")}/><Slot {...sp(2,"h-full")}/></div>;
-  if (page.layoutId === "grid4") return <div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}>{[0,1,2,3].map(i=><Slot key={i} {...sp(i,"h-full")}/>)}</div>;
+  if (page.layoutId === "text-only") return wrap(<div className={`flex h-full flex-col items-center justify-center p-10 ${tc}`} style={{backgroundColor:page.bgColor}}><p className="text-center text-sm italic leading-relaxed">{page.caption||"Ajoute un bloc texte via le panneau Texte…"}</p></div>);
+  if (page.layoutId === "photo-text") return wrap(<div className="flex h-full flex-col" style={{backgroundColor:page.bgColor}}><div className="flex-1 min-h-0"><Slot {...sp(0,"h-full")}/></div><div className={`shrink-0 px-4 py-3 text-center text-xs italic leading-relaxed ${sc}`}>{page.caption||"Légende…"}</div></div>);
+  if (page.layoutId === "full") return wrap(<div className="flex h-full flex-col" style={{backgroundColor:page.bgColor}}><div className="flex-1"><Slot {...sp(0,"h-full")}/></div>{page.caption&&<div className={`shrink-0 px-3 py-2 text-center text-[10px] italic ${sc}`}>{page.caption}</div>}</div>);
+  if (page.layoutId === "two-h") return wrap(<div className="grid grid-cols-1 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"h-full")}/><Slot {...sp(1,"h-full")}/></div>);
+  if (page.layoutId === "two-v") return wrap(<div className="grid grid-cols-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"h-full")}/><Slot {...sp(1,"h-full")}/></div>);
+  if (page.layoutId === "three-top") return wrap(<div className="grid grid-cols-2 grid-rows-[2fr_1fr] h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"col-span-2 h-full")}/><Slot {...sp(1,"h-full")}/><Slot {...sp(2,"h-full")}/></div>);
+  if (page.layoutId === "three-left") return wrap(<div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}><Slot {...sp(0,"row-span-2 h-full")}/><Slot {...sp(1,"h-full")}/><Slot {...sp(2,"h-full")}/></div>);
+  if (page.layoutId === "grid4") return wrap(<div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5" style={{backgroundColor:page.bgColor}}>{[0,1,2,3].map(i=><Slot key={i} {...sp(i,"h-full")}/>)}</div>);
   return null;
 }
 
