@@ -30,6 +30,7 @@ export interface PDFPage {
   caption?: string;
   texts?: TextEl[];
   stickers?: StickerEl[];
+  coverHue?: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
