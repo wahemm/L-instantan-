@@ -113,7 +113,7 @@ function renderPage(p: EditorPage, albumTitle: string) {
     if (p.photos[0]) {
       return (
         <div className="relative h-full w-full overflow-hidden">
-          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center"}}/>
+          <img src={p.photos[0]} alt="" className="absolute inset-0 h-full w-full object-cover" style={{objectPosition:"right center", filter: p.coverHue ? `hue-rotate(${p.coverHue}deg)` : undefined}}/>
           {textOverlays()}{stickerOverlays()}
         </div>
       );

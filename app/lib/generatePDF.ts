@@ -385,7 +385,9 @@ export async function generateLuluCoverPDF(
     // Draw it stretched to fill the full Lulu cover (which includes spine).
     try {
       const img = await loadImage(coverPage.photos[0]);
+      if (coverPage.coverHue) ctx.filter = `hue-rotate(${coverPage.coverHue}deg)`;
       drawImageCover(ctx, img, 0, 0, W, H, 50, 50);
+      ctx.filter = "none";
     } catch {
       // If image fails, just use background color
     }
