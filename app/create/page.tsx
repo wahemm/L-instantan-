@@ -1177,7 +1177,7 @@ export default function CreatePage() {
                     <div className="mt-3 border-t border-gray-100 pt-3">
                       <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                        {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
                           <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
                         ))}
                       </div>
@@ -1485,7 +1485,7 @@ export default function CreatePage() {
                       <div className="mt-5 border-t border-gray-100 pt-4">
                         <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
                         <div className="grid grid-cols-6 gap-2">
-                          {[0,30,60,90,120,150,180,210,240,270,300,330].map(h=>(
+                          {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
                             <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
                           ))}
                         </div>
