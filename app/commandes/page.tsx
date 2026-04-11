@@ -47,7 +47,8 @@ async function fetchOrders(email: string): Promise<Order[]> {
 
   allSessions.sort((a, b) => b.created - a.created);
 
-  return allSessions.map((session) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return allSessions.map((session: any) => ({
     id: session.id,
     albumTitle: session.metadata?.albumTitle ?? "Mon Album",
     pageCount: Number(session.metadata?.pageCount ?? 24),

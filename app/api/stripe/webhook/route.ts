@@ -172,7 +172,7 @@ function buildConfirmationEmail(name: string, albumTitle: string, pageCount: str
                     <span style="font-size:14px;color:#64748b;font-family:Arial,sans-serif;">Format</span>
                   </td>
                   <td align="right" style="padding:10px 0;border-bottom:1px solid #f1f5f9;">
-                    <span style="font-size:14px;font-weight:600;color:#0f172a;font-family:Arial,sans-serif;">Hardcover 8.5×11" · Papier glacé</span>
+                    <span style="font-size:14px;font-weight:600;color:#0f172a;font-family:Arial,sans-serif;">Hardcover 21×28 cm · Papier glacé</span>
                   </td>
                 </tr>
                 <tr>
@@ -198,12 +198,12 @@ function buildConfirmationEmail(name: string, albumTitle: string, pageCount: str
                 Livraison
               </p>
               <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
-                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison offerte sous 7–10 jours ouvrés
+                Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 5–7 jours ouvrés
               </p>
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="https://linstantane.vercel.app/create"
+                    <a href="https://linstantane.fr/create"
                        style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.04em;padding:14px 32px;border-radius:100px;font-family:Arial,sans-serif;">
                       Créer un nouvel album →
                     </a>

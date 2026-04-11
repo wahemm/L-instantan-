@@ -49,7 +49,7 @@ export default function Nav() {
               >
                 Mes commandes
               </Link>
-              <UserButton afterSignOutUrl="/" />
+              <UserButton />
             </>
           ) : (
             <SignInButton mode="modal">

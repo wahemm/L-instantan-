@@ -47,7 +47,8 @@ export async function GET() {
   // Sort by date (newest first)
   allSessions.sort((a, b) => b.created - a.created);
 
-  const orders = allSessions.map((session) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const orders = allSessions.map((session: any) => ({
     id: session.id,
     albumTitle: session.metadata?.albumTitle ?? "Mon Album",
     pageCount: Number(session.metadata?.pageCount ?? 24),
