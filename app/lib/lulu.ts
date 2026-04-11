@@ -6,8 +6,8 @@
 const LULU_API_BASE = "https://api.lulu.com";
 const LULU_AUTH_URL = `${LULU_API_BASE}/auth/realms/glasstree/protocol/openid-connect/token`;
 
-// Hardcover casewrap, full color, premium, 80# coated white, glossy cover, 8.5x11"
-export const LULU_POD_PACKAGE_ID = "0850X1100FCPRECW080CW444GXX";
+// Hardcover casewrap, full color, premium, 80# coated white, glossy cover, A4
+export const LULU_POD_PACKAGE_ID = "0827X1169FCPRECW080CW444GXX";
 
 let cachedToken: { token: string; expiresAt: number } | null = null;
 

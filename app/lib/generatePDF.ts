@@ -304,7 +304,7 @@ export async function generateAlbumPDF(
 }
 
 /**
- * Generate interior PDF for Lulu (8.5×11", skip cover page)
+ * Generate interior PDF for Lulu (A4, skip cover page)
  * All pages except the first (cover) page, at 300 DPI.
  */
 export async function generateLuluInteriorPDF(
@@ -312,12 +312,12 @@ export async function generateLuluInteriorPDF(
   albumTitle: string,
   onProgress?: (current: number, total: number) => void
 ): Promise<Blob> {
-  // 8.5×11" at 300 DPI
-  const W = 2550;
-  const H = 3300;
-  // 8.5×11" in mm
-  const W_MM = 215.9;
-  const H_MM = 279.4;
+  // A4 at 300 DPI: 210×297mm = 2480×3508px
+  const W = 2480;
+  const H = 3508;
+  // A4 in mm
+  const W_MM = 210;
+  const H_MM = 297;
 
   const interiorPages = pages.slice(1); // Skip cover
   if (interiorPages.length === 0) throw new Error("No interior pages");
