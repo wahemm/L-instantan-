@@ -40,6 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 "@type": "Product",
                 name: "Album Photo Premium — L'Instantané",
                 description: "Album photo personnalisé imprimé sur papier brillant 170g/m², format A4, couverture rigide. Livré en 5–7 jours.",
+                image: [`${BASE_URL}/covers/Espagne.png`, `${BASE_URL}/covers/paris.png`, `${BASE_URL}/covers/Italie.png`],
                 brand: { "@type": "Brand", name: "L'Instantané" },
                 offers: {
                   "@type": "Offer",
@@ -47,8 +48,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   priceCurrency: "EUR",
                   price: "29.00",
                   availability: "https://schema.org/InStock",
+                  hasMerchantReturnPolicy: {
+                    "@type": "MerchantReturnPolicy",
+                    applicableCountry: ["FR", "BE", "CH", "LU", "MC"],
+                    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+                    merchantReturnDays: 14,
+                    returnMethod: "https://schema.org/ReturnByMail",
+                    returnFees: "https://schema.org/FreeReturn",
+                  },
                   shippingDetails: {
                     "@type": "OfferShippingDetails",
+                    shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "EUR" },
                     deliveryTime: {
                       "@type": "ShippingDeliveryTime",
                       handlingTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 7, unitCode: "DAY" },
