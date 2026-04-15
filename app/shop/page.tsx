@@ -18,6 +18,7 @@ const ILLUSTRATED_COVERS: IllustratedCover[] = [
   { id: "miami",     name: "Miami",     src: "/covers/Miami.png" },
   { id: "marrakech",   name: "Marrakech",   src: "/covers/Marrakech.png" },
   { id: "marrakech-2", name: "Marrakech 2", src: "/covers/marrakech2.png" },
+  { id: "marrakech-3", name: "Marrakech 3", src: "/covers/marrakech3.png" },
   { id: "bali",      name: "Bali",      src: "/covers/bali 1.png" },
   { id: "paris",     name: "Paris",     src: "/covers/paris.png" },
   { id: "perou",     name: "Pérou",     src: "/covers/Perou.png" },
