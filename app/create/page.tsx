@@ -729,17 +729,18 @@ export default function CreatePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("restore") === "true") {
-      try {
-        const raw = sessionStorage.getItem("linstantane:album");
-        if (raw) {
-          const album = JSON.parse(raw);
-          if (album.type === "manual" && Array.isArray(album.pages)) {
+      (async () => {
+        try {
+          const { loadAlbum } = await import("@/app/lib/albumStore");
+          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          if (album?.type === "manual" && Array.isArray(album.pages)) {
             setPages(album.pages);
             setMode("manual");
             return;
           }
-        }
-      } catch { /* fallback to cover picker */ }
+        } catch { /* fallback to cover picker */ }
+      })();
+      return;
     }
     if (params.get("mode") === "manual") {
       const templateId = sessionStorage.getItem("linstantane:template");
@@ -933,8 +934,9 @@ export default function CreatePage() {
     setActiveSlot(null);
   }
 
-  function handleSubmit() {
-    sessionStorage.setItem("linstantane:album",JSON.stringify({type:"manual",title:albumTitle,pages}));
+  async function handleSubmit() {
+    const { saveAlbum } = await import("@/app/lib/albumStore");
+    await saveAlbum({type:"manual",title:albumTitle,pages});
     router.push("/result");
   }
 

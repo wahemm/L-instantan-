@@ -293,10 +293,18 @@ function ResultContent() {
   const success = searchParams.get("success") === "true";
 
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem("linstantane:album");
-      if (raw) setAlbum(JSON.parse(raw) as Album);
-    } catch { /* nothing */ }
+    (async () => {
+      try {
+        const { loadAlbum } = await import("@/app/lib/albumStore");
+        const data = await loadAlbum<Album>();
+        if (data) { setAlbum(data); return; }
+      } catch { /* IndexedDB unavailable */ }
+      // Fallback: try sessionStorage (old albums)
+      try {
+        const raw = sessionStorage.getItem("linstantane:album");
+        if (raw) setAlbum(JSON.parse(raw) as Album);
+      } catch { /* nothing */ }
+    })();
   }, []);
 
   const pageCount = album
