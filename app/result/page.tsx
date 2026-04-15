@@ -146,9 +146,9 @@ function renderPage(p: EditorPage, albumTitle: string) {
   );
   return (
     <div className="relative flex h-full flex-col" style={{backgroundColor:p.bgColor||"#fff"}}>
-      <div className={`grid flex-1 gap-0.5 ${getGridClass(p.layoutId)}`}>
+      <div className={`grid flex-1 min-h-0 gap-0.5 ${getGridClass(p.layoutId)}`}>
         {p.photos.map((photo,idx)=>(
-          <div key={idx} className={`overflow-hidden bg-[#f0ede8] ${getSpanClass(p.layoutId,idx)}`}>
+          <div key={idx} className={`overflow-hidden min-h-0 bg-[#f0ede8] ${getSpanClass(p.layoutId,idx)}`}>
             {photo&&<img src={photo} alt="" className="h-full w-full object-cover" style={{objectPosition:`${p.photoPositions?.[idx]?.x??50}% ${p.photoPositions?.[idx]?.y??50}%`}}/>}
           </div>
         ))}
@@ -606,7 +606,7 @@ function ResultContent() {
         <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
             <div className="flex items-center gap-3">
-              <Link href="/create" className="text-xs text-slate-400 hover:text-slate-700">← Modifier</Link>
+              <Link href="/create?restore=true" className="text-xs text-slate-400 hover:text-slate-700">← Modifier</Link>
               {album?.type === "manual" && (
                 <button onClick={onDownloadPDF} disabled={pdfProgress !== null}
                   className="hidden items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-slate-600 transition hover:border-slate-400 disabled:opacity-60 sm:flex">
@@ -652,7 +652,7 @@ function ResultContent() {
       )}
       {album && (
         <div className="flex justify-center py-4 bg-white border-t border-gray-100">
-          <Link href="/create" className="text-sm text-slate-400 transition hover:text-slate-700">← Modifier mon album</Link>
+          <Link href="/create?restore=true" className="text-sm text-slate-400 transition hover:text-slate-700">← Modifier mon album</Link>
         </div>
       )}
 

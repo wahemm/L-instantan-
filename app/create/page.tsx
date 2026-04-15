@@ -725,8 +725,22 @@ export default function CreatePage() {
   }, []);
 
   // Read ?mode=manual and selected template from sessionStorage on mount
+  // Also handle ?restore=true to go back to editing from the result page
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.get("restore") === "true") {
+      try {
+        const raw = sessionStorage.getItem("linstantane:album");
+        if (raw) {
+          const album = JSON.parse(raw);
+          if (album.type === "manual" && Array.isArray(album.pages)) {
+            setPages(album.pages);
+            setMode("manual");
+            return;
+          }
+        }
+      } catch { /* fallback to cover picker */ }
+    }
     if (params.get("mode") === "manual") {
       const templateId = sessionStorage.getItem("linstantane:template");
       sessionStorage.removeItem("linstantane:template");
