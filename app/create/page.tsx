@@ -738,7 +738,14 @@ export default function CreatePage() {
             setMode("manual");
             return;
           }
-        } catch { /* fallback to cover picker */ }
+        } catch { /* IndexedDB unavailable */ }
+        // Fallback: window object
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const winAlbum = (window as any).__linstantane_album;
+        if (winAlbum?.type === "manual" && Array.isArray(winAlbum.pages)) {
+          setPages(winAlbum.pages);
+          setMode("manual");
+        }
       })();
       return;
     }
@@ -935,8 +942,15 @@ export default function CreatePage() {
   }
 
   async function handleSubmit() {
-    const { saveAlbum } = await import("@/app/lib/albumStore");
-    await saveAlbum({type:"manual",title:albumTitle,pages});
+    try {
+      const { saveAlbum } = await import("@/app/lib/albumStore");
+      await saveAlbum({type:"manual",title:albumTitle,pages});
+    } catch (e) {
+      console.warn("IndexedDB save failed, using fallback", e);
+      // Fallback: store on window for client-side navigation
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__linstantane_album = {type:"manual",title:albumTitle,pages};
+    }
     router.push("/result");
   }
 

@@ -294,11 +294,16 @@ function ResultContent() {
 
   useEffect(() => {
     (async () => {
+      // Try IndexedDB first
       try {
         const { loadAlbum } = await import("@/app/lib/albumStore");
         const data = await loadAlbum<Album>();
         if (data) { setAlbum(data); return; }
       } catch { /* IndexedDB unavailable */ }
+      // Fallback: window object (client-side nav when IndexedDB failed)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const winAlbum = (window as any).__linstantane_album;
+      if (winAlbum) { setAlbum(winAlbum as Album); return; }
       // Fallback: try sessionStorage (old albums)
       try {
         const raw = sessionStorage.getItem("linstantane:album");
