@@ -1520,11 +1520,12 @@ export default function CreatePage() {
         <div className="flex items-center gap-3">
           <button onClick={()=>setMode(null)} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
           <span className="text-gray-200">|</span>
-          {editingTitle ? (
-            <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none"/>
-          ) : (
-            <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold hover:text-slate-500 transition">{albumTitle}</button>
-          )}
+          <input
+            value={albumTitle}
+            onChange={e => updatePage(0, { title: e.target.value })}
+            placeholder="Nom de l'album"
+            className="border-b border-transparent bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none hover:border-slate-300 focus:border-slate-400 w-48"
+          />
           {canUndo&&<button onClick={undo} title="Annuler (⌘Z)" className="rounded px-2 py-1 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">↩</button>}
         </div>
         <div className="flex items-center gap-4">
