@@ -1517,6 +1517,15 @@ export default function CreatePage() {
           <button onClick={handleDownloadPDF} disabled={pdfProgress!==null} title="Télécharger le PDF" className="hidden sm:flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-50">
             {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
           </button>
+          <button onClick={async () => {
+            try {
+              const { saveAlbum } = await import("@/app/lib/albumStore");
+              await saveAlbum({ type: "manual", title: albumTitle, pages });
+              setHasSavedAlbum(true);
+            } catch { /* ignore */ }
+          }} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition" title="Enregistrer pour reprendre plus tard">
+            ☁️ Enregistrer
+          </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
         </div>
