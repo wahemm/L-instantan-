@@ -716,6 +716,31 @@ export default function CreatePage() {
   const undoStackRef = useRef<EditorPage[][]>([]);
   const [canUndo, setCanUndo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasSavedAlbum, setHasSavedAlbum] = useState(false);
+
+  // Check if there's a saved album on mount (for the "Reprendre" button)
+  useEffect(() => {
+    (async () => {
+      try {
+        const { loadAlbum } = await import("@/app/lib/albumStore");
+        const saved = await loadAlbum<{ type: string; pages: EditorPage[] }>();
+        if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
+      } catch { /* ignore */ }
+    })();
+  }, []);
+
+  // Auto-save when pages change (debounced 2s)
+  useEffect(() => {
+    if (mode !== "manual") return;
+    const t = setTimeout(async () => {
+      try {
+        const { saveAlbum } = await import("@/app/lib/albumStore");
+        await saveAlbum({ type: "manual", title: albumTitle, pages });
+      } catch { /* ignore */ }
+    }, 2000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages, mode]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -988,6 +1013,31 @@ export default function CreatePage() {
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Choisis ta couverture</h1>
             <p className="mt-2 text-sm text-slate-500">Sélectionne un design ou continue sans template.</p>
           </div>
+
+          {/* Resume saved album */}
+          {hasSavedAlbum && (
+            <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Album en cours</p>
+                <p className="text-xs text-slate-500">Tu as un album non terminé — reprends là où tu t&apos;es arrêté.</p>
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    const { loadAlbum } = await import("@/app/lib/albumStore");
+                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    if (saved?.type === "manual" && Array.isArray(saved.pages)) {
+                      setPages(saved.pages);
+                      setMode("manual");
+                    }
+                  } catch { /* ignore */ }
+                }}
+                className="shrink-0 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition"
+              >
+                Reprendre →
+              </button>
+            </div>
+          )}
 
           {/* Search */}
           <div className="relative mb-4">
