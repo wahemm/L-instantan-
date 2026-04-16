@@ -994,15 +994,17 @@ export default function CreatePage() {
   }
 
   async function handleSubmit() {
+    const album = {type:"manual",title:albumTitle,pages};
+    // Save to IndexedDB (local)
     try {
       const { saveAlbum } = await import("@/app/lib/albumStore");
-      await saveAlbum({type:"manual",title:albumTitle,pages});
-    } catch (e) {
-      console.warn("IndexedDB save failed, using fallback", e);
-      // Fallback: store on window for client-side navigation
+      await saveAlbum(album);
+    } catch {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__linstantane_album = {type:"manual",title:albumTitle,pages};
+      (window as any).__linstantane_album = album;
     }
+    // Also save to server if logged in
+    if (isSignedIn) serverSaveAlbum(album).catch(() => {});
     router.push("/result");
   }
 
@@ -1051,9 +1053,16 @@ export default function CreatePage() {
               <button
                 onClick={async () => {
                   try {
-                    const saved = isSignedIn
-                      ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>()
-                      : await (await import("@/app/lib/albumStore")).loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    // Always try server first (returns null if not logged in)
+                    const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
+                      setPages(serverAlbum.pages);
+                      setMode("manual");
+                      return;
+                    }
+                    // Fallback: IndexedDB
+                    const { loadAlbum } = await import("@/app/lib/albumStore");
+                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
                     if (saved?.type === "manual" && Array.isArray(saved.pages)) {
                       setPages(saved.pages);
                       setMode("manual");
