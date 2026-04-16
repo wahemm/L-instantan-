@@ -1198,11 +1198,7 @@ export default function CreatePage() {
         {/* Top bar */}
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
           <button onClick={()=>setMode(null)} className="text-sm text-slate-400">← Retour</button>
-          {editingTitle
-            ? <input autoFocus value={albumTitle} onChange={e=>updatePage(0,{title:e.target.value})} onBlur={()=>setEditingTitle(false)} onKeyDown={e=>e.key==="Enter"&&setEditingTitle(false)} className="border-b border-slate-300 bg-transparent font-[family-name:var(--font-playfair)] text-sm font-bold outline-none max-w-[140px]"/>
-            : <button onClick={()=>setEditingTitle(true)} className="font-[family-name:var(--font-playfair)] text-sm font-bold truncate max-w-[140px]">{albumTitle}</button>
-          }
-          <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander</button>
+          <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander →</button>
         </div>
 
         {/* Canvas pleine largeur */}
