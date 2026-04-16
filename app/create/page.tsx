@@ -865,9 +865,9 @@ export default function CreatePage() {
     // Also add to library for manual repositioning later
     setLibrary(p => [...p, ...resized]);
 
-    // Auto-distribute photos across new pages after the cover
+    // Auto-distribute photos across new pages, appended after existing ones
     snapshot();
-    const newPages: EditorPage[] = [pages[0]];
+    const newPages: EditorPage[] = [...pages];
     let i = 0;
     while (i < resized.length) {
       const remaining = resized.length - i;
