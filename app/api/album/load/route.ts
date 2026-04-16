@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { list, download } from "@vercel/blob";
+import { list } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -10,7 +10,10 @@ export async function GET() {
     const { blobs } = await list({ prefix: `albums/${userId}.json`, limit: 1 });
     if (!blobs.length) return NextResponse.json(null);
 
-    const res = await download(blobs[0].url);
+    const res = await fetch(blobs[0].url, {
+      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+    });
+    if (!res.ok) return NextResponse.json(null);
     const album = await res.json();
     return NextResponse.json(album);
   } catch {
