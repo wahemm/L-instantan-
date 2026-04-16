@@ -775,9 +775,16 @@ export default function CreatePage() {
     if (params.get("restore") === "true") {
       (async () => {
         try {
-          const album = isSignedIn
-            ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>()
-            : await (await import("@/app/lib/albumStore")).loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          // Always try server first (returns null if not logged in)
+          const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
+            setPages(serverAlbum.pages);
+            setMode("manual");
+            return;
+          }
+          // Fallback: IndexedDB
+          const { loadAlbum } = await import("@/app/lib/albumStore");
+          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
           if (album?.type === "manual" && Array.isArray(album.pages)) {
             setPages(album.pages);
             setMode("manual");
