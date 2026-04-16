@@ -14,11 +14,11 @@ const COVER_PREVIEWS = [
 ];
 
 const DEMOS = [
-  { src: "/demos/provence.png", alt: "Album Provence Lavande" },
-  { src: "/demos/italie.png", alt: "Album Italie Dolce Vita" },
-  { src: "/demos/miami.png", alt: "Album Miami Plage" },
-  { src: "/demos/espagne.png", alt: "Album Espagne Soleil" },
-  { src: "/demos/marrakech.png", alt: "Album Marrakech Soleil" },
+  { src: "/covers/japon1.png",    alt: "Album Japon Sakura" },
+  { src: "/covers/mexique1.png",  alt: "Album Mexique Couleurs" },
+  { src: "/demos/italie.png",     alt: "Album Italie Dolce Vita" },
+  { src: "/covers/japon2.png",    alt: "Album Japon Tradition" },
+  { src: "/covers/mexique2.png",  alt: "Album Mexique Fête" },
 ];
 
 const GUARANTEES = [
@@ -245,7 +245,7 @@ export default function Home() {
               Des albums pour chaque destination
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-slate-500">
-              Provence, Italie, Miami, Espagne, Marrakech… Chaque voyage mérite son beau livre.
+              Japon, Mexique, Italie, Provence, Marrakech… Chaque voyage mérite son beau livre.
             </p>
           </div>
           <div className="flex gap-6 overflow-x-auto px-6 pb-4 snap-x snap-mandatory">
