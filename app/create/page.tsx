@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 import { COVER_TEMPLATES as COLOR_TEMPLATES } from "@/app/lib/templates";
@@ -676,8 +677,19 @@ function SidebarIcon({ active, onClick, icon, label }: { active:boolean; onClick
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
+async function serverSaveAlbum(album: unknown) {
+  await fetch("/api/album/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(album) });
+}
+
+async function serverLoadAlbum<T = unknown>(): Promise<T | null> {
+  const res = await fetch("/api/album/load");
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export default function CreatePage() {
   const router = useRouter();
+  const { isSignedIn } = useUser();
   const editorInputRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(null);
@@ -722,25 +734,32 @@ export default function CreatePage() {
   useEffect(() => {
     (async () => {
       try {
+        if (isSignedIn) {
+          const saved = await serverLoadAlbum<{ type: string; pages: EditorPage[] }>();
+          if (saved?.type === "manual" && saved.pages?.length > 0) { setHasSavedAlbum(true); return; }
+        }
         const { loadAlbum } = await import("@/app/lib/albumStore");
         const saved = await loadAlbum<{ type: string; pages: EditorPage[] }>();
         if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
       } catch { /* ignore */ }
     })();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSignedIn]);
 
   // Auto-save when pages change (debounced 2s)
   useEffect(() => {
     if (mode !== "manual") return;
     const t = setTimeout(async () => {
       try {
+        const album = { type: "manual", title: albumTitle, pages };
+        if (isSignedIn) { await serverSaveAlbum(album); return; }
         const { saveAlbum } = await import("@/app/lib/albumStore");
-        await saveAlbum({ type: "manual", title: albumTitle, pages });
+        await saveAlbum(album);
       } catch { /* ignore */ }
     }, 2000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, mode]);
+  }, [pages, mode, isSignedIn]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -756,14 +775,15 @@ export default function CreatePage() {
     if (params.get("restore") === "true") {
       (async () => {
         try {
-          const { loadAlbum } = await import("@/app/lib/albumStore");
-          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          const album = isSignedIn
+            ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>()
+            : await (await import("@/app/lib/albumStore")).loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
           if (album?.type === "manual" && Array.isArray(album.pages)) {
             setPages(album.pages);
             setMode("manual");
             return;
           }
-        } catch { /* IndexedDB unavailable */ }
+        } catch { /* ignore */ }
         // Fallback: window object
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const winAlbum = (window as any).__linstantane_album;
@@ -1024,8 +1044,9 @@ export default function CreatePage() {
               <button
                 onClick={async () => {
                   try {
-                    const { loadAlbum } = await import("@/app/lib/albumStore");
-                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    const saved = isSignedIn
+                      ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>()
+                      : await (await import("@/app/lib/albumStore")).loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
                     if (saved?.type === "manual" && Array.isArray(saved.pages)) {
                       setPages(saved.pages);
                       setMode("manual");
@@ -1519,8 +1540,12 @@ export default function CreatePage() {
           </button>
           <button onClick={async () => {
             try {
-              const { saveAlbum } = await import("@/app/lib/albumStore");
-              await saveAlbum({ type: "manual", title: albumTitle, pages });
+              const album = { type: "manual", title: albumTitle, pages };
+              if (isSignedIn) { await serverSaveAlbum(album); }
+              else {
+                const { saveAlbum } = await import("@/app/lib/albumStore");
+                await saveAlbum(album);
+              }
               setHasSavedAlbum(true);
             } catch { /* ignore */ }
           }} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition" title="Enregistrer pour reprendre plus tard">
