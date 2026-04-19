@@ -74,8 +74,22 @@ const FAQS = [
 export default function FaqPage() {
   const [open, setOpen] = useState<string | null>(null);
 
+  // FAQPage JSON-LD for Google rich results
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.flatMap(section =>
+      section.items.map(item => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: { "@type": "Answer", text: item.a },
+      }))
+    ),
+  };
+
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <Nav />
 
       {/* Hero */}

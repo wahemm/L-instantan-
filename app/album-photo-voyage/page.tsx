@@ -25,9 +25,31 @@ const DESTINATIONS = [
   { name: "Provence", src: "/covers/Provence.png" },
 ];
 
+const FAQ_ITEMS = [
+  { q: "Combien de photos maximum dans un album voyage ?", a: "L'album de base fait 24 pages. Tu peux ajouter des pages supplémentaires facturées à l'unité. Pour un voyage d'une semaine, 24 à 40 pages est un bon compromis." },
+  { q: "Mes photos viennent de mon téléphone, est-ce que ça rendra bien ?", a: "Oui, la plupart des smartphones récents prennent des photos suffisamment résolues pour un tirage A4. Évite juste les photos fortement zoomées ou prises en très basse lumière." },
+  { q: "Je n'ai pas trouvé ma destination dans les couvertures.", a: "De nouvelles illustrations arrivent chaque mois. En attendant, tu peux choisir une couverture sans thème et ajouter ton propre titre (ex: Portugal 2025)." },
+  { q: "Puis-je commander plusieurs exemplaires du même album ?", a: "Oui — pratique pour offrir à la famille ou aux amis avec qui tu es parti. Contacte-nous pour les tarifs volume." },
+];
+
 export default function AlbumPhotoVoyagePage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map(i => ({ "@type": "Question", name: i.q, acceptedAnswer: { "@type": "Answer", text: i.a } })),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://linstantane.fr" },
+      { "@type": "ListItem", position: 2, name: "Album photo voyage", item: "https://linstantane.fr/album-photo-voyage" },
+    ],
+  };
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Nav />
 
       {/* Hero */}

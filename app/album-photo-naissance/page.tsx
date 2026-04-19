@@ -12,9 +12,31 @@ export const metadata: Metadata = {
   },
 };
 
+const FAQ_ITEMS = [
+  { q: "À partir de quand puis-je faire l'album ?", a: "Quand vous voulez ! Beaucoup de parents font un premier album au bout du 1er mois, d'autres attendent le 1er anniversaire. C'est vous qui choisissez." },
+  { q: "Je veux l'offrir — puis-je le faire livrer directement chez les grands-parents ?", a: "Bien sûr. À la commande, indiquez simplement l'adresse de livraison que vous souhaitez. C'est un très beau cadeau de naissance." },
+  { q: "Mes photos sont un peu sombres (maternité, nuit…). Ça va rendre ?", a: "Les photos en basse lumière des smartphones récents passent bien en général. Évitez juste celles qui sont vraiment floues ou très granuleuses." },
+  { q: "Combien de pages pour couvrir la première année ?", a: "Pour 12 mois, comptez 36 à 48 pages (3-4 pages par mois). Vous pouvez commencer plus court (24 pages) et faire un 2e album pour la suite." },
+];
+
 export default function AlbumPhotoNaissancePage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map(i => ({ "@type": "Question", name: i.q, acceptedAnswer: { "@type": "Answer", text: i.a } })),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://linstantane.fr" },
+      { "@type": "ListItem", position: 2, name: "Album photo naissance", item: "https://linstantane.fr/album-photo-naissance" },
+    ],
+  };
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Nav />
 
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">

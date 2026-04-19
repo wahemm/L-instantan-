@@ -13,9 +13,31 @@ export const metadata: Metadata = {
   },
 };
 
+const FAQ_ITEMS = [
+  { q: "Combien de pages pour un album mariage ?", a: "L'album de base fait 24 pages. Pour un mariage, nous recommandons entre 40 et 60 pages. Des pages supplémentaires peuvent être ajoutées à la création." },
+  { q: "Mon photographe m'a livré ses photos au format RAW/TIFF. Est-ce compatible ?", a: "Notre outil accepte les formats JPEG et PNG. Si vos photos sont en RAW, demandez à votre photographe des exports JPEG haute qualité (ça ne change rien à la qualité d'impression)." },
+  { q: "Pouvez-vous mettre en page à ma place ?", a: "Notre éditeur est conçu pour être simple — en moyenne, les mariés mettent 30 minutes à créer leur album. Contactez-nous si vous voulez un service de mise en page sur-mesure." },
+  { q: "Commande groupée pour offrir aux témoins ?", a: "Oui, c'est possible. Contactez-nous par email pour bénéficier d'un tarif dégressif sur plusieurs exemplaires identiques." },
+];
+
 export default function AlbumPhotoMariagePage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ_ITEMS.map(i => ({ "@type": "Question", name: i.q, acceptedAnswer: { "@type": "Answer", text: i.a } })),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://linstantane.fr" },
+      { "@type": "ListItem", position: 2, name: "Album photo mariage", item: "https://linstantane.fr/album-photo-mariage" },
+    ],
+  };
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Nav />
 
       <section className="mx-auto max-w-5xl px-6 pt-16 pb-12 text-center">
