@@ -37,6 +37,25 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "L'Instantané",
+                url: BASE_URL,
+                logo: `${BASE_URL}/icon.svg`,
+                description: "L'Instantané — album photo premium imprimé et livré chez toi. Format A4, papier brillant, couverture rigide.",
+                email: "linstantane.officiel@gmail.com",
+                sameAs: [
+                  "https://instagram.com/linstantane_souvenir",
+                  "https://tiktok.com/@linstantane_souvenir",
+                ],
+                areaServed: ["FR", "BE", "CH", "LU", "MC"],
+              }),
+            }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
                 "@type": "Product",
                 name: "Album Photo Premium — L'Instantané",
                 description: "Album photo personnalisé imprimé sur papier brillant 170g/m², format A4, couverture rigide. Livré en 5–7 jours.",
