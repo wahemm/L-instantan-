@@ -390,6 +390,17 @@ export default function Home() {
               </ul>
             </div>
 
+            {/* Infos pratiques */}
+            <div>
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Infos pratiques</h4>
+              <ul className="flex flex-col gap-3 text-sm text-slate-400">
+                <li><Link href="/livraison" className="transition hover:text-white">Livraison</Link></li>
+                <li><Link href="/politique-de-retour" className="transition hover:text-white">Retours & remboursement</Link></li>
+                <li><Link href="/contact" className="transition hover:text-white">Contact & SAV</Link></li>
+                <li><Link href="/commandes" className="transition hover:text-white">Suivre ma commande</Link></li>
+              </ul>
+            </div>
+
             {/* Légal */}
             <div>
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Légal</h4>
@@ -397,15 +408,7 @@ export default function Home() {
                 <li><Link href="/cgv" className="transition hover:text-white">CGV</Link></li>
                 <li><Link href="/mentions-legales" className="transition hover:text-white">Mentions légales</Link></li>
                 <li><Link href="/politique-confidentialite" className="transition hover:text-white">Politique de confidentialité</Link></li>
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-slate-500">Contact</h4>
-              <ul className="flex flex-col gap-3 text-sm text-slate-400">
                 <li><a href="mailto:linstantane.officiel@gmail.com" className="transition hover:text-white">linstantane.officiel@gmail.com</a></li>
-                <li><a href="https://instagram.com/linstantane_souvenir" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">@linstantane_souvenir</a></li>
               </ul>
             </div>
           </div>
