@@ -263,6 +263,36 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Cas d'usage / Pages destination SEO ─────────────────────────── */}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-10 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Pour quelle occasion ?</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Un album pour chaque moment</h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            <Link href="/album-photo-voyage" className="group rounded-2xl border border-slate-200 p-6 hover:border-slate-900 hover:shadow-md transition">
+              <p className="text-3xl mb-3">✈️</p>
+              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-2">Album voyage</h3>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">Tes plus beaux voyages, avec une couverture illustrée par destination.</p>
+              <span className="text-xs font-semibold text-slate-900 group-hover:underline">Découvrir →</span>
+            </Link>
+            <Link href="/album-photo-mariage" className="group rounded-2xl border border-slate-200 p-6 hover:border-slate-900 hover:shadow-md transition">
+              <p className="text-3xl mb-3">💒</p>
+              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-2">Album mariage</h3>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">Le plus beau jour dans un livre premium à transmettre.</p>
+              <span className="text-xs font-semibold text-slate-900 group-hover:underline">Découvrir →</span>
+            </Link>
+            <Link href="/album-photo-naissance" className="group rounded-2xl border border-slate-200 p-6 hover:border-slate-900 hover:shadow-md transition">
+              <p className="text-3xl mb-3">🍼</p>
+              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-2">Album naissance</h3>
+              <p className="text-sm text-slate-500 leading-relaxed mb-4">Les premiers mois de bébé, cadeau parfait pour les grands-parents.</p>
+              <span className="text-xs font-semibold text-slate-900 group-hover:underline">Découvrir →</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ── Comment ça marche ─────────────────────────────────────────────── */}
       <section className="bg-[#f8f7f4] py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-6">
@@ -384,6 +414,9 @@ export default function Home() {
               <ul className="flex flex-col gap-3 text-sm text-slate-400">
                 <li><Link href="/" className="transition hover:text-white">Accueil</Link></li>
                 <li><Link href="/create" className="transition hover:text-white">Créer un album</Link></li>
+                <li><Link href="/album-photo-voyage" className="transition hover:text-white">Album voyage</Link></li>
+                <li><Link href="/album-photo-mariage" className="transition hover:text-white">Album mariage</Link></li>
+                <li><Link href="/album-photo-naissance" className="transition hover:text-white">Album naissance</Link></li>
                 <li><Link href="/comment-ca-marche" className="transition hover:text-white">Comment ça marche</Link></li>
                 <li><Link href="/faq" className="transition hover:text-white">FAQ</Link></li>
                 <li><Link href="/qui-sommes-nous" className="transition hover:text-white">À propos</Link></li>
