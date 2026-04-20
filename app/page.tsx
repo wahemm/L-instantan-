@@ -387,6 +387,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Sticky mobile CTA ──────────────────────────────────────────── */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] backdrop-blur md:hidden"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="flex flex-col leading-tight">
+          <span className="text-[11px] uppercase tracking-widest text-slate-400">À partir de</span>
+          <span className="text-base font-semibold text-slate-900">29€ · Livraison offerte</span>
+        </div>
+        <Link
+          href="/create"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+        >
+          Créer mon album →
+        </Link>
+      </div>
+      <div className="h-20 md:hidden" aria-hidden="true" />
+
       {/* ── Footer ────────────────────────────────────────────────────────── */}
       <footer className="bg-[#0c1220] text-white">
         <div className="mx-auto max-w-6xl px-6 pt-16 pb-10">

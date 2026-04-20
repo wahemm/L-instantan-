@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { frFR } from "@clerk/localizations";
@@ -25,6 +25,31 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: "L'Instantané — Album photo premium", description: "Tes souvenirs méritent un beau livre." },
   robots: { index: true, follow: true },
+  appleWebApp: {
+    capable: true,
+    title: "L'Instantané",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1220" },
+  ],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
