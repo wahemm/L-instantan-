@@ -15,11 +15,15 @@ interface CoverTemplate {
   name: string;
   category: string;
   src: string;
+  premium?: boolean;          // Premium Collection badge
+  fixedPageCount?: number;    // If set, album MUST use this exact number of content pages
+  printPdfUrl?: string;       // Source vector PDF used for print (overrides generated PNG cover)
 }
 
-const COVER_CATEGORIES = ["Tous", "Voyage", "Couple", "Amis", "Famille", "Mariage", "Bébé"];
+const COVER_CATEGORIES = ["Tous", "Collection", "Voyage", "Couple", "Amis", "Famille", "Mariage", "Bébé"];
 
 const COVER_TEMPLATES: CoverTemplate[] = [
+  { id: "namibie",   name: "Namibie",   category: "Collection", src: "/covers/Namibie.png", premium: true, fixedPageCount: 24, printPdfUrl: "/covers/Namibie-24p.pdf" },
   { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
   { id: "italie",    name: "Italie",    category: "Voyage", src: "/covers/Italie.png" },
   { id: "provence",  name: "Provence",  category: "Voyage", src: "/covers/Provence.png" },
@@ -970,6 +974,11 @@ export default function CreatePage() {
   }
 
   function addPage() {
+    const cap = selectedCover ? COVER_TEMPLATES.find(c => c.src === selectedCover)?.fixedPageCount : undefined;
+    if (cap && pages.length - 1 >= cap) {
+      alert(`Cette couverture Collection est figée à ${cap} pages de contenu. Pour dépasser, choisis une autre couverture.`);
+      return;
+    }
     snapshot();
     const idx = pages.length;
     setPages(p=>[...p,makePage("full")]);
@@ -1138,7 +1147,15 @@ export default function CreatePage() {
                   {selected && (
                     <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white text-sm shadow">✓</div>
                   )}
+                  {tpl.premium && !selected && (
+                    <div className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow">
+                      ✦ Collection
+                    </div>
+                  )}
                   <p className="px-2 py-2 text-center text-xs font-medium text-slate-700">{tpl.name}</p>
+                  {tpl.fixedPageCount && (
+                    <p className="-mt-1 pb-2 text-center text-[10px] text-slate-400">{tpl.fixedPageCount} pages · format unique</p>
+                  )}
                 </button>
               );
             })}
