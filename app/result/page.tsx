@@ -15,6 +15,15 @@ type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
+// ── Collection covers with vectorial PDF sources ─────────────────────
+// When the client selects one of these covers, we skip the canvas/JPEG
+// pipeline and upload the source vector PDF directly to Lulu for max quality.
+const COLLECTION_PRINT_PDFS: Record<string, string> = {
+  "/covers/Namibie.png":  "/covers/Namibie-24p.pdf",
+  "/covers/Namibie2.png": "/covers/Namibie2-24p.pdf",
+  "/covers/Namibie3.png": "/covers/Namibie3-24p.pdf",
+};
+
 // ── Price calculation (single product) ────────────────────────────────
 const BASE_PRICE = 29;
 const EXTRA_PER_PAGE = 0.5;
@@ -396,10 +405,22 @@ function ResultContent() {
 
       setProgress("Génération de la couverture…");
       const { generateLuluCoverPDF, generateLuluInteriorPDF } = await import("@/app/lib/generatePDF");
-      const coverBlob = await generateLuluCoverPDF(
-        album.pages[0], album.title || "Mon Album",
-        coverWidthPt, coverHeightPt
-      );
+
+      // If the client picked a Collection cover (vectorial source PDF available),
+      // skip canvas rasterization entirely and use the source PDF for perfect print quality.
+      const coverPhoto = (album.pages[0]?.photos?.[0] ?? "") as string;
+      const collectionPdfUrl = COLLECTION_PRINT_PDFS[coverPhoto];
+      let coverBlob: Blob;
+      if (collectionPdfUrl) {
+        const res = await fetch(collectionPdfUrl);
+        if (!res.ok) throw new Error(`Failed to fetch Collection cover PDF: ${collectionPdfUrl}`);
+        coverBlob = await res.blob();
+      } else {
+        coverBlob = await generateLuluCoverPDF(
+          album.pages[0], album.title || "Mon Album",
+          coverWidthPt, coverHeightPt
+        );
+      }
 
       setCheckoutStep("generating-interior");
       setProgress("Génération des pages…");
