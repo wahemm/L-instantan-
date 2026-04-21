@@ -94,7 +94,7 @@ export default function PanierPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-[family-name:var(--font-playfair)] font-semibold text-slate-900 truncate">{album.title}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{album.pageCount} pages · Album imprimé A4</p>
-                    <p className="text-xs text-slate-400">Livraison France offerte · Papier brillant 170g/m²</p>
+                    <p className="text-xs text-slate-400">Livraison 5–7 jours ouvrés · Papier brillant 170g/m²</p>
                   </div>
 
                   <div className="text-right shrink-0">

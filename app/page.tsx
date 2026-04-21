@@ -338,7 +338,7 @@ export default function Home() {
               <span className="mb-2 text-xs text-slate-400">paiement unique</span>
             </div>
             <ul className="mb-8 flex flex-col gap-3 text-left">
-              {["Livre imprimé finition premium","Format A4 · Papier brillant 170g/m²","Livraison en France offerte","Pour offrir ou garder"].map(p => (
+              {["Livre imprimé finition premium","Format A4 · Papier brillant 170g/m²","Livraison sous 5–7 jours ouvrés","Pour offrir ou garder"].map(p => (
                 <li key={p} className="flex items-center gap-2 text-sm text-slate-300">
                   <span className="text-slate-400">✓</span>{p}
                 </li>
@@ -394,7 +394,7 @@ export default function Home() {
       >
         <div className="flex flex-col leading-tight">
           <span className="text-[11px] uppercase tracking-widest text-slate-400">À partir de</span>
-          <span className="text-base font-semibold text-slate-900">29€ · Livraison offerte</span>
+          <span className="text-base font-semibold text-slate-900">À partir de 29€</span>
         </div>
         <Link
           href="/create"

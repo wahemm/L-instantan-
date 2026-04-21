@@ -31,7 +31,7 @@ const FAQS = [
     items: [
       {
         q: "Quel est le délai de livraison ?",
-        a: "Ton album est imprimé et livré en France métropolitaine sous 5 à 7 jours ouvrés après confirmation de ta commande. La livraison est offerte pour tous les packs incluant un livre physique.",
+        a: "Ton album est imprimé et livré en France métropolitaine sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
       },
       {
         q: "Livrez-vous en dehors de France ?",

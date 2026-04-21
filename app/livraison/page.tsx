@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Livraison",
-  description: "Livraison L'Instantané — gratuite en France, Belgique, Suisse, Luxembourg, Monaco. Délai 5 à 7 jours ouvrés, impression à la demande.",
+  description: "Livraison L'Instantané — France, Belgique, Suisse, Luxembourg, Monaco. Délai 5 à 7 jours ouvrés, impression à la demande.",
 };
 
 export default function LivraisonPage() {
@@ -18,8 +18,8 @@ export default function LivraisonPage() {
         <section className="mb-10 grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 bg-[#faf8f4] p-5 text-center">
             <p className="text-2xl mb-2">🚚</p>
-            <p className="text-sm font-semibold text-slate-900 mb-1">Livraison gratuite</p>
-            <p className="text-xs text-slate-500">Toutes les commandes Pack Physique ou Duo.</p>
+            <p className="text-sm font-semibold text-slate-900 mb-1">Livraison soignée</p>
+            <p className="text-xs text-slate-500">Colis protégé, suivi inclus.</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-[#faf8f4] p-5 text-center">
             <p className="text-2xl mb-2">⏱️</p>
@@ -64,7 +64,7 @@ export default function LivraisonPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Frais de port</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p><strong>Pack Physique & Pack Duo :</strong> livraison <strong>offerte</strong>.</p>
+            <p><strong>Pack Physique & Pack Duo :</strong> frais de port calculés au moment du paiement selon la destination.</p>
             <p><strong>Pack Digital (PDF) :</strong> livraison immédiate par email après paiement — pas de frais.</p>
           </div>
         </section>

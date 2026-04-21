@@ -170,7 +170,7 @@ export default function ShopPage() {
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Livraison offerte. Satisfait ou remboursé sous 14 jours.",
+                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Satisfait ou remboursé sous 14 jours.",
                 },
               ].map(item => (
                 <div key={item.key}>

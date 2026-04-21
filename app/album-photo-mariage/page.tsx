@@ -52,7 +52,7 @@ export default function AlbumPhotoMariagePage() {
           <Link href="/create" className="rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white hover:bg-slate-700 transition">Créer notre album mariage →</Link>
           <Link href="/shop" className="rounded-full border border-slate-300 px-8 py-4 text-sm font-semibold text-slate-900 hover:border-slate-900 transition">Voir les couvertures</Link>
         </div>
-        <p className="mt-4 text-xs text-slate-400">À partir de 29€ · Livraison offerte · Satisfait ou remboursé 14j</p>
+        <p className="mt-4 text-xs text-slate-400">À partir de 29€ · Livraison 5–7j · Satisfait ou remboursé 14j</p>
       </section>
 
       <section className="bg-[#faf8f4] py-16">
