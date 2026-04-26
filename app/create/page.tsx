@@ -858,15 +858,15 @@ export default function CreatePage() {
     const resized = await Promise.all(Array.from(files).map(f=>resizeImage(f)));
     // 1. Add to library (so user can drag/reuse them)
     setLibrary(p=>[...p,...resized]);
-    // 2. Auto-distribute on new pages with random layouts (same logic as bulk import)
+    // 2. Build a list of new pages auto-distributed with random layouts
     snapshot();
     setPages(prevPages => {
       const cap = selectedCover ? COVER_TEMPLATES.find(c => c.src === selectedCover)?.fixedPageCount : undefined;
-      const newPages: EditorPage[] = [...prevPages];
+
+      // Generate the list of pages we want to insert from the uploaded photos
+      const generated: EditorPage[] = [];
       let i = 0;
       while (i < resized.length) {
-        // Respect Collection cover fixed page count cap (newPages.length - 1 = content pages, exclude cover)
-        if (cap && newPages.length - 1 >= cap) break;
         const remaining = resized.length - i;
         let layoutId: LayoutId;
         let count: number;
@@ -879,11 +879,38 @@ export default function CreatePage() {
           else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
           else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
         }
-        newPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
+        generated.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
         i += count;
       }
-      return newPages;
+
+      // Helper: a page is considered "empty" if all its photo slots are null/empty
+      const isEmpty = (pg: EditorPage) =>
+        pg.layoutId !== "cover" &&
+        pg.layoutId !== "text-only" &&
+        pg.photos.every(p => !p);
+
+      // Walk through existing pages: replace empty ones in order with our generated pages,
+      // then append any remaining generated pages at the end.
+      const result: EditorPage[] = [];
+      let g = 0;
+      for (const pg of prevPages) {
+        if (g < generated.length && isEmpty(pg)) {
+          result.push(generated[g]);
+          g++;
+        } else {
+          result.push(pg);
+        }
+      }
+      // Append leftover generated pages (respecting the Collection cover cap)
+      while (g < generated.length) {
+        if (cap && result.length - 1 >= cap) break;
+        result.push(generated[g]);
+        g++;
+      }
+      return result;
     });
+    // Jump to the first content page so user immediately sees the result
+    setCurrentPageIdx(1);
   }, [selectedCover]);
 
   const [bulkImporting, setBulkImporting] = useState(false);
