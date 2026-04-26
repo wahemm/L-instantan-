@@ -735,6 +735,7 @@ export default function CreatePage() {
   const [canUndo, setCanUndo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasSavedAlbum, setHasSavedAlbum] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   // Check if there's a saved album on mount (for the "Reprendre" button)
   useEffect(() => {
@@ -1622,6 +1623,7 @@ export default function CreatePage() {
             {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
           </button>
           <button onClick={async () => {
+            setSaveStatus("saving");
             try {
               const album = { type: "manual", title: albumTitle, pages };
               if (isSignedIn) { await serverSaveAlbum(album); }
@@ -1630,9 +1632,18 @@ export default function CreatePage() {
                 await saveAlbum(album);
               }
               setHasSavedAlbum(true);
-            } catch { /* ignore */ }
-          }} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition" title="Enregistrer pour reprendre plus tard">
-            ☁️ Enregistrer
+              setSaveStatus("saved");
+              setTimeout(() => setSaveStatus("idle"), 2500);
+            } catch (err) {
+              console.error("Save failed:", err);
+              setSaveStatus("error");
+              setTimeout(() => setSaveStatus("idle"), 4000);
+            }
+          }} disabled={saveStatus === "saving"} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-60" title="Enregistrer pour reprendre plus tard">
+            {saveStatus === "saving" && "⏳ Enregistrement…"}
+            {saveStatus === "saved"   && "✓ Enregistré"}
+            {saveStatus === "error"   && "⚠️ Erreur"}
+            {saveStatus === "idle"    && "☁️ Enregistrer"}
           </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
