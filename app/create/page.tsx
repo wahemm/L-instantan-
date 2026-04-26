@@ -754,19 +754,42 @@ export default function CreatePage() {
   }, [isSignedIn]);
 
   // Auto-save when pages or library change (debounced 2s)
+  // ALWAYS save to IndexedDB (no size limit, never fails). Also save to server best-effort.
   useEffect(() => {
     if (mode !== "manual") return;
     const t = setTimeout(async () => {
+      const album = { type: "manual", title: albumTitle, pages, library };
       try {
-        const album = { type: "manual", title: albumTitle, pages, library };
-        if (isSignedIn) { await serverSaveAlbum(album); return; }
         const { saveAlbum } = await import("@/app/lib/albumStore");
         await saveAlbum(album);
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[autosave] IndexedDB failed:", err); }
+      if (isSignedIn) {
+        try { await serverSaveAlbum(album); }
+        catch (err) { console.error("[autosave] server failed:", err); }
+      }
     }, 2000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages, library, mode, isSignedIn]);
+
+  // Save immediately when the user is about to leave the page (close tab, refresh, navigate away)
+  useEffect(() => {
+    if (mode !== "manual") return;
+    const flush = async () => {
+      try {
+        const { saveAlbum } = await import("@/app/lib/albumStore");
+        await saveAlbum({ type: "manual", title: albumTitle, pages, library });
+      } catch { /* ignore */ }
+    };
+    const onHide = () => { flush(); };
+    window.addEventListener("pagehide", onHide);
+    window.addEventListener("beforeunload", onHide);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      window.removeEventListener("beforeunload", onHide);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages, library, mode]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -1087,7 +1110,7 @@ export default function CreatePage() {
 
   async function handleSubmit() {
     const album = {type:"manual",title:albumTitle,pages,library};
-    // Save to IndexedDB (local)
+    // Save to IndexedDB (local) — primary, reliable.
     try {
       const { saveAlbum } = await import("@/app/lib/albumStore");
       await saveAlbum(album);
@@ -1095,7 +1118,10 @@ export default function CreatePage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__linstantane_album = album;
     }
-    // Also save to server if logged in
+    // Stash a small handoff for /result so we don't need a fresh load.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__linstantane_album = album;
+    // Also save to server if logged in (best-effort; server may reject huge payloads)
     if (isSignedIn) serverSaveAlbum(album).catch(() => {});
     router.push("/result");
   }
@@ -1652,20 +1678,23 @@ export default function CreatePage() {
           </button>
           <button onClick={async () => {
             setSaveStatus("saving");
+            const album = { type: "manual", title: albumTitle, pages, library };
+            // Primary: IndexedDB. This must succeed for "saved" feedback.
             try {
-              const album = { type: "manual", title: albumTitle, pages, library };
-              if (isSignedIn) { await serverSaveAlbum(album); }
-              else {
-                const { saveAlbum } = await import("@/app/lib/albumStore");
-                await saveAlbum(album);
-              }
+              const { saveAlbum } = await import("@/app/lib/albumStore");
+              await saveAlbum(album);
               setHasSavedAlbum(true);
               setSaveStatus("saved");
               setTimeout(() => setSaveStatus("idle"), 2500);
             } catch (err) {
-              console.error("Save failed:", err);
+              console.error("Save failed (IndexedDB):", err);
               setSaveStatus("error");
               setTimeout(() => setSaveStatus("idle"), 4000);
+              return;
+            }
+            // Best-effort server save (might fail on payload size; that's OK, IndexedDB has it)
+            if (isSignedIn) {
+              serverSaveAlbum(album).catch(err => console.error("Save failed (server):", err));
             }
           }} disabled={saveStatus === "saving"} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-60" title="Enregistrer pour reprendre plus tard">
             {saveStatus === "saving" && "⏳ Enregistrement…"}
