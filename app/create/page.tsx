@@ -856,8 +856,35 @@ export default function CreatePage() {
   const addLibraryFiles = useCallback(async (files: FileList|null) => {
     if (!files) return;
     const resized = await Promise.all(Array.from(files).map(f=>resizeImage(f)));
+    // 1. Add to library (so user can drag/reuse them)
     setLibrary(p=>[...p,...resized]);
-  }, []);
+    // 2. Auto-distribute on new pages with random layouts (same logic as bulk import)
+    snapshot();
+    setPages(prevPages => {
+      const cap = selectedCover ? COVER_TEMPLATES.find(c => c.src === selectedCover)?.fixedPageCount : undefined;
+      const newPages: EditorPage[] = [...prevPages];
+      let i = 0;
+      while (i < resized.length) {
+        // Respect Collection cover fixed page count cap (newPages.length - 1 = content pages, exclude cover)
+        if (cap && newPages.length - 1 >= cap) break;
+        const remaining = resized.length - i;
+        let layoutId: LayoutId;
+        let count: number;
+        if (remaining === 1) { layoutId = "full"; count = 1; }
+        else if (remaining === 2) { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
+        else if (remaining === 3) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
+        else {
+          const r = Math.random();
+          if (r < 0.25) { layoutId = "grid4"; count = 4; }
+          else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
+          else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
+        }
+        newPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
+        i += count;
+      }
+      return newPages;
+    });
+  }, [selectedCover]);
 
   const [bulkImporting, setBulkImporting] = useState(false);
 
