@@ -742,23 +742,23 @@ export default function CreatePage() {
     (async () => {
       try {
         if (isSignedIn) {
-          const saved = await serverLoadAlbum<{ type: string; pages: EditorPage[] }>();
+          const saved = await serverLoadAlbum<{ type: string; pages: EditorPage[]; library?: string[] }>();
           if (saved?.type === "manual" && saved.pages?.length > 0) { setHasSavedAlbum(true); return; }
         }
         const { loadAlbum } = await import("@/app/lib/albumStore");
-        const saved = await loadAlbum<{ type: string; pages: EditorPage[] }>();
+        const saved = await loadAlbum<{ type: string; pages: EditorPage[]; library?: string[] }>();
         if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
       } catch { /* ignore */ }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn]);
 
-  // Auto-save when pages change (debounced 2s)
+  // Auto-save when pages or library change (debounced 2s)
   useEffect(() => {
     if (mode !== "manual") return;
     const t = setTimeout(async () => {
       try {
-        const album = { type: "manual", title: albumTitle, pages };
+        const album = { type: "manual", title: albumTitle, pages, library };
         if (isSignedIn) { await serverSaveAlbum(album); return; }
         const { saveAlbum } = await import("@/app/lib/albumStore");
         await saveAlbum(album);
@@ -766,7 +766,7 @@ export default function CreatePage() {
     }, 2000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, mode, isSignedIn]);
+  }, [pages, library, mode, isSignedIn]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -783,17 +783,19 @@ export default function CreatePage() {
       (async () => {
         try {
           // Always try server first (returns null if not logged in)
-          const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
           if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
             setPages(serverAlbum.pages);
+            if (Array.isArray(serverAlbum.library)) setLibrary(serverAlbum.library);
             setMode("manual");
             return;
           }
           // Fallback: IndexedDB
           const { loadAlbum } = await import("@/app/lib/albumStore");
-          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
           if (album?.type === "manual" && Array.isArray(album.pages)) {
             setPages(album.pages);
+            if (Array.isArray(album.library)) setLibrary(album.library);
             setMode("manual");
             return;
           }
@@ -803,21 +805,45 @@ export default function CreatePage() {
         const winAlbum = (window as any).__linstantane_album;
         if (winAlbum?.type === "manual" && Array.isArray(winAlbum.pages)) {
           setPages(winAlbum.pages);
+          if (Array.isArray(winAlbum.library)) setLibrary(winAlbum.library);
           setMode("manual");
         }
       })();
       return;
     }
     if (params.get("mode") === "manual") {
-      const templateId = sessionStorage.getItem("linstantane:template");
-      sessionStorage.removeItem("linstantane:template");
-      const tpl = templateId ? COLOR_TEMPLATES.find(t => t.id === templateId) : null;
-      setPages(DEFAULT_PAGES.map((p, i) => ({
-        ...p,
-        texts: [...p.texts],
-        ...(i === 0 && tpl ? { bgColor: tpl.bgColor } : {}),
-      })));
-      setMode("manual");
+      // If there's a saved album, restore it instead of resetting to DEFAULT_PAGES
+      (async () => {
+        try {
+          const saved = isSignedIn
+            ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>()
+            : null;
+          if (saved?.type === "manual" && Array.isArray(saved.pages) && saved.pages.length > 0) {
+            setPages(saved.pages);
+            if (Array.isArray(saved.library)) setLibrary(saved.library);
+            setMode("manual");
+            return;
+          }
+          const { loadAlbum } = await import("@/app/lib/albumStore");
+          const local = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
+          if (local?.type === "manual" && Array.isArray(local.pages) && local.pages.length > 0) {
+            setPages(local.pages);
+            if (Array.isArray(local.library)) setLibrary(local.library);
+            setMode("manual");
+            return;
+          }
+        } catch { /* ignore */ }
+        // No saved album: start fresh with optional template
+        const templateId = sessionStorage.getItem("linstantane:template");
+        sessionStorage.removeItem("linstantane:template");
+        const tpl = templateId ? COLOR_TEMPLATES.find(t => t.id === templateId) : null;
+        setPages(DEFAULT_PAGES.map((p, i) => ({
+          ...p,
+          texts: [...p.texts],
+          ...(i === 0 && tpl ? { bgColor: tpl.bgColor } : {}),
+        })));
+        setMode("manual");
+      })();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -1060,7 +1086,7 @@ export default function CreatePage() {
   }
 
   async function handleSubmit() {
-    const album = {type:"manual",title:albumTitle,pages};
+    const album = {type:"manual",title:albumTitle,pages,library};
     // Save to IndexedDB (local)
     try {
       const { saveAlbum } = await import("@/app/lib/albumStore");
@@ -1120,17 +1146,19 @@ export default function CreatePage() {
                 onClick={async () => {
                   try {
                     // Always try server first (returns null if not logged in)
-                    const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
                     if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
                       setPages(serverAlbum.pages);
+                      if (Array.isArray(serverAlbum.library)) setLibrary(serverAlbum.library);
                       setMode("manual");
                       return;
                     }
                     // Fallback: IndexedDB
                     const { loadAlbum } = await import("@/app/lib/albumStore");
-                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[] }>();
+                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
                     if (saved?.type === "manual" && Array.isArray(saved.pages)) {
                       setPages(saved.pages);
+                      if (Array.isArray(saved.library)) setLibrary(saved.library);
                       setMode("manual");
                     }
                   } catch { /* ignore */ }
@@ -1625,7 +1653,7 @@ export default function CreatePage() {
           <button onClick={async () => {
             setSaveStatus("saving");
             try {
-              const album = { type: "manual", title: albumTitle, pages };
+              const album = { type: "manual", title: albumTitle, pages, library };
               if (isSignedIn) { await serverSaveAlbum(album); }
               else {
                 const { saveAlbum } = await import("@/app/lib/albumStore");
