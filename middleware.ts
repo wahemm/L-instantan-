@@ -1,6 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtected = createRouteMatcher(["/mon-compte(.*)", "/panier(.*)"]);
+// /panier doit rester public : le panier est en IndexedDB côté client,
+// pas besoin de login pour l'afficher (et Google doit pouvoir le crawler).
+const isProtected = createRouteMatcher(["/mon-compte(.*)", "/commandes(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtected(req)) await auth.protect();

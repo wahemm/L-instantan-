@@ -5,7 +5,6 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Mentions Légales",
   description: "Mentions légales de L'Instantané.",
-  robots: { index: false, follow: false },
 };
 
 export default function MentionsLegalesPage() {

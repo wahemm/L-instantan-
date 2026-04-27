@@ -87,3 +87,32 @@ img {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ─── Subtle motion ─────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) }
+  50%      { transform: translateY(-6px) }
+}
+@keyframes fade-up {
+  0%   { opacity: 0; transform: translateY(12px) }
+  100% { opacity: 1; transform: translateY(0) }
+}
+@keyframes shine {
+  0%   { background-position: -200% 0 }
+  100% { background-position: 200% 0 }
+}
+
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite }
+.animate-fade-up    { animation: fade-up 0.7s ease-out both }
+.animate-shine {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shine 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-fade-up,
+  .animate-shine { animation: none !important }
+  html { scroll-behavior: auto }
+}

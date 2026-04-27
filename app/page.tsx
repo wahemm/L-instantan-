@@ -119,55 +119,58 @@ export default function Home() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[#0c1220] px-6 pt-20 pb-0 text-white sm:pt-28">
         {/* Subtle radial glow */}
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% -10%, rgba(120,100,255,0.12) 0%, transparent 70%)" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% -10%, rgba(120,100,255,0.14) 0%, transparent 70%)" }} />
+        {/* Soft secondary glow (warmth) */}
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 40% at 50% 80%, rgba(255,180,120,0.08) 0%, transparent 70%)" }} />
 
         <div className="relative mx-auto max-w-5xl">
-          <div className="flex flex-col items-center text-center">
-            <span className="mb-5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Album photo premium · A4 · Papier brillant
+          <div className="flex flex-col items-center text-center animate-fade-up">
+            <span className="mb-5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+              <span className="text-amber-300">★</span> Album photo premium · Imprimé en France
             </span>
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-tight text-white sm:text-5xl lg:text-6xl">
               Tes souvenirs méritent
               <br />
-              <span className="text-slate-300">un beau livre.</span>
+              <span className="bg-gradient-to-r from-white via-slate-200 to-amber-200/80 bg-clip-text text-transparent">un beau livre.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-slate-400">
-              Choisis ta couverture, place tes photos, personnalise chaque page. Imprimé et livré chez toi en 5 jours.
+              Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé à la main et livré chez toi en 5 à 7 jours.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/create"
-                className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 hover:shadow-[0_8px_30px_rgba(255,255,255,0.18)]"
               >
-                Créer mon album →
+                <span className="relative z-10">Créer mon album</span>
+                <span className="relative z-10 ml-2 transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
                 href="/comment-ca-marche"
-                className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-slate-300 transition hover:bg-white/8"
+                className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:border-white/30"
               >
                 Comment ça marche
               </Link>
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
-              <span>✓ Imprimé en Europe</span>
-              <span>·</span>
-              <span>À partir de 29 €</span>
-              <span>·</span>
-              <span>Satisfait ou remboursé 14 jours</span>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Imprimé en France & Europe</span>
+              <span className="text-slate-700">·</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> À partir de 29 €</span>
+              <span className="text-slate-700">·</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Satisfait ou remboursé 14 j</span>
             </div>
           </div>
 
           {/* Floating book mockups with real covers */}
           <div className="relative mx-auto mt-14 flex items-end justify-center gap-6 sm:gap-10 pb-0" style={{ minHeight: 250 }}>
-            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+            <div className="hidden sm:block animate-float-slow" style={{ marginBottom: 16, animationDelay: "0.2s" }}>
               <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1} />
             </div>
-            <div style={{ marginBottom: 0 }}>
+            <div className="animate-float-slow" style={{ marginBottom: 0 }}>
               <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} />
             </div>
-            <div className="hidden sm:block" style={{ marginBottom: 16 }}>
+            <div className="hidden sm:block animate-float-slow" style={{ marginBottom: 16, animationDelay: "0.4s" }}>
               <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1} />
             </div>
             {/* Shadow under books */}
@@ -263,6 +266,68 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Emotional storytelling ───────────────────────────────────────── */}
+      <section className="bg-[#0c1220] py-20 text-white sm:py-28">
+        <div className="mx-auto grid max-w-5xl gap-12 px-6 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-amber-300/80">Pourquoi un album ?</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic leading-tight sm:text-4xl">
+              Tes photos méritent
+              <br />
+              <span className="text-slate-300">mieux que ton téléphone.</span>
+            </h2>
+            <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-400">
+              <p>
+                Tu as fait ce voyage incroyable. Ce mariage parfait. Ces premiers pas. Et tout est resté là, perdu dans la pellicule infinie de ton téléphone — qu&apos;on ne rouvre jamais vraiment.
+              </p>
+              <p>
+                <span className="text-white">Un album, c&apos;est différent.</span> On le tient, on le feuillette, on le pose sur la table basse. On le montre à ses proches, on le transmet. C&apos;est un objet qui traverse le temps.
+              </p>
+              <p>
+                On a créé L&apos;Instantané pour ça : transformer tes meilleurs souvenirs en un livre que tu seras fier d&apos;ouvrir, encore et encore.
+              </p>
+            </div>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/create"
+                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+              >
+                Commencer mon album →
+              </Link>
+              <Link
+                href="/qui-sommes-nous"
+                className="text-sm text-slate-400 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Notre histoire
+              </Link>
+            </div>
+          </div>
+          {/* Side imagery */}
+          <div className="relative">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/covers/Espagne.png" alt="Album Espagne" className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <div className="mt-8 aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/covers/Italie.png" alt="Album Italie" className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/covers/Marrakech.png" alt="Album Marrakech" className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <div className="mt-8 aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/covers/Miami.png" alt="Album Miami" className="h-full w-full object-cover" loading="lazy" />
+              </div>
+            </div>
+            {/* Glow */}
+            <div className="pointer-events-none absolute -inset-10 -z-10 rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(180,140,255,0.3) 0%, transparent 70%)" }} />
+          </div>
+        </div>
+      </section>
+
       {/* ── Cas d'usage / Pages destination SEO ─────────────────────────── */}
       <section className="bg-white py-16">
         <div className="mx-auto max-w-5xl px-6">
@@ -289,6 +354,43 @@ export default function Home() {
               <p className="text-sm text-slate-500 leading-relaxed mb-4">Les premiers mois de bébé, cadeau parfait pour les grands-parents.</p>
               <span className="text-xs font-semibold text-slate-900 group-hover:underline">Découvrir →</span>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust / Promesse fondateur ──────────────────────────────────── */}
+      <section className="bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="rounded-3xl bg-gradient-to-br from-slate-50 to-amber-50/40 p-8 ring-1 ring-slate-100 sm:p-12">
+            <div className="flex flex-col items-center text-center">
+              <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Promesse fondateur
+              </span>
+              <h2 className="font-[family-name:var(--font-playfair)] text-2xl italic text-slate-900 sm:text-3xl">
+                Chaque album passe entre mes mains avant l&apos;envoi.
+              </h2>
+              <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                On démarre L&apos;Instantané avec une promesse simple : si ton album n&apos;est pas parfait, on le réimprime ou on te rembourse — sans discuter. C&apos;est moi qui contrôle chaque livre avant l&apos;expédition.
+              </p>
+              <div className="mt-6 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
+                {[
+                  { v: "5–7j",    l: "Livraison France" },
+                  { v: "100 %",   l: "Aperçu avant achat" },
+                  { v: "14 j",    l: "Remboursé sans condition" },
+                  { v: "0 €",     l: "Frais cachés" },
+                ].map(s => (
+                  <div key={s.l} className="rounded-2xl border border-slate-200 bg-white px-3 py-4 text-center">
+                    <p className="font-[family-name:var(--font-playfair)] text-xl font-bold text-slate-900">{s.v}</p>
+                    <p className="mt-1 text-[11px] uppercase tracking-wider text-slate-400">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-7 text-xs text-slate-500">
+                Une question ? Écris à{" "}
+                <a href="mailto:linstantane.officiel@gmail.com" className="font-medium text-slate-900 underline-offset-4 hover:underline">linstantane.officiel@gmail.com</a>{" "}
+                — réponse sous 24 h.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -371,19 +473,88 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FAQ inline ────────────────────────────────────────────────────── */}
+      <section className="bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-3xl px-6">
+          <div className="mb-12 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Questions fréquentes</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">On répond à tout</h2>
+          </div>
+          <div className="divide-y divide-slate-200 rounded-3xl border border-slate-200 bg-white shadow-sm">
+            {[
+              {
+                q: "Combien de temps pour recevoir mon album ?",
+                a: "5 à 7 jours ouvrés en France métropolitaine. On imprime et on expédie sous 48 heures, puis Colissimo prend le relai.",
+              },
+              {
+                q: "Puis-je voir mon album avant de payer ?",
+                a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu.",
+              },
+              {
+                q: "Quelle est la qualité du livre ?",
+                a: "Format A4 (21×28 cm), couverture rigide, papier photo brillant 170 g/m². Impression haute résolution, finition premium — du niveau d'un beau livre de librairie.",
+              },
+              {
+                q: "Et si l'album ne me plaît pas ?",
+                a: "Satisfait ou remboursé sous 14 jours. Si l'album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement.",
+              },
+              {
+                q: "Combien ça coûte vraiment ?",
+                a: "À partir de 29 €, livraison incluse. Le tarif final dépend du nombre de pages choisies. Pas de frais cachés, pas d'abonnement.",
+              },
+            ].map((item, idx) => (
+              <details key={idx} className="group px-6 py-5 transition hover:bg-slate-50/60 [&[open]]:bg-slate-50/80">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+                  <span className="text-sm font-semibold text-slate-900 sm:text-base">{item.q}</span>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition group-hover:border-slate-400 group-open:rotate-45 group-open:bg-slate-900 group-open:text-white">
+                    <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1.5v9M1.5 6h9"/></svg>
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.a}</p>
+              </details>
+            ))}
+          </div>
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Tu as une autre question ?{" "}
+            <Link href="/faq" className="font-medium text-slate-900 underline-offset-4 hover:underline">Voir toute la FAQ</Link>
+            {" "}ou écris-nous à{" "}
+            <a href="mailto:linstantane.officiel@gmail.com" className="font-medium text-slate-900 underline-offset-4 hover:underline">linstantane.officiel@gmail.com</a>.
+          </p>
+        </div>
+      </section>
+
       {/* ── CTA final ─────────────────────────────────────────────────────── */}
-      <section className="bg-slate-900 py-20 text-white sm:py-24">
-        <div className="mx-auto max-w-2xl px-6 text-center">
-          <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic sm:text-4xl">
-            Prêt à sublimer tes souvenirs ?
+      <section className="relative overflow-hidden bg-slate-900 py-24 text-white sm:py-28">
+        {/* Glow */}
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(180,140,255,0.18) 0%, transparent 70%)" }} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 40% 30% at 80% 20%, rgba(255,180,120,0.10) 0%, transparent 70%)" }} />
+
+        <div className="relative mx-auto max-w-2xl px-6 text-center">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+            <span className="text-amber-300">★</span> Aucun engagement
+          </span>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl italic leading-tight sm:text-5xl">
+            Et si tu commençais
+            <br />
+            <span className="bg-gradient-to-r from-white via-slate-100 to-amber-200 bg-clip-text text-transparent">ton album ce soir ?</span>
           </h2>
-          <p className="mt-4 text-slate-400">Crée ton album en quelques minutes. Tu vois le résultat avant de payer.</p>
+          <p className="mx-auto mt-5 max-w-md text-slate-400">
+            Quelques minutes pour le créer. Aucun paiement avant validation. Livré chez toi sous 5 à 7 jours.
+          </p>
           <Link
             href="/create"
-            className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-10 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+            className="group mt-9 inline-flex items-center justify-center rounded-full bg-white px-10 py-4 text-sm font-semibold text-slate-900 shadow-[0_8px_30px_rgba(255,255,255,0.18)] transition hover:bg-slate-100 hover:shadow-[0_12px_40px_rgba(255,255,255,0.25)]"
           >
-            Créer mon album →
+            Créer mon album
+            <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
           </Link>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Aperçu avant paiement</span>
+            <span className="text-slate-700">·</span>
+            <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Stripe sécurisé</span>
+            <span className="text-slate-700">·</span>
+            <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Remboursé 14 j</span>
+          </div>
         </div>
       </section>
 
@@ -458,7 +629,7 @@ export default function Home() {
               <ul className="flex flex-col gap-3 text-sm text-slate-400">
                 <li><Link href="/cgv" className="transition hover:text-white">CGV</Link></li>
                 <li><Link href="/mentions-legales" className="transition hover:text-white">Mentions légales</Link></li>
-                <li><Link href="/politique-confidentialite" className="transition hover:text-white">Politique de confidentialité</Link></li>
+                <li><Link href="/politique-de-confidentialite" className="transition hover:text-white">Politique de confidentialité</Link></li>
                 <li><a href="mailto:linstantane.officiel@gmail.com" className="transition hover:text-white">linstantane.officiel@gmail.com</a></li>
               </ul>
             </div>
