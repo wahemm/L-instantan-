@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
 
@@ -15,6 +15,27 @@ export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const { isSignedIn } = useUser();
+  const [cartN, setCartN] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    const refresh = async () => {
+      try {
+        const { cartCount } = await import("@/app/lib/cartStore");
+        const n = await cartCount();
+        if (alive) setCartN(n);
+      } catch { /* ignore — IndexedDB unavailable */ }
+    };
+    refresh();
+    const onChange = () => refresh();
+    window.addEventListener("linstantane:cart-changed", onChange);
+    window.addEventListener("focus", onChange);
+    return () => {
+      alive = false;
+      window.removeEventListener("linstantane:cart-changed", onChange);
+      window.removeEventListener("focus", onChange);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
@@ -41,6 +62,22 @@ export default function Nav() {
 
         {/* Right */}
         <div className="ml-auto flex items-center gap-3">
+          {/* Cart icon — always visible */}
+          <Link
+            href="/panier"
+            aria-label={`Panier${cartN > 0 ? ` (${cartN})` : ""}`}
+            className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${pathname === "/panier" ? "border-slate-900 bg-slate-900 text-white" : "border-gray-200 text-slate-700 hover:border-slate-400"}`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 7h12l-1.2 9.5a2 2 0 0 1-2 1.7H9.2a2 2 0 0 1-2-1.7L6 7Z"/>
+              <path d="M9 7V5.5a3 3 0 0 1 6 0V7"/>
+            </svg>
+            {cartN > 0 && (
+              <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-bold text-white shadow-sm">
+                {cartN > 9 ? "9+" : cartN}
+              </span>
+            )}
+          </Link>
           {isSignedIn ? (
             <>
               <Link

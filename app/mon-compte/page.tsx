@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
-
-interface SavedAlbum {
-  id: string;
-  title: string;
-  pageCount: number;
-  cover: string | null;
-  savedAt: string;
-}
+import { useRouter } from "next/navigation";
+import {
+  listCart,
+  removeFromCart,
+  loadCartItemAsCurrent,
+  type CartItemSummary,
+} from "@/app/lib/cartStore";
 
 interface Order {
   id: string;
@@ -22,39 +21,52 @@ interface Order {
   status: string;
 }
 
-function getSavedAlbums(): SavedAlbum[] {
-  try {
-    const raw = localStorage.getItem("linstantane:saved-albums");
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
-
 export default function MonComptePage() {
   const { user } = useUser();
-  const [albums, setAlbums] = useState<SavedAlbum[]>([]);
+  const router = useRouter();
+  const [albums, setAlbums] = useState<CartItemSummary[] | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function refresh() {
+    try { setAlbums(await listCart()); }
+    catch { setAlbums([]); }
+  }
 
   useEffect(() => {
-    setAlbums(getSavedAlbums());
+    refresh();
+    const onChange = () => refresh();
+    window.addEventListener("linstantane:cart-changed", onChange);
     fetch("/api/orders")
       .then(r => r.json())
       .then(d => setOrders(d.orders ?? []))
       .finally(() => setLoadingOrders(false));
+    return () => window.removeEventListener("linstantane:cart-changed", onChange);
   }, []);
 
-  function deleteAlbum(id: string) {
-    const updated = albums.filter(a => a.id !== id);
-    localStorage.setItem("linstantane:saved-albums", JSON.stringify(updated));
-    localStorage.removeItem(`linstantane:album:${id}`);
-    setAlbums(updated);
+  async function deleteAlbum(id: string) {
+    setBusy(id);
+    try { await removeFromCart(id); } finally { setBusy(null); }
   }
 
-  function openAlbum(id: string) {
-    const data = localStorage.getItem(`linstantane:album:${id}`);
-    if (data) {
-      sessionStorage.setItem("linstantane:album", data);
-      window.location.href = "/create?restore=1";
+  async function openAlbum(id: string) {
+    setBusy(id);
+    try {
+      const ok = await loadCartItemAsCurrent(id);
+      if (ok) router.push("/create?restore=true");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function orderAlbum(id: string) {
+    setBusy(id);
+    try {
+      const ok = await loadCartItemAsCurrent(id);
+      if (ok) router.push("/result");
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -75,15 +87,19 @@ export default function MonComptePage() {
         {/* Albums sauvegardés */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-slate-900">Mes albums</h2>
+            <h2 className="font-semibold text-slate-900">Mes albums sauvegardés</h2>
             <Link href="/create" className="text-xs text-slate-500 hover:text-slate-900 transition">
               + Créer un album
             </Link>
           </div>
 
-          {albums.length === 0 ? (
+          {albums === null ? (
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center">
+              <p className="text-sm text-slate-400">Chargement…</p>
+            </div>
+          ) : albums.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
-              <p className="text-sm text-slate-400 mb-4">Aucun album sauvegardé</p>
+              <p className="text-sm text-slate-400 mb-4">Aucun album sauvegardé pour le moment</p>
               <Link href="/create"
                 className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-slate-700 transition"
               >
@@ -97,6 +113,7 @@ export default function MonComptePage() {
                   {/* Couverture miniature */}
                   <div className="mb-3 aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-100">
                     {album.cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={album.cover} alt={album.title} className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
@@ -105,30 +122,30 @@ export default function MonComptePage() {
                     )}
                   </div>
                   <p className="font-[family-name:var(--font-playfair)] font-semibold text-slate-900 truncate">{album.title}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{album.pageCount} pages · {new Date(album.savedAt).toLocaleDateString("fr-FR")}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {album.pageCount} pages · {new Date(album.addedAt).toLocaleDateString("fr-FR")}
+                  </p>
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => openAlbum(album.id)}
-                      className="flex-1 rounded-full bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-700 transition"
+                      disabled={busy === album.id}
+                      className="flex-1 rounded-full bg-slate-900 py-2 text-xs font-medium text-white hover:bg-slate-700 transition disabled:opacity-60"
                     >
                       Ouvrir
                     </button>
                     <button
-                      onClick={() => {
-                        const data = localStorage.getItem(`linstantane:album:${album.id}`);
-                        if (data) {
-                          sessionStorage.setItem("linstantane:album", data);
-                          window.location.href = "/result";
-                        }
-                      }}
-                      className="flex-1 rounded-full border border-gray-200 py-2 text-xs font-medium text-slate-600 hover:border-slate-400 transition"
+                      onClick={() => orderAlbum(album.id)}
+                      disabled={busy === album.id}
+                      className="flex-1 rounded-full border border-gray-200 py-2 text-xs font-medium text-slate-600 hover:border-slate-400 transition disabled:opacity-60"
                     >
                       Commander
                     </button>
                   </div>
                   <button
                     onClick={() => deleteAlbum(album.id)}
-                    className="absolute top-3 right-3 hidden group-hover:flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-400 hover:bg-red-100 transition text-xs"
+                    disabled={busy === album.id}
+                    aria-label={`Supprimer ${album.title}`}
+                    className="absolute top-3 right-3 hidden group-hover:flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-400 hover:bg-red-100 transition text-xs disabled:opacity-60"
                   >
                     ×
                   </button>
@@ -155,7 +172,7 @@ export default function MonComptePage() {
               {orders.map((order, i) => (
                 <div key={order.id} className={`flex items-center justify-between px-5 py-4 ${i < orders.length - 1 ? "border-b border-gray-100" : ""}`}>
                   <div>
-                    <p className="font-medium text-slate-900 text-sm">"{order.albumTitle}"</p>
+                    <p className="font-medium text-slate-900 text-sm">&ldquo;{order.albumTitle}&rdquo;</p>
                     <p className="text-xs text-slate-400 mt-0.5">
                       {new Date(order.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                       {" · "}{order.pageCount} pages

@@ -5,17 +5,22 @@
  */
 
 const DB_NAME = "linstantane";
+const DB_VERSION = 2;
 const STORE_NAME = "albums";
+const CART_STORE = "cart";
 const KEY = "current";
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE_NAME);
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+      if (!db.objectStoreNames.contains(CART_STORE)) db.createObjectStore(CART_STORE, { keyPath: "id" });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
+    req.onblocked = () => reject(new Error("IndexedDB upgrade blocked — close other tabs and retry."));
   });
 }
 

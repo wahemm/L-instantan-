@@ -298,8 +298,27 @@ function ResultContent() {
   const [shippingCountry, setShippingCountry] = useState("FR");
   const [shippingCost, setShippingCost] = useState<number | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added">("idle");
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
+
+  async function handleAddToCart() {
+    if (!album) return;
+    setCartStatus("adding");
+    try {
+      const { addToCart } = await import("@/app/lib/cartStore");
+      const title = album.type === "manual" ? (album.title || "Mon Album") : album.title;
+      const cover = album.type === "manual"
+        ? (album.pages[0]?.photos?.[0] ?? null)
+        : (album.photos[0] ?? null);
+      await addToCart({ album, title, pageCount, cover });
+      setCartStatus("added");
+      setTimeout(() => setCartStatus("idle"), 2500);
+    } catch (err) {
+      console.error("Add to cart failed:", err);
+      setCartStatus("idle");
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -623,6 +642,15 @@ function ResultContent() {
         </div>
       )}
 
+      {/* Toast: added to cart */}
+      {cartStatus === "added" && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-slate-900 text-xs">✓</span>
+          <span>Album ajouté au panier</span>
+          <Link href="/panier" className="ml-2 underline underline-offset-2 hover:no-underline">Voir le panier →</Link>
+        </div>
+      )}
+
       {/* Processing overlay */}
       {isProcessing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -649,7 +677,13 @@ function ResultContent() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-500">{pageCount} pages</span>
+              <span className="hidden sm:inline text-sm text-slate-500">{pageCount} pages</span>
+              <button onClick={handleAddToCart} disabled={cartStatus !== "idle"}
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-400 disabled:opacity-60">
+                {cartStatus === "adding" && "Ajout…"}
+                {cartStatus === "added"  && "✓ Ajouté"}
+                {cartStatus === "idle"   && "+ Panier"}
+              </button>
               <button onClick={showSummary} disabled={isProcessing}
                 className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
                 Commander — {price}
@@ -728,6 +762,12 @@ function ResultContent() {
               <button onClick={showSummary} disabled={isProcessing}
                 className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-60">
                 {isProcessing ? "Préparation…" : `Commander — ${price}`}
+              </button>
+              <button onClick={handleAddToCart} disabled={cartStatus !== "idle"}
+                className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-gray-200 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-400 disabled:opacity-60">
+                {cartStatus === "adding" && "Ajout en cours…"}
+                {cartStatus === "added"  && "✓ Ajouté au panier"}
+                {cartStatus === "idle"   && "Ajouter au panier"}
               </button>
               <p className="mt-4 text-center text-xs text-slate-400">
                 🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
