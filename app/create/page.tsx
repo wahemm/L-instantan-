@@ -1154,16 +1154,16 @@ export default function CreatePage() {
     return (
       <main className="min-h-screen bg-white text-slate-900">
         <Nav />
-        <div className="mx-auto max-w-4xl px-6 py-12">
-          <div className="mb-8 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Étape 1 sur 2</p>
-            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Choisis ta couverture</h1>
-            <p className="mt-2 text-sm text-slate-500">Sélectionne un design ou continue sans template.</p>
+        <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
+          <div className="mb-8 text-center sm:mb-10">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Création de ton album</p>
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Donne-lui une couverture</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">Choisis un design illustré ou continue sans — tu pourras toujours personnaliser ta couverture après.</p>
           </div>
 
           {/* Resume saved album */}
           {hasSavedAlbum && (
-            <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 px-5 py-4">
               <div>
                 <p className="text-sm font-semibold text-slate-800">Album en cours</p>
                 <p className="text-xs text-slate-500">Tu as un album non terminé — reprends là où tu t&apos;es arrêté.</p>
@@ -1196,15 +1196,34 @@ export default function CreatePage() {
             </div>
           )}
 
+          {/* Title input — captured upfront so user knows it's saved */}
+          <div className="mb-6 rounded-2xl border border-slate-200/70 bg-[#faf8f4] p-5">
+            <label htmlFor="album-title" className="mb-2 block text-xs font-semibold uppercase tracking-widest text-slate-500">Titre de l&apos;album</label>
+            <input
+              id="album-title"
+              type="text"
+              placeholder="Ex : Italie 2025, Notre Mariage, Été à Marseille…"
+              value={coverTitleInput}
+              onChange={e => setCoverTitleInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && enterManualMode(coverTitleInput || undefined)}
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base font-[family-name:var(--font-playfair)] outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+            />
+          </div>
+
           {/* Search */}
           <div className="relative mb-4">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4" strokeLinecap="round">
+                <circle cx="9" cy="9" r="6" />
+                <path d="m13.5 13.5 3.5 3.5" />
+              </svg>
+            </span>
             <input
               type="text"
-              placeholder="Rechercher un template…"
+              placeholder="Rechercher une destination, un thème…"
               value={coverSearch}
               onChange={e => setCoverSearch(e.target.value)}
-              className="w-full rounded-2xl border border-gray-200 bg-[#f8f7f4] py-3 pl-10 pr-4 text-sm outline-none focus:border-slate-400"
+              className="w-full rounded-2xl border border-gray-200 bg-[#f8f7f4] py-3 pl-11 pr-4 text-sm outline-none transition focus:border-slate-400 focus:bg-white"
             />
           </div>
 
@@ -1225,12 +1244,21 @@ export default function CreatePage() {
             ))}
           </div>
 
-          {/* Grid */}
+          {/* Grid — empty state differentiates search vs empty category */}
           {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <span className="mb-3 text-4xl">🎨</span>
-              <p className="text-sm font-semibold text-slate-700">Bientôt disponible</p>
-              <p className="mt-1 text-xs text-slate-400">Ces templates arrivent prochainement.</p>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-14 text-center">
+              <span className="mb-3 text-3xl" aria-hidden>🎨</span>
+              {coverSearch ? (
+                <>
+                  <p className="text-sm font-semibold text-slate-700">Aucun template trouvé</p>
+                  <p className="mt-1 max-w-xs text-xs text-slate-400">Essaie un autre mot-clé, ou continue sans template — tu pourras personnaliser librement.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-slate-700">Bientôt disponible</p>
+                  <p className="mt-1 text-xs text-slate-400">De nouveaux designs arrivent dans cette catégorie.</p>
+                </>
+              )}
             </div>
           )}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
@@ -1272,33 +1300,15 @@ export default function CreatePage() {
             })}
           </div>
 
-          {/* Title input */}
-          <div className="mt-8 mb-4">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-slate-400">Titre de l&apos;album</label>
-            <input
-              type="text"
-              placeholder="Ex : Italie 2025, Notre Mariage, Été à Marseille…"
-              value={coverTitleInput}
-              onChange={e => setCoverTitleInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && enterManualMode(coverTitleInput || undefined)}
-              className="w-full rounded-2xl border border-gray-200 bg-[#f8f7f4] px-5 py-3.5 text-sm font-[family-name:var(--font-playfair)] outline-none focus:border-slate-400 focus:bg-white transition"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-between">
+          {/* Action — title is captured at top, only one CTA needed */}
+          <div className="mt-10 flex flex-col items-center gap-3">
             <button
               onClick={() => enterManualMode(coverTitleInput || undefined)}
-              className="text-xs text-slate-400 hover:text-slate-600 transition"
-            >
-              Passer cette étape →
-            </button>
-            <button
-              onClick={() => enterManualMode(coverTitleInput || undefined)}
-              className="rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+              className="w-full rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-700 sm:w-auto sm:min-w-[280px]"
             >
               {selectedCover ? "Créer mon album →" : "Continuer sans template →"}
             </button>
+            <p className="text-[11px] text-slate-400">Tu pourras changer ta couverture à tout moment.</p>
           </div>
         </div>
       </main>
