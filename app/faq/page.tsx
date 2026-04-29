@@ -159,7 +159,7 @@ export default function FaqPage() {
             >
               linstantane.officiel@gmail.com
             </a>{" "}
-            — on répond sous 24h.
+            — on répond sous 24–48 h en semaine.
           </p>
           <div className="mt-6">
             <Link

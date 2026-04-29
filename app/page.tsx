@@ -25,7 +25,7 @@ const GUARANTEES = [
   {
     icon: "🖨️",
     title: "Impression professionnelle",
-    desc: "Papier photo brillant 170 g/m², impression offset haute résolution. Le rendu est fidèle à tes photos, avec des couleurs vives et des détails nets.",
+    desc: "Papier photo brillant 170 g/m², impression numérique haute résolution. Le rendu est fidèle à tes photos, avec des couleurs vives et des détails nets.",
   },
   {
     icon: "🔒",
@@ -126,7 +126,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-5xl">
           <div className="flex flex-col items-center text-center animate-fade-up">
             <span className="mb-5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
-              <span className="text-amber-300">★</span> Album photo premium · Imprimé en France
+              <span className="text-amber-300">★</span> Album photo premium · Imprimé en France & Europe
             </span>
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-tight text-white sm:text-5xl lg:text-6xl">
               Tes souvenirs méritent
@@ -134,7 +134,7 @@ export default function Home() {
               <span className="bg-gradient-to-r from-white via-slate-200 to-amber-200/80 bg-clip-text text-transparent">un beau livre.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-slate-400">
-              Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé à la main et livré chez toi en 5 à 7 jours.
+              Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé avec soin et livré chez toi en 5 à 7 jours.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
               <Link
@@ -367,10 +367,10 @@ export default function Home() {
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Promesse fondateur
               </span>
               <h2 className="font-[family-name:var(--font-playfair)] text-2xl italic text-slate-900 sm:text-3xl">
-                Chaque album passe entre mes mains avant l&apos;envoi.
+                Si l&apos;album n&apos;est pas parfait, on le réimprime ou on te rembourse.
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
-                On démarre L&apos;Instantané avec une promesse simple : si ton album n&apos;est pas parfait, on le réimprime ou on te rembourse — sans discuter. C&apos;est moi qui contrôle chaque livre avant l&apos;expédition.
+                On démarre L&apos;Instantané avec une obsession : la qualité du livre. Tu prévisualises chaque page avant de payer, et tu disposes de 14 jours après réception pour nous écrire si quelque chose cloche — réimpression ou remboursement intégral, sans discuter.
               </p>
               <div className="mt-6 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
                 {[
@@ -388,7 +388,7 @@ export default function Home() {
               <p className="mt-7 text-xs text-slate-500">
                 Une question ? Écris à{" "}
                 <a href="mailto:linstantane.officiel@gmail.com" className="font-medium text-slate-900 underline-offset-4 hover:underline">linstantane.officiel@gmail.com</a>{" "}
-                — réponse sous 24 h.
+                — réponse sous 24–48 h en semaine.
               </p>
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function Home() {
             {[
               {
                 q: "Combien de temps pour recevoir mon album ?",
-                a: "5 à 7 jours ouvrés en France métropolitaine. On imprime et on expédie sous 48 heures, puis Colissimo prend le relai.",
+                a: "5 à 7 jours ouvrés en France métropolitaine. Fabrication en 2 à 3 jours, puis expédition en 2 à 4 jours selon la destination.",
               },
               {
                 q: "Puis-je voir mon album avant de payer ?",
@@ -500,7 +500,7 @@ export default function Home() {
               },
               {
                 q: "Combien ça coûte vraiment ?",
-                a: "À partir de 29 €, livraison incluse. Le tarif final dépend du nombre de pages choisies. Pas de frais cachés, pas d'abonnement.",
+                a: "29 € pour un album de 24 pages, puis 0,50 € par page supplémentaire. Frais de port calculés au moment du paiement selon la destination. Pas d'abonnement, pas de frais cachés.",
               },
             ].map((item, idx) => (
               <details key={idx} className="group px-6 py-5 transition hover:bg-slate-50/60 [&[open]]:bg-slate-50/80">

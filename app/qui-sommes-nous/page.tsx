@@ -92,7 +92,7 @@ export default function QuiSommesNousPage() {
       <section className="bg-[#f8f7f4] py-20">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-14 text-center font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">
-            Ce qu&apos;on vous garantit
+            Ce qu&apos;on te garantit
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -122,8 +122,8 @@ export default function QuiSommesNousPage() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
           {[
-            { icon:"📐", title:"Format A4, couverture rigide", desc:"21 × 28 cm, reliure cousue, couverture cartonnée. Un objet solide, conçu pour durer des années." },
-            { icon:"✨", title:"Papier photo 170g/m²", desc:"Impression offset sur papier brillant premium. Le rendu des couleurs est fidèle à tes photos." },
+            { icon:"📐", title:"Format A4, couverture rigide", desc:"21 × 28 cm, couverture cartonnée et reliure solide. Un objet conçu pour durer des années." },
+            { icon:"✨", title:"Papier photo 170g/m²", desc:"Impression numérique haute résolution sur papier brillant premium. Le rendu des couleurs est fidèle à tes photos." },
             { icon:"🎨", title:"Éditeur intuitif", desc:"Place tes photos librement, choisis ta mise en page, ajoute du texte n'importe où. Aucune compétence requise." },
             { icon:"🔒", title:"Paiement sécurisé, sans surprise", desc:"Tu vois l'aperçu complet avant de payer. Remboursé sous 14 jours si tu n'es pas satisfait, sans conditions." },
           ].map(item => (

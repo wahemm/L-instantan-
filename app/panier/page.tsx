@@ -78,7 +78,7 @@ export default function PanierPage() {
           </h1>
           <p className="mt-3 max-w-xl text-sm text-slate-500">
             Vérifie tes albums, modifie-les si besoin, puis passe à la commande.
-            Chaque album est imprimé à la main avec soin et expédié sous 7–10 jours.
+            Chaque album est imprimé avec soin et expédié sous 5–7 jours ouvrés.
           </p>
         </div>
 
