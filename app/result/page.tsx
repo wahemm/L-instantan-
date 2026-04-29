@@ -513,12 +513,12 @@ function ResultContent() {
               Commande confirmée !
             </h1>
             <p className="mx-auto mt-4 max-w-md text-slate-500">
-              Ton paiement a bien été reçu. Ton album est en cours de fabrication et sera livré sous 7 à 10 jours ouvrés.
+              Ton paiement a bien été reçu. Ton album est en cours de fabrication et sera livré sous 5 à 7 jours ouvrés.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-3 text-left">
               {[
                 { icon: "📦", title: "Fabrication", desc: "Ton album est envoyé en production sous 24h." },
-                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 7 à 10 jours ouvrés." },
+                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 5 à 7 jours ouvrés." },
                 { icon: "📧", title: "Confirmation", desc: "Un email de confirmation va t'être envoyé." },
               ].map(step => (
                 <div key={step.title} className="flex gap-3 rounded-xl border border-gray-100 p-4">
@@ -595,7 +595,7 @@ function ResultContent() {
                       <span className="text-red-400 text-xs">Indisponible</span>
                     )}
                   </div>
-                  <p className="text-[10px] text-slate-400">Livraison standard 7-10 jours ouvrés</p>
+                  <p className="text-[10px] text-slate-400">Livraison standard 5–7 jours ouvrés</p>
                 </div>
                 <hr className="border-gray-100" />
                 {pageCount > INCLUDED_PAGES && (
@@ -756,7 +756,7 @@ function ResultContent() {
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier glacé 170 g/m²</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> {pageCount} pages intérieures</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison en France et Europe</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 7–10 jours ouvrés</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 5–7 jours ouvrés</li>
                 </ul>
               </div>
               <button onClick={showSummary} disabled={isProcessing}
