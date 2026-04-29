@@ -17,7 +17,7 @@ const STEPS = [
     num: "01",
     emoji: "📚",
     title: "Choisis ta couverture",
-    desc: "Rends-toi sur la boutique, sélectionne un modèle de couverture parmi nos thèmes soigneusement conçus, puis choisis ton pack : Digital, Physique ou Duo.",
+    desc: "Rends-toi sur la boutique, sélectionne un modèle de couverture parmi nos thèmes soigneusement conçus pour donner du caractère à ton livre.",
     detail: "Sur /shop — quelques secondes suffisent.",
   },
   {

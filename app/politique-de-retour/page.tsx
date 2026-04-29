@@ -70,14 +70,7 @@ export default function PolitiqueRetourPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">6. Pack Digital (PDF)</h2>
-          <p className="text-sm leading-relaxed text-slate-600">
-            Le fichier PDF étant livré immédiatement après paiement, il n&apos;est <strong>pas remboursable</strong> sauf problème technique (fichier corrompu, erreur de téléchargement). Dans ce cas, contacte-nous et on te renvoie le fichier.
-          </p>
-        </section>
-
-        <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">7. Litige</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">6. Litige</h2>
           <p className="text-sm leading-relaxed text-slate-600">
             En cas de désaccord persistant, tu peux saisir gratuitement le médiateur de la consommation via la plateforme européenne de règlement en ligne des litiges : <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-900">ec.europa.eu/consumers/odr</a>.
           </p>

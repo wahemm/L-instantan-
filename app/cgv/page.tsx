@@ -18,17 +18,15 @@ export default function CgvPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">1. Objet</h2>
           <p className="text-sm leading-relaxed text-slate-600">
-            Les présentes conditions régissent les ventes de produits (albums photo imprimés et fichiers numériques) réalisées par L&apos;Instantané à ses clients via le site linstantane.fr.
+            Les présentes conditions régissent les ventes d&apos;albums photo imprimés réalisées par L&apos;Instantané à ses clients via le site linstantane.fr.
           </p>
         </section>
 
         <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Produits</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Produit</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
-            <p><strong>Pack Digital</strong> — Fichier PDF haute résolution de l&apos;album, disponible en téléchargement immédiat après confirmation du paiement.</p>
-            <p><strong>Pack Physique</strong> — Album imprimé au format A4 (21 × 28 cm), papier photo brillant 170 g/m², couverture rigide personnalisée.</p>
-            <p><strong>Pack Duo</strong> — Combinaison du Pack Digital et du Pack Physique.</p>
-            <p>Les albums comportent au minimum 24 pages. Des pages supplémentaires peuvent être facturées selon le tarif en vigueur.</p>
+            <p><strong>Album imprimé</strong> — Livre photo au format A4 (21 × 28 cm), papier photo brillant 170 g/m², couverture rigide personnalisée.</p>
+            <p>Les albums comportent au minimum 24 pages. Des pages supplémentaires peuvent être ajoutées et sont facturées selon le tarif en vigueur.</p>
           </div>
         </section>
 
@@ -36,7 +34,7 @@ export default function CgvPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Prix</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
             <p>Les prix sont indiqués en euros TTC. L&apos;Instantané se réserve le droit de modifier ses tarifs à tout moment, sans que cela affecte les commandes en cours.</p>
-            <p>Tarifs indicatifs : Digital 10 €, Physique à partir de 29 €, Duo à partir de 35 €.</p>
+            <p>Tarif indicatif : 29 € pour un album de 24 pages, 0,50 € par page supplémentaire. Frais de port calculés au moment du paiement selon la destination.</p>
           </div>
         </section>
 

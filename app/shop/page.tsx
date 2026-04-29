@@ -192,30 +192,28 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* ── Founder promise ─────────────────────────────────────────── */}
       <section className="bg-[#f8f7f4] py-16">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Ils ont testé</p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-slate-900">Ce que disent nos clients</h2>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-3">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Promesse fondateur
+          </span>
+          <h2 className="font-[family-name:var(--font-playfair)] text-2xl italic text-slate-900 sm:text-3xl">
+            Si l&apos;album n&apos;est pas parfait, on le réimprime ou on te rembourse.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-600">
+            On lance L&apos;Instantané avec une obsession : la qualité du livre. Si à la réception un défaut t&apos;a échappé ou que le rendu ne correspond pas à l&apos;aperçu validé, on règle ça sous 14 jours, sans discuter.
+          </p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
-              { name:"Camille Dupont", city:"Lyon", date:"Mars 2025", detail:"Album Vacances Grèce, 32 pages", quote:"On a envoyé les photos du week-end et le livre est magnifique. La qualité du papier est bluffante, un souvenir inoubliable à feuilleter en famille." },
-              { name:"Yanis Belkacem", city:"Paris", date:"Février 2025", detail:"Album Famille Noël, 48 pages", quote:"En quelques minutes j'avais mon album prêt. La mise en page est top, vraiment premium. Ma femme a pleuré en le feuilletant." },
-              { name:"Sarah Martin",   city:"Bordeaux", date:"Janvier 2025", detail:"Album Cadeau Anniversaire, 24 pages", quote:"Offrir le livre imprimé à ma mère pour ses 60 ans, c'était le cadeau parfait. Elle l'a montré à toute la famille." },
-            ].map(t => (
-              <blockquote key={t.name} className="flex flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <div className="mb-3 text-amber-400 text-sm">★★★★★</div>
-                <p className="flex-1 text-sm leading-relaxed text-slate-600">&ldquo;{t.quote}&rdquo;</p>
-                <footer className="mt-5 flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">{t.name.charAt(0)}</div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-900">{t.name}</div>
-                    <div className="text-[11px] text-slate-400">{t.city} · {t.date} · {t.detail}</div>
-                  </div>
-                </footer>
-              </blockquote>
+              { v: "100 %", l: "Aperçu avant achat" },
+              { v: "5–7 j", l: "Livraison France" },
+              { v: "14 j",  l: "Remboursé sans condition" },
+            ].map(s => (
+              <div key={s.l} className="rounded-2xl border border-gray-200 bg-white px-3 py-4">
+                <p className="font-[family-name:var(--font-playfair)] text-xl font-bold text-slate-900">{s.v}</p>
+                <p className="mt-1 text-[11px] uppercase tracking-wider text-slate-400">{s.l}</p>
+              </div>
             ))}
           </div>
         </div>

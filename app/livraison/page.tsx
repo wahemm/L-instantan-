@@ -64,8 +64,7 @@ export default function LivraisonPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Frais de port</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p><strong>Pack Physique & Pack Duo :</strong> frais de port calculés au moment du paiement selon la destination.</p>
-            <p><strong>Pack Digital (PDF) :</strong> livraison immédiate par email après paiement — pas de frais.</p>
+            <p>Les frais de port sont calculés au moment du paiement, en fonction du pays de livraison et du poids du colis. Aucun frais caché.</p>
           </div>
         </section>
 

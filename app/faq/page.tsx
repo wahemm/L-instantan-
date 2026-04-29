@@ -31,20 +31,20 @@ const FAQS = [
     items: [
       {
         q: "Quel est le délai de livraison ?",
-        a: "Ton album est imprimé et livré en France métropolitaine sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
+        a: "Ton album est imprimé et livré sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
       },
       {
         q: "Livrez-vous en dehors de France ?",
-        a: "Pour l'instant, nous livrons uniquement en France métropolitaine. Si tu es à l'étranger, le pack Digital (PDF HD) est disponible immédiatement après commande, partout dans le monde.",
+        a: "Oui — nous livrons en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. Si tu habites ailleurs, écris-nous : on étudie chaque demande au cas par cas.",
       },
     ],
   },
   {
-    category: "Packs & tarifs",
+    category: "Tarifs & paiement",
     items: [
       {
-        q: "Quelle est la différence entre Digital, Physique et Duo ?",
-        a: "Le pack Digital (10 €) te donne accès à un PDF haute résolution à télécharger immédiatement. Le pack Physique (29 €) comprend un livre imprimé livré chez toi. Le pack Duo (35 €) combine les deux : PDF HD + livre imprimé, pour le meilleur rapport qualité-prix.",
+        q: "Combien coûte un album ?",
+        a: "À partir de 29 € pour un album de 24 pages. Chaque page supplémentaire est à 0,50 €. Pas de frais cachés, pas d'abonnement.",
       },
       {
         q: "Comment fonctionne le paiement ?",
