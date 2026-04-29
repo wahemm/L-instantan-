@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
+import Footer from "@/app/components/Footer";
 
 export const metadata: Metadata = {
   title: "Comment ça marche ?",
@@ -176,23 +177,7 @@ export default function CommentCaMarchePage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 bg-white py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
-          <span className="font-[family-name:var(--font-playfair)]">L&apos;Instantané</span>
-          <div className="flex gap-6">
-            <Link href="/comment-ca-marche" className="transition hover:text-slate-700">
-              Comment ça marche
-            </Link>
-            <Link href="/faq" className="transition hover:text-slate-700">
-              FAQ
-            </Link>
-            <Link href="/qui-sommes-nous" className="transition hover:text-slate-700">
-              À propos
-            </Link>
-          </div>
-          <span>© 2026 L&apos;Instantané</span>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

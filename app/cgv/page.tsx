@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Nav from "@/app/components/Nav";
+import Footer from "@/app/components/Footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -83,17 +84,7 @@ export default function CgvPage() {
         </div>
       </article>
 
-      <footer className="border-t border-gray-100 bg-white py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
-          <span className="font-[family-name:var(--font-playfair)] text-slate-900">L&apos;Instantané</span>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
-            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
-            <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-          </div>
-          <span>© 2026 L&apos;Instantané</span>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

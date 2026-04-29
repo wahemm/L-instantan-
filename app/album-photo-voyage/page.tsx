@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Nav from "@/app/components/Nav";
+import Footer from "@/app/components/Footer";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -180,6 +181,8 @@ export default function AlbumPhotoVoyagePage() {
           <p className="mt-4 text-xs text-slate-400">Paiement sécurisé · Satisfait ou remboursé 14 jours</p>
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }
