@@ -98,7 +98,7 @@ export default function FaqPage() {
         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
           Questions fréquentes
         </p>
-        <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic text-slate-900 sm:text-5xl">
+        <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic text-slate-900 sm:text-5xl">
           Tout ce que tu veux savoir
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-500">

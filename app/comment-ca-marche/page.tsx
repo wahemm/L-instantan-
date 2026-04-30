@@ -72,7 +72,7 @@ export default function CommentCaMarchePage() {
         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
           Comment ça marche
         </p>
-        <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-snug text-slate-900 sm:text-5xl lg:text-6xl">
+        <h1 className="font-[family-name:var(--font-playfair)] text-3xl italic leading-snug text-slate-900 sm:text-5xl lg:text-6xl">
           De tes photos
           <br />à ton livre, en 4 étapes.
         </h1>

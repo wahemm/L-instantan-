@@ -47,7 +47,7 @@ export default function AlbumPhotoNaissancePage() {
         <div className="relative mx-auto max-w-4xl px-6 pt-16 pb-16 text-center lg:pt-24 lg:pb-20">
           <div className="animate-fade-up">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-500/80">Premiers mois</p>
-            <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-slate-900 leading-[1.1] sm:text-5xl lg:text-6xl">
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 leading-[1.1] sm:text-5xl lg:text-6xl">
               L&apos;album photo de naissance,
               <br />
               <span className="bg-gradient-to-r from-sky-500 to-rose-400 bg-clip-text text-transparent italic">premier trésor de ton bébé.</span>
