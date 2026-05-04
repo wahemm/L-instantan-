@@ -5,6 +5,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Politique de retour et remboursement",
   description: "Politique de retour et remboursement L'Instantané — 14 jours satisfait ou remboursé en cas de défaut de fabrication. Retour gratuit.",
+  alternates: { canonical: "/politique-de-retour" },
 };
 
 export default function PolitiqueRetourPage() {

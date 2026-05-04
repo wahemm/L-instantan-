@@ -5,6 +5,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Politique de Confidentialité",
   description: "Politique de confidentialité et gestion des données personnelles de L'Instantané.",
+  alternates: { canonical: "/politique-de-confidentialite" },
 };
 
 export default function PolitiqueConfidentialitePage() {

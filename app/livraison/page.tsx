@@ -5,6 +5,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Livraison",
   description: "Livraison L'Instantané — France, Belgique, Suisse, Luxembourg, Monaco. Délai 5 à 7 jours ouvrés, impression à la demande.",
+  alternates: { canonical: "/livraison" },
 };
 
 export default function LivraisonPage() {

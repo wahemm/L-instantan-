@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const COVER_PREVIEWS = [
   { id: "espagne",   name: "Espagne",   src: "/covers/Espagne.png" },

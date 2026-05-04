@@ -6,6 +6,7 @@ import Footer from "@/app/components/Footer";
 export const metadata: Metadata = {
   title: "Comment ça marche ?",
   description: "Créer ton album photo L'Instantané en 3 étapes : importe tes photos, personnalise ta couverture, et reçois ton livre imprimé chez toi en 5–7 jours.",
+  alternates: { canonical: "/comment-ca-marche" },
   openGraph: {
     title: "Comment ça marche ? — L'Instantané",
     description: "3 étapes simples pour créer et recevoir ton album photo premium.",

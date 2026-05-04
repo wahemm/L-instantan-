@@ -5,6 +5,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Contact & SAV",
   description: "Contacte L'Instantané par email ou Instagram. Une équipe réactive pour toute question sur ta commande d'album photo premium.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
