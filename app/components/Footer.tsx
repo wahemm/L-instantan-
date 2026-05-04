@@ -60,6 +60,7 @@ export default function Footer() {
               <li><Link href="/politique-de-retour" className="transition hover:text-white">Retours & remboursement</Link></li>
               <li><Link href="/contact" className="transition hover:text-white">Contact & SAV</Link></li>
               <li><Link href="/commandes" className="transition hover:text-white">Suivre ma commande</Link></li>
+              <li><Link href="/avis" className="transition hover:text-white">Laisser un avis</Link></li>
             </ul>
           </div>
 
