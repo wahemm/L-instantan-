@@ -26,6 +26,15 @@ function escape(s: string | undefined | null): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Allow only safe link schemes. Returns "#" for anything dangerous (javascript:, data:, vbscript:, etc.). */
+function safeUrl(url: string | undefined | null): string {
+  if (!url) return "#";
+  const trimmed = url.trim();
+  // Allow http(s), mailto, tel, and protocol-relative/path-relative.
+  if (/^(https?:|mailto:|tel:|\/|#)/i.test(trimmed)) return trimmed;
+  return "#";
+}
+
 /** Wraps inner HTML in the standard L'Instantané email shell (header + card + footer). */
 function wrap(innerHtml: string, preheader?: string): string {
   return `<!DOCTYPE html>
@@ -68,11 +77,11 @@ function wrap(innerHtml: string, preheader?: string): string {
 </html>`;
 }
 
-/** Primary CTA button — black pill, white text. */
+/** Primary CTA button — black pill, white text. URL is sanitized to prevent javascript:/data: schemes. */
 function ctaButton(label: string, href: string): string {
   return `<table width="100%" cellpadding="0" cellspacing="0">
     <tr><td align="center" style="padding-top:8px;">
-      <a href="${escape(href)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.04em;padding:14px 32px;border-radius:100px;font-family:Arial,sans-serif;">
+      <a href="${escape(safeUrl(href))}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.04em;padding:14px 32px;border-radius:100px;font-family:Arial,sans-serif;">
         ${escape(label)}
       </a>
     </td></tr>
@@ -231,8 +240,8 @@ export function buildAdminLuluFailureEmail(args: {
   <tr><td><strong>Session Stripe</strong></td><td>${escape(args.sessionId)}</td></tr>
   <tr><td><strong>Album</strong></td><td>${escape(args.albumTitle)}</td></tr>
   <tr><td><strong>Email client</strong></td><td>${escape(args.customerEmail || "N/A")}</td></tr>
-  <tr><td><strong>Interior PDF</strong></td><td><a href="${escape(args.interiorUrl)}">${escape(args.interiorUrl)}</a></td></tr>
-  <tr><td><strong>Cover PDF</strong></td><td><a href="${escape(args.coverUrl)}">${escape(args.coverUrl)}</a></td></tr>
+  <tr><td><strong>Interior PDF</strong></td><td><a href="${escape(safeUrl(args.interiorUrl))}">${escape(args.interiorUrl)}</a></td></tr>
+  <tr><td><strong>Cover PDF</strong></td><td><a href="${escape(safeUrl(args.coverUrl))}">${escape(args.coverUrl)}</a></td></tr>
 </table>
 <p>Merci de traiter cette commande manuellement.</p>
 </body></html>`,
