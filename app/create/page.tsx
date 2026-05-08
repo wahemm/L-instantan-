@@ -59,6 +59,10 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "argentine-2", name: "Argentine 2", category: "Voyage", src: "/covers/Argentine2.png" },
   { id: "belgique",    name: "Belgique",   category: "Voyage", src: "/covers/Belgique.png" },
   { id: "namibie-1",   name: "Namibie 1",  category: "Voyage", src: "/covers/namibie1.png" },
+  { id: "colombie",    name: "Colombie",   category: "Voyage", src: "/covers/colombie.png" },
+  { id: "egypte",      name: "Égypte",     category: "Voyage", src: "/covers/egypt.png" },
+  { id: "turquie",     name: "Turquie",    category: "Voyage", src: "/covers/turquie.png" },
+  { id: "istanbul",    name: "Istanbul",   category: "Voyage", src: "/covers/istanbul.png" },
 ];
 type LayoutId = "cover"|"full"|"two-h"|"two-v"|"three-top"|"three-left"|"grid4"|"photo-text"|"text-only";
 type PanelId = "photos"|"layouts"|"colors"|"text"|"stickers";

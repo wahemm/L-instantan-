@@ -43,6 +43,10 @@ const ILLUSTRATED_COVERS: IllustratedCover[] = [
   { id: "argentine-2", name: "Argentine 2", src: "/covers/Argentine2.png" },
   { id: "belgique",    name: "Belgique",   src: "/covers/Belgique.png" },
   { id: "namibie-1",   name: "Namibie 1",  src: "/covers/namibie1.png" },
+  { id: "colombie",    name: "Colombie",   src: "/covers/colombie.png" },
+  { id: "egypte",      name: "Égypte",     src: "/covers/egypt.png" },
+  { id: "turquie",     name: "Turquie",    src: "/covers/turquie.png" },
+  { id: "istanbul",    name: "Istanbul",   src: "/covers/istanbul.png" },
 ];
 
 export default function ShopPage() {
