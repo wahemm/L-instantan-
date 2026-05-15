@@ -56,11 +56,14 @@ export async function POST(req: NextRequest) {
 
     // ── Create Lulu print job ──
     if (interiorUrl && coverUrl) {
-      // Stripe Dahlia API (2026-03-25+) moved shipping_details into customer_details.
-      // Fall back to legacy top-level location for older sessions.
+      // Stripe Dahlia API (2026-03-25+) moved shipping_details into
+      // collected_information.shipping_details. Fall back to legacy top-level
+      // for older sessions, and customer_details as a secondary fallback.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sAny = session as any;
-      const shipping = (sAny.customer_details?.shipping_details ?? sAny.shipping_details) as { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } } | undefined;
+      const shipping = (sAny.collected_information?.shipping_details
+        ?? sAny.customer_details?.shipping_details
+        ?? sAny.shipping_details) as { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } } | undefined;
       const address = shipping?.address;
 
       if (address) {
