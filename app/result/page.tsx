@@ -451,15 +451,17 @@ function ResultContent() {
       setCheckoutStep("uploading");
       setProgress("Envoi des fichiers…");
       const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const formData = new FormData();
-      formData.append("interior", new File([interiorBlob], "interior.pdf", { type: "application/pdf" }));
-      formData.append("cover", new File([coverBlob], "cover.pdf", { type: "application/pdf" }));
-      formData.append("orderId", orderId);
 
-      const uploadRes = await fetch("/api/upload-pdf", { method: "POST", body: formData });
-      const uploadData = await uploadRes.json();
-      interiorUrl = uploadData.interiorUrl || "";
-      coverUrl = uploadData.coverUrl || "";
+      // Client-direct upload to Vercel Blob (bypasses 4.5 MB body limit on /api routes)
+      const { upload } = await import("@vercel/blob/client");
+      const coverFile = new File([coverBlob], "cover.pdf", { type: "application/pdf" });
+      const interiorFile = new File([interiorBlob], "interior.pdf", { type: "application/pdf" });
+      const [coverUp, interiorUp] = await Promise.all([
+        upload(`albums/${orderId}/cover.pdf`, coverFile, { access: "public", handleUploadUrl: "/api/upload-pdf" }),
+        upload(`albums/${orderId}/interior.pdf`, interiorFile, { access: "public", handleUploadUrl: "/api/upload-pdf" }),
+      ]);
+      interiorUrl = interiorUp.url;
+      coverUrl = coverUp.url;
     } catch (pdfErr) {
       console.error("PDF generation/upload failed:", pdfErr);
       // BLOCK checkout — paying without PDFs means the order can never be printed

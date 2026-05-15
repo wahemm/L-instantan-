@@ -129,16 +129,17 @@ export default function RescuePage() {
       );
       log("ok", `Interior PDF généré (${(interiorBlob.size / 1024).toFixed(0)} KB)`);
 
-      log("info", "Upload PDFs vers Vercel Blob…");
+      log("info", "Upload PDFs vers Vercel Blob (client-direct)…");
       const orderId = `rescue-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const fd = new FormData();
-      fd.append("interior", new File([interiorBlob], "interior.pdf", { type: "application/pdf" }));
-      fd.append("cover", new File([coverBlob], "cover.pdf", { type: "application/pdf" }));
-      fd.append("orderId", orderId);
-      const upRes = await fetch("/api/upload-pdf", { method: "POST", body: fd });
-      if (!upRes.ok) throw new Error(`Upload failed (${upRes.status})`);
-      const { interiorUrl, coverUrl } = await upRes.json();
-      if (!interiorUrl || !coverUrl) throw new Error("Upload returned empty URLs");
+      const { upload } = await import("@vercel/blob/client");
+      const coverFile = new File([coverBlob], "cover.pdf", { type: "application/pdf" });
+      const interiorFile = new File([interiorBlob], "interior.pdf", { type: "application/pdf" });
+      const [coverUp, interiorUp] = await Promise.all([
+        upload(`albums/${orderId}/cover.pdf`, coverFile, { access: "public", handleUploadUrl: "/api/upload-pdf" }),
+        upload(`albums/${orderId}/interior.pdf`, interiorFile, { access: "public", handleUploadUrl: "/api/upload-pdf" }),
+      ]);
+      const interiorUrl = interiorUp.url;
+      const coverUrl = coverUp.url;
       log("ok", "PDFs uploadés ✓");
       log("info", `  interior: ${interiorUrl}`);
       log("info", `  cover:    ${coverUrl}`);
