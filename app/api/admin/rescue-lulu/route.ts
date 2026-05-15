@@ -51,8 +51,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Stripe Dahlia API (2026-03-25+) moved shipping_details into customer_details.
+  // Fall back to legacy top-level location for older sessions.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shipping = (session as any).shipping_details as
+  const sAny = session as any;
+  const shipping = (sAny.customer_details?.shipping_details ?? sAny.shipping_details) as
     | { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; country?: string; postal_code?: string } }
     | undefined;
   const address = shipping?.address;
