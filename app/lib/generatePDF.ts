@@ -382,49 +382,12 @@ export async function generateLuluCoverPDF(
   ctx.fillRect(0, 0, W, H);
 
   if (coverPage.photos[0]) {
+    // The cover template is a spread image (back + spine + front).
+    // Draw it across the full Lulu cover.
     try {
       const img = await loadImage(coverPage.photos[0]);
       if (coverPage.coverHue) ctx.filter = `hue-rotate(${coverPage.coverHue}deg)`;
-
-      // Two cover types:
-      //   1) Illustrated template (path /covers/foo.png) — designed for the FRONT only.
-      //      Draw it on the front-cover panel preserving aspect ratio (no stretch).
-      //      Back + spine + wrap are filled with bgColor (already drawn above).
-      //   2) User-uploaded photo — fills the entire spread (legacy behavior).
-      const src = coverPage.photos[0];
-      const isIllustratedTemplate = typeof src === "string" && src.startsWith("/covers/");
-
-      if (isIllustratedTemplate) {
-        // Lulu A4 hardcover casewrap (0827X1169FCPRECW080CW444GXX) at ~26 pages
-        // yields a 1335×968 pt spread. Approx breakdown:
-        //   left wrap 54pt | back 595pt | spine ~5pt | front 595pt | right wrap 54pt
-        // Top/bottom wrap 54pt, visible 842pt.
-        // → front panel starts at ~49% of width, width ~45%.
-        const frontX = W * 0.494;
-        const frontW = W * 0.446;
-        const frontY = H * 0.056;
-        const frontH = H * 0.870;
-
-        // "Contain" fit — entire image fits inside front panel, no crop, no stretch.
-        const imgRatio = img.width / img.height;
-        const panelRatio = frontW / frontH;
-        let dw: number, dh: number, dx: number, dy: number;
-        if (imgRatio > panelRatio) {
-          dw = frontW;
-          dh = frontW / imgRatio;
-          dx = frontX;
-          dy = frontY + (frontH - dh) / 2;
-        } else {
-          dh = frontH;
-          dw = frontH * imgRatio;
-          dx = frontX + (frontW - dw) / 2;
-          dy = frontY;
-        }
-        ctx.drawImage(img, dx, dy, dw, dh);
-      } else {
-        // User photo cover — fill the full spread.
-        drawImageCover(ctx, img, 0, 0, W, H, 50, 50);
-      }
+      drawImageCover(ctx, img, 0, 0, W, H, 50, 50);
       ctx.filter = "none";
     } catch {
       // If image fails, just use background color
