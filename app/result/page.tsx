@@ -461,11 +461,30 @@ function ResultContent() {
       interiorUrl = uploadData.interiorUrl || "";
       coverUrl = uploadData.coverUrl || "";
     } catch (pdfErr) {
-      console.error("PDF generation/upload failed (proceeding to checkout anyway):", pdfErr);
-      // Continue to Stripe without PDFs — order will need manual PDF handling
+      console.error("PDF generation/upload failed:", pdfErr);
+      // BLOCK checkout — paying without PDFs means the order can never be printed
+      // (the Stripe webhook skips Lulu when interiorUrl/coverUrl are missing).
+      alert(
+        "La génération de ton album a échoué. Le paiement a été interrompu pour éviter de te facturer un album impossible à imprimer.\n\nDétail : " +
+        (pdfErr instanceof Error ? pdfErr.message : String(pdfErr)) +
+        "\n\nRéessaie, ou contacte-nous à linstantane.officiel@gmail.com en mentionnant ce message."
+      );
+      setCheckoutStep("idle");
+      setProgress("");
+      return;
     }
 
-    // Always redirect to Stripe checkout, even without PDFs
+    // Defense in depth: never proceed without both URLs even if upload returned 200 without payload
+    if (!interiorUrl || !coverUrl) {
+      console.error("Upload returned empty URLs", { interiorUrl, coverUrl });
+      alert(
+        "Erreur technique : les fichiers d'impression n'ont pas pu être préparés. Le paiement a été interrompu. Réessaie ou contacte-nous."
+      );
+      setCheckoutStep("idle");
+      setProgress("");
+      return;
+    }
+
     try {
       setCheckoutStep("redirecting");
       setProgress("Redirection vers le paiement…");

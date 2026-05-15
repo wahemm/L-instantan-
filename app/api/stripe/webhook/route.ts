@@ -107,7 +107,37 @@ export async function POST(req: NextRequest) {
         console.error("No shipping address found in Stripe session");
       }
     } else {
-      console.warn("No PDF URLs found in session metadata — skipping Lulu order");
+      console.error("⚠️ PAID SESSION WITHOUT PDFs — Lulu order NOT created, manual rescue required:", session.id);
+      // Critical alert: payment was taken but PDFs are missing. Without the URLs,
+      // the print job can never be created automatically. Notify admin immediately.
+      try {
+        const alertResend = getResend();
+        if (alertResend) {
+          await alertResend.emails.send({
+            from: FROM,
+            to: ADMIN_EMAIL,
+            subject: `[URGENT] Paiement reçu sans PDFs — Rescue requis pour ${session.id}`,
+            html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#0f172a;">
+<h2>Paiement reçu sans PDFs — Rescue requis</h2>
+<p>Le client a payé mais les URLs PDF (interiorUrl/coverUrl) sont absentes du metadata.
+La création du job Lulu a été <strong>skippée</strong>. Il faut traiter cette commande manuellement.</p>
+<hr />
+<table cellpadding="6">
+  <tr><td><strong>Session Stripe</strong></td><td>${session.id}</td></tr>
+  <tr><td><strong>Email client</strong></td><td>${email ?? "N/A"}</td></tr>
+  <tr><td><strong>Nom</strong></td><td>${name || "N/A"}</td></tr>
+  <tr><td><strong>Album</strong></td><td>${albumTitle}</td></tr>
+  <tr><td><strong>Montant</strong></td><td>${amountPaid}</td></tr>
+</table>
+<p style="margin-top:20px;"><a href="https://linstantane.fr/admin/rescue" style="display:inline-block;background:#0f172a;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Lancer le rescue →</a></p>
+<p>Sur la page de rescue, colle l'ID de session ci-dessus et l'outil regénèrera les PDFs depuis l'IndexedDB du client (à exécuter depuis le navigateur du client) ou depuis ton propre navigateur si tu as accès aux mêmes sources.</p>
+</body></html>`,
+          });
+          console.log(`[Webhook] Admin rescue alert sent for ${session.id}`);
+        }
+      } catch (alertErr) {
+        console.error("[Webhook] Failed to send rescue alert email:", alertErr);
+      }
     }
   }
 
