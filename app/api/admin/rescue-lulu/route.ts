@@ -3,10 +3,14 @@ import Stripe from "stripe";
 import { currentUser } from "@clerk/nextjs/server";
 import { createPrintJob } from "@/app/lib/lulu";
 
-const ADMIN_EMAILS = new Set([
-  "hbbhugo.thomas@gmail.com",
-  "linstantane.officiel@gmail.com",
-]);
+// Admin allowlist. Override via env (comma-separated emails) for prod;
+// fallback retains the original list for dev/back-compat.
+const ADMIN_EMAILS = new Set(
+  (process.env.ADMIN_EMAILS ?? "hbbhugo.thomas@gmail.com,linstantane.officiel@gmail.com")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
   httpClient: Stripe.createNodeHttpClient(),

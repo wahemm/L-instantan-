@@ -18,20 +18,20 @@ export default function Error({
           Une erreur est survenue
         </h1>
         <p className="mx-auto mt-4 max-w-sm text-slate-500">
-          Quelque chose ne s&apos;est pas pass&eacute; comme pr&eacute;vu. Tu peux r&eacute;essayer ou revenir &agrave; l&apos;accueil.
+          Quelque chose ne s&apos;est pas passé comme prévu. Tu peux réessayer ou revenir à l&apos;accueil.
         </p>
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
           <button
             onClick={() => reset()}
             className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
           >
-            R&eacute;essayer
+            Réessayer
           </button>
           <Link
             href="/"
             className="inline-flex items-center justify-center rounded-full border border-gray-200 px-8 py-3 text-sm font-medium text-slate-600 transition hover:border-slate-400"
           >
-            Retour &agrave; l&apos;accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
       </div>
