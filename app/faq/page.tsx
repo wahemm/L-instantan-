@@ -35,8 +35,8 @@ const FAQS = [
         a: "Ton album est imprimé et livré sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
       },
       {
-        q: "Livrez-vous en dehors de France ?",
-        a: "Oui — nous livrons en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. Si tu habites ailleurs, écris-nous : on étudie chaque demande au cas par cas.",
+        q: "Livraison en dehors de France ?",
+        a: "Oui — on livre en France métropolitaine, Belgique, Suisse, Luxembourg et Monaco. Si tu habites ailleurs, écris-nous : on étudie chaque demande au cas par cas.",
       },
     ],
   },
@@ -49,7 +49,7 @@ const FAQS = [
       },
       {
         q: "Comment fonctionne le paiement ?",
-        a: "Le paiement est géré par Stripe, la référence mondiale en matière de paiement sécurisé en ligne. Nous acceptons Visa, Mastercard et Apple Pay. Aucune donnée bancaire n'est stockée sur nos serveurs.",
+        a: "Le paiement est géré par Stripe, la référence mondiale en matière de paiement sécurisé en ligne. On accepte Visa, Mastercard et Apple Pay. Aucune donnée bancaire n'est stockée sur nos serveurs.",
       },
     ],
   },
@@ -61,7 +61,7 @@ const FAQS = [
         a: "Oui. Si le rendu ne te convient pas, tu disposes de 14 jours après réception pour nous contacter. On te rembourse intégralement, sans condition ni question.",
       },
       {
-        q: "Mes photos sont-elles stockées sur vos serveurs ?",
+        q: "Mes photos sont-elles stockées quelque part ?",
         a: "Non. Tes photos sont traitées localement dans ton navigateur et ne sont jamais envoyées ni stockées sur nos serveurs. Tes souvenirs restent les tiens, en toute confidentialité.",
       },
       {
