@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { calculateCost } from "@/app/lib/lulu";
 
 const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
 const stripe = new Stripe(stripeKey, {
@@ -17,6 +18,22 @@ function calculatePrice(pageCount: number): number {
   return BASE_PRICE_CENTS + extraPages * EXTRA_PER_PAGE_CENTS;
 }
 
+/** Recompute shipping server-side instead of trusting the client. Falls back
+ *  to a sane default (5.90€) if Lulu API is unreachable so checkout never
+ *  blocks on a transient outage. */
+async function calculateShippingCents(pageCount: number, countryCode: string): Promise<number> {
+  try {
+    // Lulu requires even page count
+    const luluPageCount = pageCount % 2 === 0 ? pageCount : pageCount + 1;
+    const result = await calculateCost(Math.max(24, luluPageCount), countryCode);
+    const shipping = parseFloat(result.shipping_cost?.total_cost_incl_tax ?? "0");
+    if (shipping > 0 && shipping < 100) return Math.round(shipping * 100);
+  } catch (err) {
+    console.error("[Checkout] Shipping recalc failed, using fallback:", err);
+  }
+  return 590; // 5.90 € fallback
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -25,8 +42,11 @@ export async function POST(req: NextRequest) {
     const albumTitle = (body.albumTitle as string)?.slice(0, 200) || "Mon Album";
     const interiorUrl = (body.interiorUrl as string) || "";
     const coverUrl = (body.coverUrl as string) || "";
-    const shippingCents = typeof body.shippingCents === "number" ? Math.max(0, Math.round(body.shippingCents)) : 0;
     const shippingCountry = (body.shippingCountry as string)?.slice(0, 2).toUpperCase() || "FR";
+
+    // Recompute shipping cost server-side. Never trust the client value: a
+    // tampered request could send shippingCents=0 for an expensive country.
+    const shippingCents = await calculateShippingCents(pageCount, shippingCountry);
 
     // Validate PDF URLs (must be https Vercel Blob URLs)
     if (interiorUrl && !interiorUrl.startsWith("https://")) {
