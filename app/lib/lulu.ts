@@ -99,7 +99,7 @@ export async function calculateCost(pageCount: number, countryCode = "FR") {
         postcode,
         phone_number: "+33600000000",
       },
-      shipping_option: "MAIL",
+      shipping_option: "PRIORITY_MAIL",
     }),
   });
   if (!res.ok) {
@@ -142,7 +142,7 @@ export async function createPrintJob(params: {
         interior: { source_url: params.interiorUrl },
         cover: { source_url: params.coverUrl },
       }],
-      shipping_level: "MAIL",
+      shipping_level: "PRIORITY_MAIL",
       shipping_address: {
         name: params.shippingAddress.name,
         street1: params.shippingAddress.street1,
@@ -169,4 +169,54 @@ export async function getPrintJob(printJobId: string) {
   const res = await luluFetch(`/print-jobs/${printJobId}/`);
   if (!res.ok) throw new Error(`Get print job failed: ${res.status}`);
   return res.json();
+}
+
+/** Find print jobs by external ID (= Stripe session ID) */
+export async function findPrintJobsByExternalId(externalId: string) {
+  const res = await luluFetch(`/print-jobs/?external_id=${encodeURIComponent(externalId)}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.results ?? [];
+}
+
+/** Batch-fetch Lulu statuses for multiple session IDs.
+ *  Returns a Map<sessionId, { status, trackingId?, trackingUrl?, carrier? }> */
+export async function batchLuluStatuses(sessionIds: string[]) {
+  const result = new Map<string, {
+    status: string;
+    luluJobId?: number;
+    trackingId?: string;
+    trackingUrl?: string;
+    carrier?: string;
+  }>();
+
+  // Fetch in parallel (max 5 concurrent to not overload Lulu)
+  const chunks: string[][] = [];
+  for (let i = 0; i < sessionIds.length; i += 5) {
+    chunks.push(sessionIds.slice(i, i + 5));
+  }
+
+  for (const chunk of chunks) {
+    const promises = chunk.map(async (sid) => {
+      try {
+        const jobs = await findPrintJobsByExternalId(sid);
+        if (jobs.length > 0) {
+          const job = jobs[0]; // Most recent
+          const lineItem = job.line_items?.[0];
+          result.set(sid, {
+            status: job.status?.name ?? "UNKNOWN",
+            luluJobId: job.id,
+            trackingId: lineItem?.tracking_id,
+            trackingUrl: lineItem?.tracking_urls?.[0],
+            carrier: lineItem?.carrier_name,
+          });
+        }
+      } catch {
+        // silently skip — order just won't show Lulu status
+      }
+    });
+    await Promise.all(promises);
+  }
+
+  return result;
 }
