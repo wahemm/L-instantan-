@@ -111,8 +111,9 @@ export default function PolitiqueConfidentialitePage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">8. Cookies</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p>Ce site utilise des cookies techniques strictement n&eacute;cessaires &agrave; son fonctionnement (authentification via Clerk, session utilisateur). Aucun cookie publicitaire ou de suivi n&apos;est d&eacute;pos&eacute; sans votre consentement.</p>
-            <p>Pour en savoir plus, consultez notre <Link href="/mentions-legales" className="underline hover:text-slate-900 transition">page mentions l&eacute;gales</Link>.</p>
+            <p><strong>Cookies essentiels (toujours actifs)</strong> &mdash; n&eacute;cessaires au fonctionnement du site : authentification via Clerk, session utilisateur, panier (stock&eacute; localement dans le navigateur).</p>
+            <p><strong>Cookies de mesure d&apos;audience (optionnels)</strong> &mdash; Vercel Analytics et Vercel Speed Insights, statistiques de fr&eacute;quentation et de performance, anonymis&eacute;es. Ces outils ne sont charg&eacute;s qu&apos;apr&egrave;s votre consentement explicite via la banni&egrave;re de cookies. Vous pouvez refuser sans alt&eacute;rer le fonctionnement du site.</p>
+            <p>Pour modifier votre choix, effacez le cookie <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">cookie-consent</code> dans votre navigateur : la banni&egrave;re r&eacute;appara&icirc;tra &agrave; la prochaine visite.</p>
           </div>
         </section>
 
