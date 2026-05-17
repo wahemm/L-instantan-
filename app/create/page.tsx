@@ -188,18 +188,51 @@ const DEFAULT_PAGES: EditorPage[] = [
 
 // ── Image resize ───────────────────────────────────────────────────────
 async function resizeImage(file: File, maxSize = 1200): Promise<string> {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
+    // Reject early on unsupported formats (HEIC/HEIF won't load in most browsers)
+    if (!file.type.startsWith("image/")) {
+      return reject(new Error(`Fichier non supporté: ${file.name} (${file.type || "type inconnu"})`));
+    }
+
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    let settled = false;
+
+    // Safety timeout — corrupted or unsupported images can leave onload/onerror
+    // both unfired (browser quirk). Without this, the editor would hang silently.
+    const timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
       URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL("image/jpeg", 0.88));
+      reject(new Error(`Image trop longue à charger ou format non supporté: ${file.name}`));
+    }, 30_000);
+
+    img.onload = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      try {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", 0.88));
+      } catch (err) {
+        URL.revokeObjectURL(url);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      }
     };
+
+    img.onerror = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      URL.revokeObjectURL(url);
+      reject(new Error(`Impossible de lire l'image: ${file.name}. Si c'est un fichier HEIC (iPhone), convertis-le en JPG ou PNG d'abord.`));
+    };
+
     img.src = url;
   });
 }
@@ -910,7 +943,18 @@ export default function CreatePage() {
 
   const addLibraryFiles = useCallback(async (files: FileList|null) => {
     if (!files) return;
-    const resized = await Promise.all(Array.from(files).map(f=>resizeImage(f)));
+    // Use allSettled so one bad image doesn't reject the whole batch
+    const results = await Promise.allSettled(Array.from(files).map(f => resizeImage(f)));
+    const resized: string[] = [];
+    const failures: string[] = [];
+    results.forEach((r, idx) => {
+      if (r.status === "fulfilled") resized.push(r.value);
+      else failures.push(`• ${files[idx].name}: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`);
+    });
+    if (failures.length > 0) {
+      alert(`${failures.length} image(s) n'ont pas pu être chargées:\n\n${failures.join("\n")}`);
+    }
+    if (resized.length === 0) return;
     // 1. Add to library (so user can drag/reuse them)
     setLibrary(p=>[...p,...resized]);
     // 2. Build a list of new pages auto-distributed with random layouts
@@ -982,7 +1026,21 @@ export default function CreatePage() {
   async function handleBulkImport(files: FileList | null) {
     if (!files || files.length === 0) return;
     setBulkImporting(true);
-    const resized = await Promise.all(Array.from(files).map(f => resizeImage(f)));
+    // Use allSettled so one bad image doesn't reject the whole batch
+    const results = await Promise.allSettled(Array.from(files).map(f => resizeImage(f)));
+    const resized: string[] = [];
+    const failures: string[] = [];
+    results.forEach((r, idx) => {
+      if (r.status === "fulfilled") resized.push(r.value);
+      else failures.push(`• ${files[idx].name}: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`);
+    });
+    if (failures.length > 0) {
+      alert(`${failures.length} image(s) n'ont pas pu être chargées:\n\n${failures.join("\n")}`);
+    }
+    if (resized.length === 0) {
+      setBulkImporting(false);
+      return;
+    }
 
     // Also add to library for manual repositioning later
     setLibrary(p => [...p, ...resized]);
