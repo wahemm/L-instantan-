@@ -20,12 +20,21 @@ function calculatePrice(pageCount: number): number {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const pageCount = typeof body.pageCount === "number" ? body.pageCount : INCLUDED_PAGES;
-    const albumTitle = (body.albumTitle as string) || "Mon Album";
+    const rawPageCount = typeof body.pageCount === "number" ? body.pageCount : INCLUDED_PAGES;
+    const pageCount = Math.min(Math.max(Math.round(rawPageCount), 2), 400); // Lulu supports 2-400 pages
+    const albumTitle = (body.albumTitle as string)?.slice(0, 200) || "Mon Album";
     const interiorUrl = (body.interiorUrl as string) || "";
     const coverUrl = (body.coverUrl as string) || "";
-    const shippingCents = typeof body.shippingCents === "number" ? body.shippingCents : 0;
-    const shippingCountry = (body.shippingCountry as string) || "FR";
+    const shippingCents = typeof body.shippingCents === "number" ? Math.max(0, Math.round(body.shippingCents)) : 0;
+    const shippingCountry = (body.shippingCountry as string)?.slice(0, 2).toUpperCase() || "FR";
+
+    // Validate PDF URLs (must be https Vercel Blob URLs)
+    if (interiorUrl && !interiorUrl.startsWith("https://")) {
+      return NextResponse.json({ error: "Invalid interior URL" }, { status: 400 });
+    }
+    if (coverUrl && !coverUrl.startsWith("https://")) {
+      return NextResponse.json({ error: "Invalid cover URL" }, { status: 400 });
+    }
 
     const origin = req.headers.get("origin") ?? "http://localhost:3000";
     const albumCents = calculatePrice(pageCount);
