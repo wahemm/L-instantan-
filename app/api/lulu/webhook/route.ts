@@ -11,7 +11,7 @@ const FROM = "L'Instantané <contact@linstantane.fr>";
 const ADMIN_EMAIL = "linstantane.officiel@gmail.com";
 
 function getResend() {
-  const key = process.env.RESEND_API_KEY;
+  const key = (process.env.RESEND_API_KEY ?? "").trim();
   if (!key || key.includes("placeholder")) return null;
   return new Resend(key);
 }
@@ -23,13 +23,27 @@ async function fetchStripeSession(externalId: string) {
 }
 
 /**
- * POST /api/lulu/webhook
+ * POST /api/lulu/webhook?secret=LULU_WEBHOOK_SECRET
  * Receives status updates from Lulu when a print job changes state.
  * Statuses: CREATED → UNPAID → PAYMENT_IN_PROGRESS → PRODUCTION_READY
  *           → IN_PRODUCTION → SHIPPED → DELIVERED
  * Or failure: REJECTED / ERROR / CANCELED
+ *
+ * Lulu does not sign webhooks (no HMAC), so we protect with a shared
+ * secret passed as a query parameter. Configure the Lulu webhook URL as:
+ *   https://linstantane.fr/api/lulu/webhook?secret=YOUR_SECRET
  */
 export async function POST(req: NextRequest) {
+  // ── Auth: verify shared secret ──
+  const webhookSecret = (process.env.LULU_WEBHOOK_SECRET ?? "").trim();
+  if (webhookSecret) {
+    const providedSecret = req.nextUrl.searchParams.get("secret") ?? "";
+    if (providedSecret !== webhookSecret) {
+      console.warn("[Lulu Webhook] Invalid secret — rejecting request");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   try {
     const body = await req.json();
 
