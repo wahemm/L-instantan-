@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
@@ -391,8 +391,15 @@ function ResultContent() {
     fetchShippingCost(shippingCountry);
   }
 
+  // useRef-based reentrancy guard. React state updates are async, so two rapid
+  // clicks on "Pay" can both pass `disabled={isProcessing}` before the state
+  // flush. A ref flips synchronously, so the second call returns immediately.
+  const checkoutInFlightRef = useRef(false);
+
   async function onCheckout() {
     if (!album || album.type !== "manual") return;
+    if (checkoutInFlightRef.current) return;
+    checkoutInFlightRef.current = true;
 
     setCheckoutStep("generating-cover");
     setProgress("Préparation…");
@@ -473,6 +480,7 @@ function ResultContent() {
       );
       setCheckoutStep("idle");
       setProgress("");
+      checkoutInFlightRef.current = false;
       return;
     }
 
@@ -484,6 +492,7 @@ function ResultContent() {
       );
       setCheckoutStep("idle");
       setProgress("");
+      checkoutInFlightRef.current = false;
       return;
     }
 
@@ -515,7 +524,11 @@ function ResultContent() {
       alert("Impossible de créer la session de paiement. Veuillez réessayer.");
       setCheckoutStep("idle");
       setProgress("");
+      checkoutInFlightRef.current = false;
     }
+    // Note: on success we redirect to Stripe — the ref stays true, which is
+    // fine because the page unloads. If user clicks "Back" after redirect,
+    // the component re-mounts with a fresh ref.
   }
 
   const isProcessing = checkoutStep !== "idle" && checkoutStep !== "summary";
