@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { frFR } from "@clerk/localizations";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import AnalyticsGate from "@/app/components/AnalyticsGate";
 import CookieBanner from "@/app/components/CookieBanner";
 import "./globals.css";
 
@@ -114,8 +113,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             }}
           />
           {children}
-          <Analytics />
-          <SpeedInsights />
+          <AnalyticsGate />
           <CookieBanner />
         </body>
       </html>
