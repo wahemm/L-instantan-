@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
+import { batchLuluStatuses } from "@/app/lib/lulu";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
+  httpClient: Stripe.createNodeHttpClient(),
+});
 
 export async function GET() {
   const { userId } = await auth();
@@ -21,19 +24,38 @@ export async function GET() {
     const sessions = await stripe.checkout.sessions.list({
       customer: customers.data[0].id,
       limit: 20,
-      expand: ["data.line_items"],
     });
 
-    const orders = sessions.data
-      .filter(s => s.payment_status === "paid")
-      .map(s => ({
+    const paidSessions = sessions.data.filter(s => s.payment_status === "paid");
+
+    // Fetch Lulu statuses in parallel
+    let luluStatuses = new Map<string, { status: string; luluJobId?: number; trackingId?: string; trackingUrl?: string; carrier?: string }>();
+    try {
+      luluStatuses = await batchLuluStatuses(paidSessions.map(s => s.id));
+    } catch {
+      // Lulu API down — still return orders without status
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const orders = paidSessions.map((s: any) => {
+      // Stripe Dahlia API (2026-03-25+) moved shipping_details
+      const shipping = s.collected_information?.shipping_details
+        ?? s.customer_details?.shipping_details
+        ?? s.shipping_details;
+      const lulu = luluStatuses.get(s.id);
+
+      return {
         id: s.id,
         date: new Date(s.created * 1000).toISOString(),
         amount: s.amount_total ? s.amount_total / 100 : 0,
         albumTitle: s.metadata?.albumTitle ?? "Mon Album",
         pageCount: s.metadata?.pageCount ?? "24",
-        status: "En cours de production",
-      }));
+        status: lulu?.status ?? "CREATED",
+        trackingUrl: lulu?.trackingUrl,
+        carrier: lulu?.carrier,
+        shippingCity: shipping?.address?.city ?? "",
+      };
+    });
 
     return NextResponse.json({ orders });
   } catch (err) {

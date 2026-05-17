@@ -3,12 +3,16 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
+import Footer from "@/app/components/Footer";
 import Stripe from "stripe";
+import { batchLuluStatuses } from "@/app/lib/lulu";
 
 export const metadata: Metadata = {
   title: "Mes commandes — L'Instantané",
   robots: { index: false, follow: false },
 };
+
+// ── Types ───────────────────────────────────────────────────────────────
 
 interface Order {
   id: string;
@@ -19,7 +23,37 @@ interface Order {
   shippingName: string;
   shippingCity: string;
   shippingCountry: string;
+  luluStatus?: string;
+  luluJobId?: number;
+  trackingId?: string;
+  trackingUrl?: string;
+  carrier?: string;
 }
+
+// ── Status helpers ──────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; sub: string; color: string; dot: string }> = {
+  CREATED:              { label: "Commande reçue",         sub: "En attente de traitement",       color: "text-blue-700",    dot: "bg-blue-400" },
+  UNPAID:               { label: "En attente de paiement", sub: "Paiement Lulu en cours",         color: "text-amber-700",   dot: "bg-amber-400" },
+  PAYMENT_IN_PROGRESS:  { label: "Paiement en cours",      sub: "Validation par Lulu",            color: "text-amber-700",   dot: "bg-amber-400" },
+  PRODUCTION_READY:     { label: "Prêt pour impression",   sub: "Ton album va bientôt être imprimé", color: "text-indigo-700",  dot: "bg-indigo-400" },
+  IN_PRODUCTION:        { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs", color: "text-indigo-700", dot: "bg-indigo-400 animate-pulse" },
+  SHIPPED:              { label: "Expédié",                sub: "Ton album est en route !",       color: "text-emerald-700", dot: "bg-emerald-400" },
+  DELIVERED:            { label: "Livré",                  sub: "Profite bien de ton album !",    color: "text-emerald-700", dot: "bg-emerald-500" },
+  REJECTED:             { label: "Rejeté",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
+  ERROR:                { label: "Erreur",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
+  CANCELED:             { label: "Annulé",                 sub: "Cette commande a été annulée",   color: "text-slate-500",   dot: "bg-slate-400" },
+};
+
+const PROGRESS_STEPS = ["CREATED", "PRODUCTION_READY", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
+
+function getStepIndex(status: string): number {
+  if (status === "UNPAID" || status === "PAYMENT_IN_PROGRESS") return 0;
+  const idx = PROGRESS_STEPS.indexOf(status);
+  return idx >= 0 ? idx : 0;
+}
+
+// ── Data fetching ───────────────────────────────────────────────────────
 
 async function fetchOrders(email: string): Promise<Order[]> {
   const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
@@ -47,24 +81,43 @@ async function fetchOrders(email: string): Promise<Order[]> {
 
   allSessions.sort((a, b) => b.created - a.created);
 
+  // Fetch Lulu statuses for all sessions
+  const sessionIds = allSessions.map((s) => s.id);
+  let luluStatuses = new Map<string, { status: string; luluJobId?: number; trackingId?: string; trackingUrl?: string; carrier?: string }>();
+  try {
+    luluStatuses = await batchLuluStatuses(sessionIds);
+  } catch {
+    // If Lulu API is down, still show orders without status
+  }
+
+  // Stripe Dahlia API (2026-03-25+) moved shipping_details into
+  // collected_information.shipping_details.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return allSessions.map((session: any) => ({
-    id: session.id,
-    albumTitle: session.metadata?.albumTitle ?? "Mon Album",
-    pageCount: Number(session.metadata?.pageCount ?? 24),
-    amount: session.amount_total ?? 0,
-    createdAt: session.created,
-    shippingName:
-      session.shipping_details?.name ??
-      session.customer_details?.name ??
-      "",
-    shippingCity: session.shipping_details?.address?.city ?? "",
-    shippingCountry:
-      session.shipping_details?.address?.country ??
-      session.metadata?.shippingCountry ??
-      "FR",
-  }));
+  return allSessions.map((session: any) => {
+    const shipping = session.collected_information?.shipping_details
+      ?? session.customer_details?.shipping_details
+      ?? session.shipping_details;
+    const lulu = luluStatuses.get(session.id);
+
+    return {
+      id: session.id,
+      albumTitle: session.metadata?.albumTitle ?? "Mon Album",
+      pageCount: Number(session.metadata?.pageCount ?? 24),
+      amount: session.amount_total ?? 0,
+      createdAt: session.created,
+      shippingName: shipping?.name ?? session.customer_details?.name ?? "",
+      shippingCity: shipping?.address?.city ?? "",
+      shippingCountry: shipping?.address?.country ?? session.metadata?.shippingCountry ?? "FR",
+      luluStatus: lulu?.status,
+      luluJobId: lulu?.luluJobId,
+      trackingId: lulu?.trackingId,
+      trackingUrl: lulu?.trackingUrl,
+      carrier: lulu?.carrier,
+    };
+  });
 }
+
+// ── Formatters ──────────────────────────────────────────────────────────
 
 function formatDate(timestamp: number): string {
   return new Date(timestamp * 1000).toLocaleDateString("fr-FR", {
@@ -80,6 +133,8 @@ function formatAmount(cents: number): string {
     currency: "EUR",
   });
 }
+
+// ── Page ─────────────────────────────────────────────────────────────────
 
 export default async function CommandesPage() {
   const { userId } = await auth();
@@ -125,65 +180,103 @@ export default async function CommandesPage() {
               href="/create"
               className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
             >
-              Créer mon album →
+              Créer mon album
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            {orders.map((order) => (
-              <article
-                key={order.id}
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  {/* Left: order info */}
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">📖</span>
-                      <h2 className="font-[family-name:var(--font-playfair)] text-lg text-slate-900">
-                        {order.albumTitle}
-                      </h2>
+          <div className="flex flex-col gap-5">
+            {orders.map((order) => {
+              const statusKey = order.luluStatus ?? "CREATED";
+              const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.CREATED;
+              const stepIdx = getStepIndex(statusKey);
+              const isFailure = ["REJECTED", "ERROR", "CANCELED"].includes(statusKey);
+
+              return (
+                <article
+                  key={order.id}
+                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    {/* Left: order info */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">📖</span>
+                        <h2 className="font-[family-name:var(--font-playfair)] text-lg text-slate-900">
+                          {order.albumTitle}
+                        </h2>
+                      </div>
+                      <p className="text-sm text-slate-500 pl-9">
+                        {order.pageCount} pages · Album A4 couverture rigide
+                      </p>
+                      {order.shippingCity && (
+                        <p className="text-sm text-slate-400 pl-9">
+                          Livré à {order.shippingName && `${order.shippingName}, `}{order.shippingCity}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-sm text-slate-500 pl-9">
-                      {order.pageCount} pages · Album A4 couverture rigide
-                    </p>
-                    {order.shippingCity && (
-                      <p className="text-sm text-slate-400 pl-9">
-                        Livré à {order.shippingName && `${order.shippingName}, `}{order.shippingCity}
+
+                    {/* Right: amount + date */}
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className="font-semibold text-slate-900 text-lg">
+                        {formatAmount(order.amount)}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {formatDate(order.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Status section */}
+                  <div className="mt-5 pt-5 border-t border-gray-100">
+                    {/* Status label */}
+                    <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex h-2.5 w-2.5 rounded-full ${config.dot}`} />
+                        <span className={`text-sm font-semibold ${config.color}`}>
+                          {config.label}
+                        </span>
+                        <span className="text-sm text-slate-400">— {config.sub}</span>
+                      </div>
+                      {order.trackingUrl && (
+                        <a
+                          href={order.trackingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition underline underline-offset-2"
+                        >
+                          Suivre le colis {order.carrier ? `(${order.carrier})` : ""}
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Progress bar (only for non-failure statuses) */}
+                    {!isFailure && (
+                      <div className="flex items-center gap-1">
+                        {PROGRESS_STEPS.map((step, i) => (
+                          <div
+                            key={step}
+                            className={`h-1.5 flex-1 rounded-full transition-colors ${
+                              i <= stepIdx ? "bg-emerald-400" : "bg-slate-100"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Delivery estimate */}
+                    {!isFailure && statusKey !== "DELIVERED" && statusKey !== "SHIPPED" && (
+                      <p className="text-xs text-slate-400 mt-3">
+                        Livraison estimée sous 5–7 jours ouvrés
                       </p>
                     )}
                   </div>
-
-                  {/* Right: amount + date */}
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <span className="font-semibold text-slate-900 text-lg">
-                      {formatAmount(order.amount)}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {formatDate(order.createdAt)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Status bar */}
-                <div className="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                    <span className="text-sm font-medium text-slate-700">
-                      Commande confirmée
-                    </span>
-                    <span className="text-sm text-slate-400">— en cours de fabrication</span>
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Livraison prévue sous 5–7 jours ouvrés
-                  </p>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
 
-        {/* Footer links */}
+        {/* Help links */}
         <div className="mt-10 flex flex-wrap gap-4 text-sm text-slate-500">
           <Link href="/faq" className="hover:text-slate-900 transition underline underline-offset-2">
             Questions fréquentes
@@ -195,18 +288,7 @@ export default async function CommandesPage() {
         </div>
       </div>
 
-      <footer className="border-t border-gray-100 bg-white py-10 mt-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-400 sm:flex-row">
-          <span className="font-[family-name:var(--font-playfair)] text-slate-900">L&apos;Instantané</span>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link href="/mentions-legales" className="transition hover:text-slate-700">Mentions légales</Link>
-            <Link href="/cgv" className="transition hover:text-slate-700">CGV</Link>
-            <Link href="/politique-de-confidentialite" className="transition hover:text-slate-700">Confidentialité</Link>
-            <Link href="/faq" className="transition hover:text-slate-700">FAQ</Link>
-          </div>
-          <span>&copy; 2026 L&apos;Instantané</span>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
