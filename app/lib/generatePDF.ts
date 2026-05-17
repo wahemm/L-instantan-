@@ -383,11 +383,35 @@ export async function generateLuluCoverPDF(
 
   if (coverPage.photos[0]) {
     // The cover template is a spread image (back + spine + front).
-    // Draw it across the full Lulu cover.
+    // Draw it across the full Lulu cover, using "contain" fit so nothing
+    // is cropped. The cover images are designed at ~1.44 ratio but Lulu's
+    // cover is ~1.38, so there would be a ~2% crop per side with "cover"
+    // fit — enough to clip edge text like "MARRAKECH". Instead we scale
+    // the image to fit entirely within the canvas (thin letterbox bands
+    // filled by bgColor are imperceptible on a matching background).
     try {
       const img = await loadImage(coverPage.photos[0]);
       if (coverPage.coverHue) ctx.filter = `hue-rotate(${coverPage.coverHue}deg)`;
-      drawImageCover(ctx, img, 0, 0, W, H, 50, 50);
+
+      // "contain" fit — scale to fit entirely, centered
+      const imgRatio = img.width / img.height;
+      const slotRatio = W / H;
+      let dw: number, dh: number, dx: number, dy: number;
+      if (imgRatio > slotRatio) {
+        // image wider → fit width, letterbox top/bottom
+        dw = W;
+        dh = Math.round(W / imgRatio);
+        dx = 0;
+        dy = Math.round((H - dh) / 2);
+      } else {
+        // image taller → fit height, pillarbox left/right
+        dh = H;
+        dw = Math.round(H * imgRatio);
+        dy = 0;
+        dx = Math.round((W - dw) / 2);
+      }
+      ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
+
       ctx.filter = "none";
     } catch {
       // If image fails, just use background color
