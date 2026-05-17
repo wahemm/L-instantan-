@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
           }
           return {
             allowedContentTypes: ["application/pdf"],
-            maximumSizeInBytes: 200 * 1024 * 1024, // 200 MB
+            // 100 MB is well above the largest legit PDF we generate (~60 MB
+            // for a 50-page album) but prevents using our endpoint to upload
+            // 200+ MB junk.
+            maximumSizeInBytes: 100 * 1024 * 1024,
           };
         },
         onUploadCompleted: async ({ blob }) => {

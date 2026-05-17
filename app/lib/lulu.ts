@@ -26,6 +26,7 @@ export async function getLuluToken(): Promise<string> {
       Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
     },
     body: "grant_type=client_credentials",
+    signal: AbortSignal.timeout(15_000),
   });
 
   if (!res.ok) {
@@ -43,6 +44,8 @@ export async function getLuluToken(): Promise<string> {
 
 async function luluFetch(path: string, options: RequestInit = {}) {
   const token = await getLuluToken();
+  // 20s default timeout so a wedged Lulu API doesn't hang our webhook /
+  // checkout requests forever (Vercel function limit is 60s).
   const res = await fetch(`${LULU_API_BASE}${path}`, {
     ...options,
     headers: {
@@ -50,6 +53,7 @@ async function luluFetch(path: string, options: RequestInit = {}) {
       Authorization: `Bearer ${token}`,
       ...options.headers,
     },
+    signal: options.signal ?? AbortSignal.timeout(20_000),
   });
   return res;
 }
