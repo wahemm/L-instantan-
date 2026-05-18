@@ -103,7 +103,7 @@ export async function calculateCost(pageCount: number, countryCode = "FR") {
         postcode,
         phone_number: "+33600000000",
       },
-      shipping_option: "PRIORITY_MAIL",
+      shipping_option: "MAIL",
     }),
   });
   if (!res.ok) {
@@ -146,7 +146,7 @@ export async function createPrintJob(params: {
         interior: { source_url: params.interiorUrl },
         cover: { source_url: params.coverUrl },
       }],
-      shipping_level: "PRIORITY_MAIL",
+      shipping_level: "MAIL",
       shipping_address: {
         name: params.shippingAddress.name,
         street1: params.shippingAddress.street1,
