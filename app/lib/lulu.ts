@@ -204,17 +204,31 @@ export async function batchLuluStatuses(sessionIds: string[]) {
     const promises = chunk.map(async (sid) => {
       try {
         const jobs = await findPrintJobsByExternalId(sid);
-        if (jobs.length > 0) {
-          const job = jobs[0]; // Most recent
-          const lineItem = job.line_items?.[0];
-          result.set(sid, {
-            status: job.status?.name ?? "UNKNOWN",
-            luluJobId: job.id,
-            trackingId: lineItem?.tracking_id,
-            trackingUrl: lineItem?.tracking_urls?.[0],
-            carrier: lineItem?.carrier_name,
-          });
-        }
+        if (jobs.length === 0) return;
+
+        // When a single Stripe session has multiple Lulu jobs (e.g. webhook
+        // created one that got cancelled, then admin rescue created a fresh
+        // one), we want the LIVE one — not the cancelled. Strategy:
+        //   1. Prefer non-cancelled / non-rejected / non-errored
+        //   2. Among those, prefer the most recently created (highest id)
+        //   3. Fall back to most recent job overall
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isDead = (j: any) => ["CANCELED", "REJECTED", "ERROR"].includes(j.status?.name);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const alive = jobs.filter((j: any) => !isDead(j));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pool: any[] = alive.length > 0 ? alive : jobs;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const job = pool.sort((a: any, b: any) => (b.id ?? 0) - (a.id ?? 0))[0];
+
+        const lineItem = job.line_items?.[0];
+        result.set(sid, {
+          status: job.status?.name ?? "UNKNOWN",
+          luluJobId: job.id,
+          trackingId: lineItem?.tracking_id,
+          trackingUrl: lineItem?.tracking_urls?.[0],
+          carrier: lineItem?.carrier_name,
+        });
       } catch {
         // silently skip — order just won't show Lulu status
       }

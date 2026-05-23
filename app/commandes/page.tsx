@@ -37,18 +37,23 @@ const STATUS_CONFIG: Record<string, { label: string; sub: string; color: string;
   UNPAID:               { label: "En attente de paiement", sub: "Paiement Lulu en cours",         color: "text-amber-700",   dot: "bg-amber-400" },
   PAYMENT_IN_PROGRESS:  { label: "Paiement en cours",      sub: "Validation par Lulu",            color: "text-amber-700",   dot: "bg-amber-400" },
   PRODUCTION_READY:     { label: "Prêt pour impression",   sub: "Ton album va bientôt être imprimé", color: "text-indigo-700",  dot: "bg-indigo-400" },
+  PRODUCTION_DELAYED:   { label: "Vérification en cours",  sub: "Notre imprimeur vérifie ton album avant lancement", color: "text-amber-700",   dot: "bg-amber-400 animate-pulse" },
   IN_PRODUCTION:        { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs", color: "text-indigo-700", dot: "bg-indigo-400 animate-pulse" },
+  MANUFACTURING:        { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs", color: "text-indigo-700", dot: "bg-indigo-400 animate-pulse" },
   SHIPPED:              { label: "Expédié",                sub: "Ton album est en route !",       color: "text-emerald-700", dot: "bg-emerald-400" },
   DELIVERED:            { label: "Livré",                  sub: "Profite bien de ton album !",    color: "text-emerald-700", dot: "bg-emerald-500" },
   REJECTED:             { label: "Rejeté",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
   ERROR:                { label: "Erreur",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
   CANCELED:             { label: "Annulé",                 sub: "Cette commande a été annulée",   color: "text-slate-500",   dot: "bg-slate-400" },
+  UNKNOWN:              { label: "Commande reçue",         sub: "En attente de traitement",       color: "text-blue-700",    dot: "bg-blue-400" },
 };
 
 const PROGRESS_STEPS = ["CREATED", "PRODUCTION_READY", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
 
 function getStepIndex(status: string): number {
   if (status === "UNPAID" || status === "PAYMENT_IN_PROGRESS") return 0;
+  if (status === "PRODUCTION_DELAYED") return 1; // between received and printing
+  if (status === "MANUFACTURING") return 2; // alias for IN_PRODUCTION
   const idx = PROGRESS_STEPS.indexOf(status);
   return idx >= 0 ? idx : 0;
 }
