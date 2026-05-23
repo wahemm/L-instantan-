@@ -1134,6 +1134,55 @@ export default function CreatePage() {
     setSelectedStickerId(null);
   }
 
+  /**
+   * Swap the cover artwork without resetting the rest of the album.
+   * Preserves all interior pages, title/subtitle text, photos library, etc.
+   * Resets coverHue to 0 because the new artwork has its own colors.
+   *
+   * For Collection covers with fixedPageCount, refuses the swap if the
+   * current page count exceeds the cap, and offers to auto-pad if it's
+   * under the cap (Collection covers require an exact match).
+   */
+  function changeCoverArtwork(newSrc: string) {
+    if (pages[0]?.photos[0] === newSrc) return; // already this cover
+    const newTpl = COVER_TEMPLATES.find(c => c.src === newSrc);
+    const cap = newTpl?.fixedPageCount;
+    const contentPageCount = pages.length - 1; // exclude cover
+
+    if (cap && contentPageCount > cap) {
+      alert(
+        `La couverture "${newTpl?.name}" est une couverture Collection figée à ${cap} pages de contenu.\n\n` +
+        `Ton album en a ${contentPageCount}. Supprime ${contentPageCount - cap} page(s) avant de pouvoir choisir cette couverture.`
+      );
+      return;
+    }
+    if (cap && contentPageCount < cap) {
+      const ok = confirm(
+        `La couverture "${newTpl?.name}" nécessite exactement ${cap} pages de contenu (tu en as ${contentPageCount}).\n\n` +
+        `Ajouter automatiquement les ${cap - contentPageCount} page(s) manquante(s) ?`
+      );
+      if (!ok) return;
+    }
+
+    snapshot();
+    setSelectedCover(newSrc);
+    setPages(prev => {
+      const next = [...prev];
+      next[0] = {
+        ...next[0],
+        photos: [newSrc],
+        coverHue: 0,
+      };
+      // Auto-pad to Collection page count if needed
+      if (cap && contentPageCount < cap) {
+        for (let i = contentPageCount; i < cap; i++) {
+          next.push(makePage("full"));
+        }
+      }
+      return next;
+    });
+  }
+
   function changeLayout(layoutId: LayoutId) {
     if (layoutId === "cover") return;
     snapshot();
@@ -1512,14 +1561,34 @@ export default function CreatePage() {
                     ))}
                   </div>
                   {isCoverPage && currentPage.photos[0] && (
-                    <div className="mt-3 border-t border-gray-100 pt-3">
-                      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
-                          <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
-                        ))}
+                    <>
+                      <div className="mt-3 border-t border-gray-100 pt-3">
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
+                            <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} className={`h-7 w-7 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110":"border-gray-200"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                      <div className="mt-3 border-t border-gray-100 pt-3">
+                        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Changer la couverture</p>
+                        <div className="grid grid-cols-4 gap-1.5 max-h-32 overflow-y-auto">
+                          {COVER_TEMPLATES.map(tpl=>(
+                            <button
+                              key={tpl.id}
+                              onClick={()=>changeCoverArtwork(tpl.src)}
+                              title={tpl.name}
+                              className={`relative overflow-hidden rounded-md border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900":"border-gray-200"}`}
+                              style={{aspectRatio:"2000/1389"}}
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={tpl.src} alt={tpl.name} className="h-full w-full object-cover"/>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="mt-1.5 text-[9px] text-slate-400">Tes pages restent intactes</p>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
@@ -1844,15 +1913,38 @@ export default function CreatePage() {
                       ))}
                     </div>
                     {isCoverPage && currentPage.photos[0] && (
-                      <div className="mt-5 border-t border-gray-100 pt-4">
-                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
-                        <div className="grid grid-cols-6 gap-2">
-                          {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
-                            <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
-                          ))}
+                      <>
+                        <div className="mt-5 border-t border-gray-100 pt-4">
+                          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Teinte de couverture</p>
+                          <div className="grid grid-cols-6 gap-2">
+                            {[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345].map(h=>(
+                              <button key={h} onClick={()=>{snapshot();updateCurrent({coverHue:h});}} title={`${h}°`} className={`h-8 w-8 rounded-full border-2 transition ${(currentPage.coverHue||0)===h?"border-slate-900 scale-110 shadow":"border-gray-200 hover:border-slate-400"}`} style={{background:`linear-gradient(135deg, hsl(${h},70%,60%), hsl(${h+30},70%,50%))`}}/>
+                            ))}
+                          </div>
+                          <p className="mt-2 text-[10px] text-slate-400">Change la teinte de l&apos;image de couverture</p>
                         </div>
-                        <p className="mt-2 text-[10px] text-slate-400">Change la teinte de l&apos;image de couverture</p>
-                      </div>
+                        <div className="mt-5 border-t border-gray-100 pt-4">
+                          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Changer la couverture</p>
+                          <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+                            {COVER_TEMPLATES.map(tpl=>(
+                              <button
+                                key={tpl.id}
+                                onClick={()=>changeCoverArtwork(tpl.src)}
+                                title={tpl.name}
+                                className={`relative overflow-hidden rounded-lg border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900 shadow":"border-gray-200 hover:border-slate-400"}`}
+                                style={{aspectRatio:"2000/1389"}}
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={tpl.src} alt={tpl.name} className="h-full w-full object-cover"/>
+                                {tpl.premium && (
+                                  <span className="absolute top-0.5 right-0.5 rounded bg-amber-400 px-1 py-0.5 text-[7px] font-bold text-slate-900">PRO</span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="mt-2 text-[10px] text-slate-400">Change le visuel — tes pages intérieures sont conservées</p>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}
