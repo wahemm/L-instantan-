@@ -308,25 +308,29 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          {/* Side imagery — full cover spreads in 2x2 grid, aligned */}
+          {/* Side imagery — front covers only (cropped from spread), 2x2 grid */}
           <div className="relative">
             <div className="grid grid-cols-2 gap-4">
-              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/covers/Espagne.png" alt="Album Espagne" className="h-full w-full object-cover" loading="lazy" />
-              </div>
-              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/covers/Italie.png" alt="Album Italie" className="h-full w-full object-cover" loading="lazy" />
-              </div>
-              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/covers/Marrakech.png" alt="Album Marrakech" className="h-full w-full object-cover" loading="lazy" />
-              </div>
-              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/covers/Miami.png" alt="Album Miami" className="h-full w-full object-cover" loading="lazy" />
-              </div>
+              {[
+                { src: "/covers/Espagne.png",   alt: "Album Espagne" },
+                { src: "/covers/Italie.png",    alt: "Album Italie" },
+                { src: "/covers/Marrakech.png", alt: "Album Marrakech" },
+                { src: "/covers/Miami.png",     alt: "Album Miami" },
+              ].map(({ src, alt }) => (
+                <div key={src} className="aspect-[3/4] overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+                  {/* Source PNGs are full spreads (back+spine+front). Crop to
+                      show only the front-cover (right half) by setting
+                      width:200% + objectPosition:100% center. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={alt}
+                    className="h-full object-cover"
+                    style={{ width: "200%", objectPosition: "100% center" }}
+                    loading="lazy"
+                  />
+                </div>
+              ))}
             </div>
             {/* Glow */}
             <div className="pointer-events-none absolute -inset-10 -z-10 rounded-full opacity-40 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(180,140,255,0.3) 0%, transparent 70%)" }} />
