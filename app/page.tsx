@@ -308,22 +308,22 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          {/* Side imagery */}
+          {/* Side imagery — full cover spreads in 2x2 grid, aligned */}
           <div className="relative">
             <div className="grid grid-cols-2 gap-4">
-              <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/covers/Espagne.png" alt="Album Espagne" className="h-full w-full object-cover" loading="lazy" />
               </div>
-              <div className="mt-8 aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/covers/Italie.png" alt="Album Italie" className="h-full w-full object-cover" loading="lazy" />
               </div>
-              <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/covers/Marrakech.png" alt="Album Marrakech" className="h-full w-full object-cover" loading="lazy" />
               </div>
-              <div className="mt-8 aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]">
+              <div className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:scale-[1.02]" style={{ aspectRatio: "2000/1389" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/covers/Miami.png" alt="Album Miami" className="h-full w-full object-cover" loading="lazy" />
               </div>
