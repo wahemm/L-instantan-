@@ -187,7 +187,10 @@ const DEFAULT_PAGES: EditorPage[] = [
 ];
 
 // ── Image resize ───────────────────────────────────────────────────────
-async function resizeImage(file: File, maxSize = 1200): Promise<string> {
+// Default maxSize 2000px — minimum for sharp full-A4 print at 300 DPI.
+// (A4 width at 300 DPI = 2480px; 2000px covers most layouts with mild
+// upscaling on full-page photos. Lower causes visibly soft prints.)
+async function resizeImage(file: File, maxSize = 2000): Promise<string> {
   return new Promise((resolve, reject) => {
     // Reject early on unsupported formats (HEIC/HEIF won't load in most browsers)
     if (!file.type.startsWith("image/")) {

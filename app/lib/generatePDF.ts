@@ -124,6 +124,11 @@ async function renderPage(
 ): Promise<void> {
   const GAP = 2;
 
+  // High-quality image smoothing — preserves photo sharpness during the
+  // scale-up to print resolution (otherwise interior photos look soft).
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
   // Background
   ctx.fillStyle = page.bgColor || "#ffffff";
   ctx.fillRect(0, 0, W, H);
@@ -296,7 +301,7 @@ export async function generateAlbumPDF(
     ctx.clearRect(0, 0, W, H);
     await renderPage(ctx, pages[i], W, H, albumTitle);
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
     if (i > 0) pdf.addPage();
     pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
   }
@@ -342,7 +347,7 @@ export async function generateLuluInteriorPDF(
     ctx.clearRect(0, 0, W, H);
     await renderPage(ctx, interiorPages[i], W, H, albumTitle);
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
     if (i > 0) pdf.addPage();
     pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
   }
@@ -367,15 +372,32 @@ export async function generateLuluCoverPDF(
   coverWidthPt: number,
   coverHeightPt: number,
 ): Promise<Blob> {
-  // Convert points to pixels at 150 DPI (lower to avoid canvas size limits in browsers)
-  const DPI = 150;
-  const W = Math.round((coverWidthPt / 72) * DPI);
-  const H = Math.round((coverHeightPt / 72) * DPI);
+  // Cover DPI tuning: Lulu recommends 300 DPI, but a full A4 spread at 300
+  // DPI = ~22 MP which exceeds Safari iOS's 16 MP canvas hard limit (PDFs
+  // would silently fail). 200 DPI = ~10 MP, well under the limit and a clear
+  // visible upgrade over the old 150 DPI baseline (4× more pixels).
+  // If we detect a canvas-size failure, we'll fall back to 150 DPI.
+  let DPI = 200;
+  let W = Math.round((coverWidthPt / 72) * DPI);
+  let H = Math.round((coverHeightPt / 72) * DPI);
+  // Safari iOS hard ceiling — be defensive
+  if (W * H > 16_000_000) {
+    DPI = 150;
+    W = Math.round((coverWidthPt / 72) * DPI);
+    H = Math.round((coverHeightPt / 72) * DPI);
+  }
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
+
+  // Crank canvas image quality to "high" — preserves sharpness when we
+  // scale the cover PNG up to the print-resolution canvas. Default "low"
+  // smoothing was making text/illustration edges look soft on the printed
+  // cover.
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   // Fill background
   ctx.fillStyle = coverPage.bgColor || "#0f172a";
@@ -449,7 +471,7 @@ export async function generateLuluCoverPDF(
         blob.arrayBuffer().then(buf => resolve(new Uint8Array(buf)));
       },
       "image/jpeg",
-      0.95
+      0.97  // High quality for the cover — most visible part of the album
     );
   });
 
