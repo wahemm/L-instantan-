@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { auth } from "@clerk/nextjs/server";
 
 /**
  * POST /api/upload-pdf
@@ -16,6 +17,12 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
  *     and back-compat. Will 413 on large payloads.
  */
 export async function POST(req: NextRequest) {
+  // Seuls les utilisateurs connectés peuvent uploader des PDFs
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const contentType = req.headers.get("content-type") || "";
 
   // ── New flow: client-direct upload to Vercel Blob ──

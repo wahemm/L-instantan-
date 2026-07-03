@@ -34,14 +34,17 @@ async function fetchStripeSession(externalId: string) {
  *   https://linstantane.fr/api/lulu/webhook?secret=YOUR_SECRET
  */
 export async function POST(req: NextRequest) {
-  // ── Auth: verify shared secret ──
+  // ── Auth: verify shared secret (obligatoire) ──
   const webhookSecret = (process.env.LULU_WEBHOOK_SECRET ?? "").trim();
-  if (webhookSecret) {
-    const providedSecret = req.nextUrl.searchParams.get("secret") ?? "";
-    if (providedSecret !== webhookSecret) {
-      console.warn("[Lulu Webhook] Invalid secret — rejecting request");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!webhookSecret) {
+    // Secret non configuré — refuser toutes les requêtes pour la sécurité
+    console.error("[Lulu Webhook] LULU_WEBHOOK_SECRET non configuré — requête rejetée");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+  const providedSecret = req.nextUrl.searchParams.get("secret") ?? "";
+  if (providedSecret !== webhookSecret) {
+    console.warn("[Lulu Webhook] Secret invalide — requête rejetée");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
