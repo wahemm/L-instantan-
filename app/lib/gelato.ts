@@ -16,7 +16,9 @@ const GELATO_PRODUCT_API = "https://product.gelatoapis.com";
 export const GELATO_PRODUCT_UID =
   "photobooks-hardcover_pf_210x280-mm-8x11-inch_pt_170-gsm-65lb-coated-silk_cl_4-4_ccl_4-4_bt_glued-left_ct_matt-lamination_prt_1-0_cpt_130-gsm-65-lb-cover-coated-silk_ver";
 
-// Gelato requires at least 32 interior pages for this hardcover product
+// Gelato's hard limits for this hardcover product are 28–200 interior pages.
+// We use 32 as our floor (safely above the 28 minimum, matches INCLUDED_PAGES
+// in pricing.ts) and always round up to an even count.
 export const GELATO_MIN_PAGES = 32;
 
 // Cover dimensions for GELATO_MIN_PAGES (32 pages), used as fallback
@@ -51,10 +53,12 @@ export async function getGelatoCoverDimensions(pageCount: number): Promise<{
   );
 
   try {
-    // Primary: GET product cover-dimensions endpoint
+    // Primary: GET product cover-dimensions endpoint.
+    // NOTE: the Gelato Product API is v3 (the Orders API is v4 — they version
+    // independently). Using v4 here returns 404 and silently falls back.
     const key = (process.env.GELATO_API_KEY ?? "").trim();
     const res = await fetch(
-      `${GELATO_PRODUCT_API}/v4/products/${GELATO_PRODUCT_UID}/cover-dimensions?pageCount=${safeCount}`,
+      `${GELATO_PRODUCT_API}/v3/products/${GELATO_PRODUCT_UID}/cover-dimensions?pageCount=${safeCount}`,
       {
         headers: { "X-API-KEY": key },
         signal: AbortSignal.timeout(15_000),
