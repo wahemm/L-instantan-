@@ -35,6 +35,53 @@ export interface PDFPage {
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
+/**
+ * Samples the average color of each edge of an image (top/bottom/left/right).
+ * Used to fill letterbox bands so they blend seamlessly with the cover image.
+ *
+ * Strategy: draw each edge into a 1-px-tall/wide strip on a tiny offscreen
+ * canvas, then average the RGB values. Runs in <1ms even for large images.
+ */
+async function sampleEdgeColors(img: HTMLImageElement): Promise<{
+  top: string; bottom: string; left: string; right: string;
+}> {
+  const SAMPLES = 60; // pixels to average along each edge
+
+  const c = document.createElement("canvas");
+  const cx = c.getContext("2d")!;
+
+  function avg(data: Uint8ClampedArray): string {
+    let r = 0, g = 0, b = 0;
+    const n = data.length / 4;
+    for (let i = 0; i < data.length; i += 4) {
+      r += data[i]; g += data[i + 1]; b += data[i + 2];
+    }
+    return `rgb(${Math.round(r / n)},${Math.round(g / n)},${Math.round(b / n)})`;
+  }
+
+  // Top edge — sample first row of pixels
+  c.width = SAMPLES; c.height = 1;
+  cx.drawImage(img, 0, 0, img.width, 1, 0, 0, SAMPLES, 1);
+  const top = avg(cx.getImageData(0, 0, SAMPLES, 1).data);
+
+  // Bottom edge — sample last row of pixels
+  cx.clearRect(0, 0, SAMPLES, 1);
+  cx.drawImage(img, 0, img.height - 1, img.width, 1, 0, 0, SAMPLES, 1);
+  const bottom = avg(cx.getImageData(0, 0, SAMPLES, 1).data);
+
+  // Left edge — sample first column of pixels
+  c.width = 1; c.height = SAMPLES;
+  cx.drawImage(img, 0, 0, 1, img.height, 0, 0, 1, SAMPLES);
+  const left = avg(cx.getImageData(0, 0, 1, SAMPLES).data);
+
+  // Right edge — sample last column of pixels
+  cx.clearRect(0, 0, 1, SAMPLES);
+  cx.drawImage(img, img.width - 1, 0, 1, img.height, 0, 0, 1, SAMPLES);
+  const right = avg(cx.getImageData(0, 0, 1, SAMPLES).data);
+
+  return { top, bottom, left, right };
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -409,10 +456,19 @@ export async function generateLuluCoverPDF(
     // is cropped. The cover images are designed at ~1.44 ratio but Lulu's
     // cover is ~1.38, so there would be a ~2% crop per side with "cover"
     // fit — enough to clip edge text like "MARRAKECH". Instead we scale
-    // the image to fit entirely within the canvas (thin letterbox bands
-    // filled by bgColor are imperceptible on a matching background).
+    // the image to fit entirely within the canvas.
+    //
+    // The letterbox bands (top/bottom when the image is wider than the canvas)
+    // are filled with the sampled average color of the adjacent image edge so
+    // they blend seamlessly — no visible color mismatch even without bleed.
     try {
       const img = await loadImage(coverPage.photos[0]);
+
+      // Sample edge colors BEFORE applying any hue filter so the samples
+      // represent the raw image pixels. The filter will also be applied to
+      // the fillRect calls, so the sampled colors + filter = correct match.
+      const edgeColors = await sampleEdgeColors(img);
+
       if (coverPage.coverHue) ctx.filter = `hue-rotate(${coverPage.coverHue}deg)`;
 
       // "contain" fit — scale to fit entirely, centered
@@ -425,15 +481,29 @@ export async function generateLuluCoverPDF(
         dh = Math.round(W / imgRatio);
         dx = 0;
         dy = Math.round((H - dh) / 2);
+        // Fill top/bottom bands with the image's own edge color
+        if (dy > 0) {
+          ctx.fillStyle = edgeColors.top;
+          ctx.fillRect(0, 0, W, dy);
+          ctx.fillStyle = edgeColors.bottom;
+          ctx.fillRect(0, dy + dh, W, H - dy - dh);
+        }
       } else {
         // image taller → fit height, pillarbox left/right
         dh = H;
         dw = Math.round(H * imgRatio);
         dy = 0;
         dx = Math.round((W - dw) / 2);
+        // Fill left/right bands with the image's own edge color
+        if (dx > 0) {
+          ctx.fillStyle = edgeColors.left;
+          ctx.fillRect(0, 0, dx, H);
+          ctx.fillStyle = edgeColors.right;
+          ctx.fillRect(dx + dw, 0, W - dx - dw, H);
+        }
       }
-      ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
 
+      ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
       ctx.filter = "none";
     } catch {
       // If image fails, just use background color
