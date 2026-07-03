@@ -5,7 +5,7 @@ import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
 import Stripe from "stripe";
-import { batchLuluStatuses } from "@/app/lib/lulu";
+import { batchGelatoStatuses } from "@/app/lib/gelato";
 
 export const metadata: Metadata = {
   title: "Mes commandes — L'Instantané",
@@ -23,37 +23,29 @@ interface Order {
   shippingName: string;
   shippingCity: string;
   shippingCountry: string;
-  luluStatus?: string;
-  luluJobId?: number;
-  trackingId?: string;
+  gelatoStatus?: string;
+  trackingCode?: string;
   trackingUrl?: string;
-  carrier?: string;
 }
 
-// ── Status helpers ──────────────────────────────────────────────────────
+// ── Status helpers (Gelato statuses are lowercase) ─────────────────────
 
 const STATUS_CONFIG: Record<string, { label: string; sub: string; color: string; dot: string }> = {
-  CREATED:              { label: "Commande reçue",         sub: "En attente de traitement",       color: "text-blue-700",    dot: "bg-blue-400" },
-  UNPAID:               { label: "En attente de paiement", sub: "Paiement Lulu en cours",         color: "text-amber-700",   dot: "bg-amber-400" },
-  PAYMENT_IN_PROGRESS:  { label: "Paiement en cours",      sub: "Validation par Lulu",            color: "text-amber-700",   dot: "bg-amber-400" },
-  PRODUCTION_READY:     { label: "Prêt pour impression",   sub: "Ton album va bientôt être imprimé", color: "text-indigo-700",  dot: "bg-indigo-400" },
-  PRODUCTION_DELAYED:   { label: "Vérification en cours",  sub: "Notre imprimeur vérifie ton album avant lancement", color: "text-amber-700",   dot: "bg-amber-400 animate-pulse" },
-  IN_PRODUCTION:        { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs", color: "text-indigo-700", dot: "bg-indigo-400 animate-pulse" },
-  MANUFACTURING:        { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs", color: "text-indigo-700", dot: "bg-indigo-400 animate-pulse" },
-  SHIPPED:              { label: "Expédié",                sub: "Ton album est en route !",       color: "text-emerald-700", dot: "bg-emerald-400" },
-  DELIVERED:            { label: "Livré",                  sub: "Profite bien de ton album !",    color: "text-emerald-700", dot: "bg-emerald-500" },
-  REJECTED:             { label: "Rejeté",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
-  ERROR:                { label: "Erreur",                 sub: "Un problème est survenu — contacte-nous", color: "text-red-700", dot: "bg-red-400" },
-  CANCELED:             { label: "Annulé",                 sub: "Cette commande a été annulée",   color: "text-slate-500",   dot: "bg-slate-400" },
-  UNKNOWN:              { label: "Commande reçue",         sub: "En attente de traitement",       color: "text-blue-700",    dot: "bg-blue-400" },
+  // Gelato statuses
+  created:          { label: "Commande reçue",         sub: "En attente de traitement",                           color: "text-blue-700",    dot: "bg-blue-400" },
+  draft:            { label: "Brouillon",               sub: "Commande en cours de préparation",                  color: "text-slate-500",   dot: "bg-slate-400" },
+  pending_approval: { label: "En attente",              sub: "Vérification en cours",                             color: "text-amber-700",   dot: "bg-amber-400 animate-pulse" },
+  passed:           { label: "Acceptée",                sub: "Ton album va être envoyé en impression",            color: "text-indigo-700",  dot: "bg-indigo-400" },
+  in_production:    { label: "En cours d'impression",  sub: "Ton album est entre les mains de nos imprimeurs",   color: "text-indigo-700",  dot: "bg-indigo-400 animate-pulse" },
+  shipped:          { label: "Expédié",                 sub: "Ton album est en route !",                          color: "text-emerald-700", dot: "bg-emerald-400" },
+  delivered:        { label: "Livré",                   sub: "Profite bien de ton album !",                       color: "text-emerald-700", dot: "bg-emerald-500" },
+  failed:           { label: "Erreur",                  sub: "Un problème est survenu — contacte-nous",          color: "text-red-700",     dot: "bg-red-400" },
+  canceled:         { label: "Annulé",                  sub: "Cette commande a été annulée",                     color: "text-slate-500",   dot: "bg-slate-400" },
 };
 
-const PROGRESS_STEPS = ["CREATED", "PRODUCTION_READY", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
+const PROGRESS_STEPS = ["created", "passed", "in_production", "shipped", "delivered"];
 
 function getStepIndex(status: string): number {
-  if (status === "UNPAID" || status === "PAYMENT_IN_PROGRESS") return 0;
-  if (status === "PRODUCTION_DELAYED") return 1; // between received and printing
-  if (status === "MANUFACTURING") return 2; // alias for IN_PRODUCTION
   const idx = PROGRESS_STEPS.indexOf(status);
   return idx >= 0 ? idx : 0;
 }
@@ -86,13 +78,13 @@ async function fetchOrders(email: string): Promise<Order[]> {
 
   allSessions.sort((a, b) => b.created - a.created);
 
-  // Fetch Lulu statuses for all sessions
+  // Fetch Gelato statuses for all sessions
   const sessionIds = allSessions.map((s) => s.id);
-  let luluStatuses = new Map<string, { status: string; luluJobId?: number; trackingId?: string; trackingUrl?: string; carrier?: string }>();
+  let gelatoStatuses = new Map<string, { status: string; gelatoOrderId?: string; trackingCode?: string; trackingUrl?: string }>();
   try {
-    luluStatuses = await batchLuluStatuses(sessionIds);
+    gelatoStatuses = await batchGelatoStatuses(sessionIds);
   } catch {
-    // If Lulu API is down, still show orders without status
+    // If Gelato API is down, still show orders without status
   }
 
   // Stripe Dahlia API (2026-03-25+) moved shipping_details into
@@ -102,22 +94,20 @@ async function fetchOrders(email: string): Promise<Order[]> {
     const shipping = session.collected_information?.shipping_details
       ?? session.customer_details?.shipping_details
       ?? session.shipping_details;
-    const lulu = luluStatuses.get(session.id);
+    const gelato = gelatoStatuses.get(session.id);
 
     return {
       id: session.id,
       albumTitle: session.metadata?.albumTitle ?? "Mon Album",
-      pageCount: Number(session.metadata?.pageCount ?? 24),
+      pageCount: Number(session.metadata?.pageCount ?? 32),
       amount: session.amount_total ?? 0,
       createdAt: session.created,
       shippingName: shipping?.name ?? session.customer_details?.name ?? "",
       shippingCity: shipping?.address?.city ?? "",
       shippingCountry: shipping?.address?.country ?? session.metadata?.shippingCountry ?? "FR",
-      luluStatus: lulu?.status,
-      luluJobId: lulu?.luluJobId,
-      trackingId: lulu?.trackingId,
-      trackingUrl: lulu?.trackingUrl,
-      carrier: lulu?.carrier,
+      gelatoStatus: gelato?.status ?? "created",
+      trackingCode: gelato?.trackingCode,
+      trackingUrl: gelato?.trackingUrl,
     };
   });
 }
@@ -191,10 +181,10 @@ export default async function CommandesPage() {
         ) : (
           <div className="flex flex-col gap-5">
             {orders.map((order) => {
-              const statusKey = order.luluStatus ?? "CREATED";
-              const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.CREATED;
+              const statusKey = order.gelatoStatus ?? "created";
+              const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.created;
               const stepIdx = getStepIndex(statusKey);
-              const isFailure = ["REJECTED", "ERROR", "CANCELED"].includes(statusKey);
+              const isFailure = ["failed", "canceled"].includes(statusKey);
 
               return (
                 <article
@@ -211,7 +201,7 @@ export default async function CommandesPage() {
                         </h2>
                       </div>
                       <p className="text-sm text-slate-500 pl-9">
-                        {order.pageCount} pages · Album A4 couverture rigide
+                        {order.pageCount} pages · Album 21×28 cm couverture rigide
                       </p>
                       {order.shippingCity && (
                         <p className="text-sm text-slate-400 pl-9">
@@ -249,7 +239,7 @@ export default async function CommandesPage() {
                           rel="noopener noreferrer"
                           className="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition underline underline-offset-2"
                         >
-                          Suivre le colis {order.carrier ? `(${order.carrier})` : ""}
+                          Suivre le colis
                         </a>
                       )}
                     </div>

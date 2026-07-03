@@ -15,14 +15,11 @@ type Album =
   | { type: "auto"; title: string; subtitle: string; photos: string[] }
   | { type: "manual"; title: string; pages: EditorPage[] };
 
-// ── Collection covers with vectorial PDF sources ─────────────────────
-// When the client selects one of these covers, we skip the canvas/JPEG
-// pipeline and upload the source vector PDF directly to Lulu for max quality.
-const COLLECTION_PRINT_PDFS: Record<string, string> = {
-  "/covers/Namibie.png":  "/covers/Namibie-24p.pdf",
-  "/covers/Namibie2.png": "/covers/Namibie2-24p.pdf",
-  "/covers/Namibie3.png": "/covers/Namibie3-24p.pdf",
-};
+// ── Gelato constants ───────────────────────────────────────────────────
+const GELATO_MIN_PAGES = 32;
+// Default cover dimensions for 32 pages (from Gelato API, mm)
+const DEFAULT_COVER_WIDTH_MM = 478;
+const DEFAULT_COVER_HEIGHT_MM = 326;
 
 // ── Price calculation (single product) ────────────────────────────────
 const BASE_PRICE = 29;
@@ -407,50 +404,43 @@ function ResultContent() {
     let interiorUrl = "";
     let coverUrl = "";
 
-    // Try to generate and upload PDFs for Lulu printing
-    try {
-      const interiorPageCount = album.pages.length - 1;
-      const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
+    // Compute page count before the try block so we can pass it to Stripe checkout
+    const interiorPageCount = album.pages.length - 1;
+    const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
+    // Enforce Gelato's minimum of 32 interior pages
+    const safePageCount = Math.max(GELATO_MIN_PAGES, evenPageCount);
 
-      // Cover dimensions (fallback to 24-page defaults)
-      let coverWidthPt = 1368;
-      let coverHeightPt = 918;
+    // Try to generate and upload PDFs for Gelato printing
+    try {
+
+      // Cover dimensions from Gelato API (fallback to hardcoded 32-page defaults)
+      let coverWidthMm = DEFAULT_COVER_WIDTH_MM;
+      let coverHeightMm = DEFAULT_COVER_HEIGHT_MM;
       try {
-        const dimsRes = await fetch("/api/lulu/cover-dimensions", {
+        const dimsRes = await fetch("/api/gelato/cover-dimensions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pageCount: evenPageCount }),
+          body: JSON.stringify({ pageCount: safePageCount }),
         });
         if (dimsRes.ok) {
           const dims = await dimsRes.json();
-          const w = parseFloat(dims.width);
-          const h = parseFloat(dims.height);
-          if (w > 0 && h > 0) { coverWidthPt = w; coverHeightPt = h; }
+          const w = parseFloat(dims.widthMm);
+          const h = parseFloat(dims.heightMm);
+          if (w > 0 && h > 0) { coverWidthMm = w; coverHeightMm = h; }
         }
       } catch { /* use defaults */ }
 
       setProgress("Génération de la couverture…");
-      const { generateLuluCoverPDF, generateLuluInteriorPDF } = await import("@/app/lib/generatePDF");
+      const { generateGelatoCoverPDF, generateGelatoInteriorPDF } = await import("@/app/lib/generatePDF");
 
-      // If the client picked a Collection cover (vectorial source PDF available),
-      // skip canvas rasterization entirely and use the source PDF for perfect print quality.
-      const coverPhoto = (album.pages[0]?.photos?.[0] ?? "") as string;
-      const collectionPdfUrl = COLLECTION_PRINT_PDFS[coverPhoto];
-      let coverBlob: Blob;
-      if (collectionPdfUrl) {
-        const res = await fetch(collectionPdfUrl);
-        if (!res.ok) throw new Error(`Failed to fetch Collection cover PDF: ${collectionPdfUrl}`);
-        coverBlob = await res.blob();
-      } else {
-        coverBlob = await generateLuluCoverPDF(
-          album.pages[0], album.title || "Mon Album",
-          coverWidthPt, coverHeightPt
-        );
-      }
+      const coverBlob = await generateGelatoCoverPDF(
+        album.pages[0], album.title || "Mon Album",
+        coverWidthMm, coverHeightMm
+      );
 
       setCheckoutStep("generating-interior");
       setProgress("Génération des pages…");
-      const interiorBlob = await generateLuluInteriorPDF(
+      const interiorBlob = await generateGelatoInteriorPDF(
         album.pages, album.title || "Mon Album",
         (current, total) => setProgress(`Page ${current}/${total}…`)
       );
@@ -504,7 +494,7 @@ function ResultContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          pageCount,
+          pageCount: safePageCount,
           albumTitle: album.title || "Mon Album",
           interiorUrl,
           coverUrl,

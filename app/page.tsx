@@ -196,7 +196,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl divide-x divide-gray-100">
           <div className="grid grid-cols-2 sm:grid-cols-4">
             {[
-              { icon: <IconDocument />, label: "Format A4",         desc: "21 × 28 cm, portrait"       },
+              { icon: <IconDocument />, label: "Format 21×28 cm",   desc: "Portrait, couverture rigide" },
               { icon: <IconPhoto />,    label: "Papier photo",      desc: "170 g/m², finition brillante" },
               { icon: <IconBook />,     label: "Couverture rigide", desc: "Qualité premium"             },
               { icon: <IconTruck />,    label: "Livraison rapide",  desc: "France, 5–7 jours ouvrés"   },
@@ -234,7 +234,7 @@ export default function Home() {
                   <img
                     src={tpl.src} alt={tpl.name}
                     className="w-full object-cover"
-                    style={{ aspectRatio:"210/297", objectPosition:"right center" }}
+                    style={{ aspectRatio:"210/280", objectPosition:"right center" }}
                     loading="lazy"
                   />
                 </div>
@@ -444,7 +444,7 @@ export default function Home() {
               <ul className="mb-8 flex flex-col gap-3 text-left">
                 {[
                   "Livre imprimé finition premium",
-                  "Format A4 · Papier brillant 170 g/m²",
+                  "Format 21×28 cm · Papier brillant 170 g/m²",
                   "Livraison sous 5–7 jours ouvrés",
                   "Pour offrir ou garder",
                 ].map(p => (
@@ -516,9 +516,9 @@ export default function Home() {
             {[
               { q: "Combien de temps pour recevoir mon album ?",   a: "5 à 7 jours ouvrés en France métropolitaine. Fabrication en 2 à 3 jours, puis expédition en 2 à 4 jours." },
               { q: "Puis-je voir mon album avant de payer ?",      a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu." },
-              { q: "Quelle est la qualité du livre ?",             a: "Format A4 (21×28 cm), couverture rigide, papier photo brillant 170 g/m². Impression haute résolution, finition premium." },
+              { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché brillant 170 g/m². Impression haute résolution, finition premium Gelato." },
               { q: "Et si l'album ne me plaît pas ?",              a: "Satisfait ou remboursé sous 14 jours. Si l'album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement." },
-              { q: "Combien ça coûte vraiment ?",                  a: "29 € pour un album de 24 pages, puis 0,50 € par page supplémentaire. Frais de port calculés au paiement. Aucun abonnement, aucun frais caché." },
+              { q: "Combien ça coûte vraiment ?",                  a: "29 € pour un album de 32 pages, puis 0,50 € par page supplémentaire. Frais de port calculés au paiement. Aucun abonnement, aucun frais caché." },
             ].map((item, idx) => (
               <details key={idx} className="group px-7 py-5 transition hover:bg-slate-50/60 [&[open]]:bg-slate-50/80">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4">

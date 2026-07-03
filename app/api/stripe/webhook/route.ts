@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
-import { createPrintJob } from "@/app/lib/lulu";
+import { createGelatoOrder } from "@/app/lib/gelato";
 import { buildConfirmationEmail, buildAdminLuluFailureEmail } from "@/app/lib/emails";
 
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── Create Lulu print job ──
+    // ── Create Gelato print order ──
     if (interiorUrl && coverUrl) {
       // Stripe Dahlia API (2026-03-25+) moved shipping_details into
       // collected_information.shipping_details. Fall back to legacy top-level
@@ -67,14 +67,24 @@ export async function POST(req: NextRequest) {
       const address = shipping?.address;
 
       if (address) {
+        // Gelato needs separate firstName/lastName
+        const fullName = (shipping?.name || name || "Client").trim();
+        const nameParts = fullName.split(" ");
+        const firstName = nameParts[0] ?? "Client";
+        const lastName = nameParts.slice(1).join(" ") || firstName;
+
+        const pageCount = parseInt(session.metadata?.pageCount ?? "32", 10);
+
         try {
-          const printJob = await createPrintJob({
+          const order = await createGelatoOrder({
             externalId: session.id,
             title: albumTitle,
-            interiorUrl,
+            pageCount,
             coverUrl,
+            interiorUrl,
             shippingAddress: {
-              name: shipping?.name || name || "Client",
+              firstName,
+              lastName,
               street1: address.line1 || "",
               street2: address.line2 || "",
               city: address.city || "",
@@ -84,18 +94,17 @@ export async function POST(req: NextRequest) {
               phoneNumber: session.customer_details?.phone || "+33600000000",
               email: email || "",
             },
-            contactEmail: ADMIN_EMAIL,
           });
 
-          console.log(`Lulu print job created: ${printJob.id} for session ${session.id}`);
-        } catch (luluErr) {
-          console.error("Failed to create Lulu print job:", luluErr);
+          console.log(`Gelato order created: ${order.id} for session ${session.id}`);
+        } catch (gelatoErr) {
+          console.error("Failed to create Gelato order:", gelatoErr);
           // Alert admin via email
           try {
             const alertResend = getResend();
             if (alertResend) {
               const { subject, html } = buildAdminLuluFailureEmail({
-                errorMessage: luluErr instanceof Error ? luluErr.message : String(luluErr),
+                errorMessage: gelatoErr instanceof Error ? gelatoErr.message : String(gelatoErr),
                 sessionId: session.id,
                 albumTitle,
                 customerEmail: email ?? "",
@@ -103,7 +112,7 @@ export async function POST(req: NextRequest) {
                 coverUrl,
               });
               await alertResend.emails.send({ from: FROM, to: ADMIN_EMAIL, subject, html });
-              console.log(`Admin alert sent for failed Lulu job (session ${session.id})`);
+              console.log(`Admin alert sent for failed Gelato order (session ${session.id})`);
             }
           } catch (alertErr) {
             console.error("Failed to send admin alert email:", alertErr);
@@ -113,7 +122,7 @@ export async function POST(req: NextRequest) {
         console.error("No shipping address found in Stripe session");
       }
     } else {
-      console.error("⚠️ PAID SESSION WITHOUT PDFs — Lulu order NOT created, manual rescue required:", session.id);
+      console.error("⚠️ PAID SESSION WITHOUT PDFs — Gelato order NOT created, manual rescue required:", session.id);
       // Critical alert: payment was taken but PDFs are missing. Without the URLs,
       // the print job can never be created automatically. Notify admin immediately.
       try {
@@ -126,7 +135,7 @@ export async function POST(req: NextRequest) {
             html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#0f172a;">
 <h2>Paiement reçu sans PDFs — Rescue requis</h2>
 <p>Le client a payé mais les URLs PDF (interiorUrl/coverUrl) sont absentes du metadata.
-La création du job Lulu a été <strong>skippée</strong>. Il faut traiter cette commande manuellement.</p>
+La création de la commande Gelato a été <strong>skippée</strong>. Il faut traiter cette commande manuellement.</p>
 <hr />
 <table cellpadding="6">
   <tr><td><strong>Session Stripe</strong></td><td>${session.id}</td></tr>

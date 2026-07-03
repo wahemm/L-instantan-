@@ -1,4 +1,5 @@
-export const INCLUDED_PAGES = 24;
+// Gelato hardcover minimum is 32 pages — base price covers this count
+export const INCLUDED_PAGES = 32;
 
 export const PACKS = [
   {

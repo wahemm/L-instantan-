@@ -329,9 +329,9 @@ export async function generateAlbumPDF(
   albumTitle: string,
   onProgress?: (current: number, total: number) => void
 ): Promise<Blob> {
-  // A4 à 200dpi équivalent
+  // Gelato 210×280mm at 200dpi = 1654×2205px
   const W = 1654;
-  const H = 2339;
+  const H = 2205;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -340,7 +340,8 @@ export async function generateAlbumPDF(
 
   // Import dynamique de jspdf pour éviter le SSR
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  // Preview uses Gelato's 210×280mm format (not A4/297mm)
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [210, 280] });
 
   for (let i = 0; i < pages.length; i++) {
     onProgress?.(i + 1, pages.length);
@@ -350,33 +351,39 @@ export async function generateAlbumPDF(
 
     const imgData = canvas.toDataURL("image/jpeg", 0.95);
     if (i > 0) pdf.addPage();
-    pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
+    pdf.addImage(imgData, "JPEG", 0, 0, 210, 280);
   }
 
   return pdf.output("blob");
 }
 
 /**
- * Generate interior PDF for Lulu (A4, skip cover page)
- * All pages except the first (cover) page, at 300 DPI.
+ * Generate interior PDF for Gelato hardcover (210×280mm, 300 DPI).
+ * Skips the first (cover) page. Pads with blank pages to reach Gelato's
+ * 32-page minimum and ensures an even total count.
+ *
+ * Also exported under the legacy name `generateLuluInteriorPDF` for
+ * backward-compat with the admin rescue page.
  */
-export async function generateLuluInteriorPDF(
+export async function generateGelatoInteriorPDF(
   pages: PDFPage[],
   albumTitle: string,
   onProgress?: (current: number, total: number) => void
 ): Promise<Blob> {
-  // A4 at 300 DPI: 210×297mm = 2480×3508px
+  // Gelato hardcover 210×280mm at 300 DPI = 2480×3307px
   const W = 2480;
-  const H = 3508;
-  // A4 in mm
+  const H = 3307;
   const W_MM = 210;
-  const H_MM = 297;
+  const H_MM = 280;
+  const GELATO_MIN = 32;
 
   const interiorPages = pages.slice(1); // Skip cover
   if (interiorPages.length === 0) throw new Error("No interior pages");
 
-  // Lulu requires even page count
-  const needsBlank = interiorPages.length % 2 !== 0;
+  // Round up to even, then ensure at least GELATO_MIN pages
+  const evenCount = interiorPages.length % 2 === 0 ? interiorPages.length : interiorPages.length + 1;
+  const targetCount = Math.max(GELATO_MIN, evenCount);
+  const blankCount = targetCount - interiorPages.length;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -386,8 +393,9 @@ export async function generateLuluInteriorPDF(
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [W_MM, H_MM] });
 
-  const totalPages = interiorPages.length + (needsBlank ? 1 : 0);
+  const totalPages = targetCount;
 
+  // Render user content pages
   for (let i = 0; i < interiorPages.length; i++) {
     onProgress?.(i + 1, totalPages);
 
@@ -399,25 +407,55 @@ export async function generateLuluInteriorPDF(
     pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
   }
 
-  // Add blank page if needed for even count
-  if (needsBlank) {
+  // Pad with blank white pages to reach minimum
+  for (let i = 0; i < blankCount; i++) {
     pdf.addPage();
-    // Leave blank white page
+    // blank page — white by default
   }
 
   return pdf.output("blob");
 }
 
+// Legacy alias — keeps admin rescue page and any existing references working
+export const generateLuluInteriorPDF = generateGelatoInteriorPDF;
+
 /**
- * Generate cover PDF for Lulu.
- * Single landscape page: back cover + spine + front cover.
- * coverWidthPt and coverHeightPt come from the Lulu cover-dimensions API.
+ * Generate cover PDF for Gelato hardcover.
+ * Single landscape page encompassing the full wraparound:
+ *   [17mm wrap] [3mm bleed] [back cover 208mm] [spine ~6mm] [front cover 208mm] [3mm bleed] [17mm wrap]
+ *
+ * Dimensions come from the Gelato cover-dimensions API (or hardcoded fallback).
+ * Internally converts mm → pt for the PDF page size and px for the raster canvas.
  */
-export async function generateLuluCoverPDF(
+export async function generateGelatoCoverPDF(
+  coverPage: PDFPage,
+  albumTitle: string,
+  coverWidthMm: number,
+  coverHeightMm: number,
+): Promise<Blob> {
+  const MM_TO_PT = 72 / 25.4;
+  const coverWidthPt = coverWidthMm * MM_TO_PT;
+  const coverHeightPt = coverHeightMm * MM_TO_PT;
+  return _generateCoverPDF(coverPage, albumTitle, coverWidthPt, coverHeightPt);
+}
+
+// Legacy alias for existing callers that pass Lulu pt dimensions
+export const generateLuluCoverPDF = (
   coverPage: PDFPage,
   albumTitle: string,
   coverWidthPt: number,
   coverHeightPt: number,
+): Promise<Blob> => _generateCoverPDF(coverPage, albumTitle, coverWidthPt, coverHeightPt);
+
+/**
+ * Internal cover PDF renderer — takes dimensions in PDF points.
+ * Single landscape page: back cover + spine + front cover.
+ */
+async function _generateCoverPDF(
+  coverPage: PDFPage,
+  albumTitle: string,
+  coverWidthPt: number,
+  coverHeightPt: number
 ): Promise<Blob> {
   // Cover DPI tuning: Lulu recommends 300 DPI, but a full A4 spread at 300
   // DPI = ~22 MP which exceeds Safari iOS's 16 MP canvas hard limit (PDFs
