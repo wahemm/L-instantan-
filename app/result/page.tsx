@@ -364,7 +364,7 @@ function ResultContent() {
   async function fetchShippingCost(country: string) {
     setShippingLoading(true);
     try {
-      const res = await fetch("/api/lulu/shipping-cost", {
+      const res = await fetch("/api/gelato/shipping-cost", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pageCount: pageCount + (pageCount % 2 !== 0 ? 1 : 0), countryCode: country }),
@@ -462,7 +462,7 @@ function ResultContent() {
     } catch (pdfErr) {
       console.error("PDF generation/upload failed:", pdfErr);
       // BLOCK checkout — paying without PDFs means the order can never be printed
-      // (the Stripe webhook skips Lulu when interiorUrl/coverUrl are missing).
+      // (the Stripe webhook skips Gelato when interiorUrl/coverUrl are missing).
       alert(
         "La génération de ton album a échoué. Le paiement a été interrompu pour éviter de te facturer un album impossible à imprimer.\n\nDétail : " +
         (pdfErr instanceof Error ? pdfErr.message : String(pdfErr)) +

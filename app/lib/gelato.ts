@@ -86,6 +86,84 @@ export async function getGelatoCoverDimensions(pageCount: number): Promise<{
   };
 }
 
+// Representative postcodes per country. The customer's real address is only
+// collected by Stripe during checkout, so shipping is estimated from country
+// alone using a valid sample postcode. Unknown countries fall back to FR.
+const POSTCODE_BY_COUNTRY: Record<string, string> = {
+  FR: "75001", BE: "1000", LU: "1009", DE: "10115", CH: "8001",
+  ES: "28001", IT: "00118", NL: "1011", PT: "1000-001", GB: "SW1A 1AA",
+  IE: "D01 F5P2", AT: "1010", US: "10001", CA: "M5V 2T6",
+};
+
+/**
+ * Estimate the shipping cost (in EUR) for one hardcover album of the given
+ * interior page count, shipped to `countryCode`. Uses Gelato's read-only
+ * order-quote endpoint (no order is created, nothing is charged) and returns
+ * the cheapest available "normal" shipping method price.
+ *
+ * Returns null on any failure so the caller can apply its own fallback.
+ */
+export async function getGelatoShippingCost(
+  pageCount: number,
+  countryCode: string
+): Promise<number | null> {
+  const safeCount = Math.max(
+    GELATO_MIN_PAGES,
+    pageCount % 2 === 0 ? pageCount : pageCount + 1
+  );
+  const cc = (countryCode || "FR").toUpperCase();
+  const postCode = POSTCODE_BY_COUNTRY[cc] ?? POSTCODE_BY_COUNTRY.FR;
+
+  try {
+    const res = await fetch(`${GELATO_ORDER_API}/v4/orders:quote`, {
+      method: "POST",
+      headers: gelatoHeaders(),
+      body: JSON.stringify({
+        orderReferenceId: "shipping-estimate",
+        customerReferenceId: "shipping-estimate",
+        currency: "EUR",
+        allowMultipleQuotes: true,
+        recipient: {
+          country: cc,
+          firstName: "Estimation",
+          lastName: "Livraison",
+          addressLine1: "1 Rue Test",
+          city: "Ville",
+          postCode,
+          email: "estimation@linstantane.fr",
+        },
+        products: [
+          {
+            itemReferenceId: "shipping-estimate-item",
+            productUid: GELATO_PRODUCT_UID,
+            pageCount: safeCount,
+            quantity: 1,
+          },
+        ],
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      console.warn(`[Gelato] shipping quote returned ${res.status}`);
+      return null;
+    }
+    const data = await res.json();
+    const methods: Array<{ price?: number; type?: string }> =
+      data.quotes?.[0]?.shipmentMethods ?? [];
+    if (methods.length === 0) return null;
+    // Prefer "normal" methods (exclude express/pallet), fall back to any.
+    const normal = methods.filter((m) => m.type === "normal");
+    const pool = normal.length > 0 ? normal : methods;
+    const cheapest = pool.reduce((min, m) =>
+      (m.price ?? Infinity) < (min.price ?? Infinity) ? m : min
+    );
+    return typeof cheapest.price === "number" ? cheapest.price : null;
+  } catch (err) {
+    console.warn("[Gelato] shipping quote failed:", err);
+    return null;
+  }
+}
+
 /** Create a Gelato order after Stripe payment */
 export async function createGelatoOrder(params: {
   /** Stripe checkout session ID — used as order reference for tracing */
