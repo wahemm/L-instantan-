@@ -32,7 +32,7 @@ const FAQS = [
     items: [
       {
         q: "Quel est le délai de livraison ?",
-        a: "Ton album est imprimé et livré sous 5 à 7 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
+        a: "Ton album est imprimé et livré sous 7 à 12 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
       },
       {
         q: "Livraison en dehors de France ?",

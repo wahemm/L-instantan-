@@ -84,7 +84,7 @@ export default function Footer() {
             <span>·</span>
             <span>Satisfait ou remboursé</span>
             <span>·</span>
-            <span>Livraison rapide 5–7j</span>
+            <span>Livraison suivie 7–12j</span>
           </div>
         </div>
       </div>

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGelatoShippingCost } from "@/app/lib/gelato";
+import { getGelatoShippingQuote } from "@/app/lib/gelato";
 
 /**
  * POST /api/gelato/shipping-cost
  * Body: { pageCount: number, countryCode: string }
- * Returns: { shippingCost: number, currency: "EUR" }
+ * Returns: { shippingCost: number, minDeliveryDays?, maxDeliveryDays?, currency }
  *
  * Estimates shipping via Gelato's read-only order-quote endpoint. Falls back
- * to 5.90 € (≈ Gelato's cheapest France rate) so the summary UI never blocks
- * on a transient quote failure.
+ * to 8.60 € (≈ Gelato's tracked-standard France rate) so the summary UI never
+ * blocks on a transient quote failure.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -16,10 +16,12 @@ export async function POST(req: NextRequest) {
     const pc = typeof pageCount === "number" ? pageCount : 32;
     const cc = (typeof countryCode === "string" && countryCode) || "FR";
 
-    const quoted = await getGelatoShippingCost(pc, cc);
+    const quote = await getGelatoShippingQuote(pc, cc);
 
     return NextResponse.json({
-      shippingCost: quoted ?? 5.9,
+      shippingCost: quote?.price ?? 8.6,
+      minDeliveryDays: quote?.minDeliveryDays,
+      maxDeliveryDays: quote?.maxDeliveryDays,
       currency: "EUR",
     });
   } catch (err) {

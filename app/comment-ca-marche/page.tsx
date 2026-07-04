@@ -5,7 +5,7 @@ import Footer from "@/app/components/Footer";
 
 export const metadata: Metadata = {
   title: "Comment ça marche ?",
-  description: "Créer ton album photo L'Instantané en 3 étapes : importe tes photos, personnalise ta couverture, et reçois ton livre imprimé chez toi en 5–7 jours.",
+  description: "Créer ton album photo L'Instantané en 3 étapes : importe tes photos, personnalise ta couverture, et reçois ton livre imprimé chez toi en 7–12 jours.",
   alternates: { canonical: "/comment-ca-marche" },
   openGraph: {
     title: "Comment ça marche ? — L'Instantané",
@@ -40,7 +40,7 @@ const STEPS = [
     num: "04",
     emoji: "🚚",
     title: "Reçois ton livre",
-    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France en 5 à 7 jours ouvrés.",
+    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France en 7 à 12 jours ouvrés.",
     detail: "Emballage soigné, prêt à offrir.",
   },
 ];

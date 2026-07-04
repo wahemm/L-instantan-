@@ -5,7 +5,7 @@ import Footer from "@/app/components/Footer";
 
 export const metadata: Metadata = {
   title: "Qui sommes-nous ?",
-  description: "L'Instantané est une marque française d'albums photo premium. Papier brillant 170g/m², format A4, couverture rigide, imprimé en Europe et livré en 5–7 jours.",
+  description: "L'Instantané est une marque française d'albums photo premium. Papier brillant 170g/m², format A4, couverture rigide, imprimé en Europe et livré en 7–12 jours.",
   alternates: { canonical: "/qui-sommes-nous" },
   openGraph: {
     title: "Qui sommes-nous ? — L'Instantané",
@@ -100,7 +100,7 @@ export default function QuiSommesNousPage() {
             {[
               { value: "A4", label: "Format premium 21×28 cm" },
               { value: "170g", label: "Papier photo brillant" },
-              { value: "5–7j", label: "Délai de livraison" },
+              { value: "7–12j", label: "Délai de livraison" },
               { value: "14j", label: "Satisfait ou remboursé" },
             ].map((stat) => (
               <div

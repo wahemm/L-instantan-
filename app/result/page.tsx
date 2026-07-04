@@ -337,11 +337,19 @@ function ResultContent() {
     })();
   }, []);
 
-  const pageCount = album
+  const rawPageCount = album
     ? album.type === "manual"
       ? album.pages.filter(p => p.layoutId !== "cover").length
       : Math.ceil((album.photos?.length ?? 0) / 2)
     : INCLUDED_PAGES;
+
+  // Gelato prints an even number of interior pages, minimum 32. We bill for —
+  // and display — exactly what gets printed, so this price always equals the
+  // amount Stripe charges server-side (which floors the count identically).
+  const pageCount = Math.max(
+    GELATO_MIN_PAGES,
+    rawPageCount % 2 === 0 ? rawPageCount : rawPageCount + 1
+  );
 
   const price = formatPrice(calculatePrice(pageCount));
 
@@ -404,11 +412,9 @@ function ResultContent() {
     let interiorUrl = "";
     let coverUrl = "";
 
-    // Compute page count before the try block so we can pass it to Stripe checkout
-    const interiorPageCount = album.pages.length - 1;
-    const evenPageCount = interiorPageCount % 2 === 0 ? interiorPageCount : interiorPageCount + 1;
-    // Enforce Gelato's minimum of 32 interior pages
-    const safePageCount = Math.max(GELATO_MIN_PAGES, evenPageCount);
+    // Reuse the billable page count already shown to the user (even, floor 32)
+    // so the amount charged, the pages printed and the displayed price all agree.
+    const safePageCount = pageCount;
 
     // Try to generate and upload PDFs for Gelato printing
     try {
@@ -537,12 +543,12 @@ function ResultContent() {
               Commande confirmée !
             </h1>
             <p className="mx-auto mt-4 max-w-md text-slate-500">
-              Ton paiement a bien été reçu. Ton album est en cours de fabrication et sera livré sous 5 à 7 jours ouvrés.
+              Ton paiement a bien été reçu. Ton album est en cours de fabrication et sera livré sous 7 à 12 jours ouvrés.
             </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-3 text-left">
               {[
                 { icon: "📦", title: "Fabrication", desc: "Ton album est envoyé en production sous 24h." },
-                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 5 à 7 jours ouvrés." },
+                { icon: "🚚", title: "Livraison", desc: "Reçois ton livre sous 7 à 12 jours ouvrés." },
                 { icon: "📧", title: "Confirmation", desc: "Un email de confirmation va t'être envoyé." },
               ].map(step => (
                 <div key={step.title} className="flex gap-3 rounded-xl border border-gray-100 p-4">
@@ -619,7 +625,7 @@ function ResultContent() {
                       <span className="text-red-400 text-xs">Indisponible</span>
                     )}
                   </div>
-                  <p className="text-[10px] text-slate-400">Livraison standard 5–7 jours ouvrés</p>
+                  <p className="text-[10px] text-slate-400">Livraison suivie 7–12 jours ouvrés</p>
                 </div>
                 <hr className="border-gray-100" />
                 {pageCount > INCLUDED_PAGES && (
@@ -780,7 +786,7 @@ function ResultContent() {
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier glacé 170 g/m²</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> {pageCount} pages intérieures</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison en France et Europe</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 5–7 jours ouvrés</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 7–12 jours ouvrés</li>
                 </ul>
               </div>
               <button onClick={showSummary} disabled={isProcessing}

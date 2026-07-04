@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Livraison",
-  description: "Livraison L'Instantané — France, Belgique, Suisse, Luxembourg, Monaco. Délai 5 à 7 jours ouvrés, impression à la demande.",
+  description: "Livraison L'Instantané — France, Belgique, Suisse, Luxembourg, Monaco. Délai 7 à 12 jours ouvrés, impression à la demande.",
   alternates: { canonical: "/livraison" },
 };
 
@@ -24,7 +24,7 @@ export default function LivraisonPage() {
           </div>
           <div className="rounded-2xl border border-slate-200 bg-[#faf8f4] p-5 text-center">
             <p className="text-2xl mb-2">⏱️</p>
-            <p className="text-sm font-semibold text-slate-900 mb-1">5 à 7 jours ouvrés</p>
+            <p className="text-sm font-semibold text-slate-900 mb-1">7 à 12 jours ouvrés</p>
             <p className="text-xs text-slate-500">Fabrication + envoi inclus.</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-[#faf8f4] p-5 text-center">
@@ -55,9 +55,9 @@ export default function LivraisonPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Délais</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
-            <p><strong>Fabrication :</strong> 2 à 3 jours ouvrés. Chaque album est imprimé à la demande, à l&apos;unité — pas de stock.</p>
-            <p><strong>Expédition :</strong> 2 à 4 jours ouvrés selon le pays.</p>
-            <p><strong>Total :</strong> 5 à 7 jours ouvrés entre le paiement et la réception.</p>
+            <p><strong>Fabrication :</strong> 2 à 4 jours ouvrés. Chaque album est imprimé à la demande, à l&apos;unité — pas de stock.</p>
+            <p><strong>Expédition suivie :</strong> 5 à 8 jours ouvrés selon le pays. Un numéro de suivi t&apos;est envoyé dès le départ du colis.</p>
+            <p><strong>Total :</strong> 7 à 12 jours ouvrés entre le paiement et la réception.</p>
             <p className="text-xs text-slate-500">Les délais peuvent être légèrement rallongés en période de forte demande (Noël, Saint-Valentin, fête des mères).</p>
           </div>
         </section>
@@ -90,7 +90,7 @@ export default function LivraisonPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">6. Colis perdu ou endommagé</h2>
           <p className="text-sm leading-relaxed text-slate-600 mb-3">
-            Si ton colis n&apos;est pas arrivé au bout de <strong>10 jours ouvrés</strong>, ou s&apos;il est endommagé à l&apos;ouverture, contacte-nous immédiatement avec photos à l&apos;appui.
+            Si ton colis n&apos;est pas arrivé au bout de <strong>15 jours ouvrés</strong>, ou s&apos;il est endommagé à l&apos;ouverture, contacte-nous immédiatement avec photos à l&apos;appui.
           </p>
           <p className="text-sm leading-relaxed text-slate-600">
             On lance une enquête avec le transporteur et on te renvoie un nouvel album gratuitement si nécessaire — voir notre{" "}

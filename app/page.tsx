@@ -156,7 +156,7 @@ export default function Home() {
               <span className="bg-gradient-to-r from-white via-slate-200 to-amber-200/80 bg-clip-text text-transparent">un beau livre.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-slate-400">
-              Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé avec soin et livré chez toi en 5 à 7 jours.
+              Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé avec soin et livré chez toi en 7 à 12 jours.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
               <Link href="/create" className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 hover:shadow-[0_8px_30px_rgba(255,255,255,0.18)]">
@@ -199,7 +199,7 @@ export default function Home() {
               { icon: <IconDocument />, label: "Format 21×28 cm",   desc: "Portrait, couverture rigide" },
               { icon: <IconPhoto />,    label: "Papier photo",      desc: "170 g/m², finition brillante" },
               { icon: <IconBook />,     label: "Couverture rigide", desc: "Qualité premium"             },
-              { icon: <IconTruck />,    label: "Livraison rapide",  desc: "France, 5–7 jours ouvrés"   },
+              { icon: <IconTruck />,    label: "Livraison suivie",  desc: "France, 7–12 jours ouvrés"  },
             ].map((p, i) => (
               <div key={p.label} className={`flex items-center gap-4 px-6 py-7 ${i < 3 ? "sm:border-r border-gray-100" : ""} ${i < 2 ? "border-b border-gray-100 sm:border-b-0" : ""}`}>
                 <span className="shrink-0 text-slate-400">{p.icon}</span>
@@ -378,7 +378,7 @@ export default function Home() {
               </p>
               <div className="mt-8 grid w-full max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
-                  { v: "5–7j",   l: "Livraison France" },
+                  { v: "7–12j",  l: "Livraison France" },
                   { v: "100 %",  l: "Aperçu avant achat" },
                   { v: "14 j",   l: "Remboursé sans condition" },
                   { v: "0 €",    l: "Frais cachés" },
@@ -411,7 +411,7 @@ export default function Home() {
               { num: "01", title: "Choisis ta couverture", desc: "Sélectionne un style parmi nos designs illustrés par destination." },
               { num: "02", title: "Crée ton album",        desc: "Glisse tes photos, choisis les mises en page, ajoute tes textes." },
               { num: "03", title: "Aperçu & commande",     desc: "Prévisualise chaque page dans le détail avant de valider." },
-              { num: "04", title: "Reçois ton livre",      desc: "Imprimé à la main et livré chez toi en 5 à 7 jours ouvrés." },
+              { num: "04", title: "Reçois ton livre",      desc: "Imprimé à la main et livré chez toi en 7 à 12 jours ouvrés." },
             ].map((step) => (
               <li key={step.num} className="flex flex-col gap-4 rounded-2xl bg-[#f8f7f4] p-7">
                 <span className="font-[family-name:var(--font-playfair)] text-5xl font-bold text-slate-200 leading-none">{step.num}</span>
@@ -445,7 +445,7 @@ export default function Home() {
                 {[
                   "Livre imprimé finition premium",
                   "Format 21×28 cm · Papier brillant 170 g/m²",
-                  "Livraison sous 5–7 jours ouvrés",
+                  "Livraison sous 7–12 jours ouvrés",
                   "Pour offrir ou garder",
                 ].map(p => (
                   <li key={p} className="flex items-center gap-2.5 text-sm text-slate-300">
@@ -514,7 +514,7 @@ export default function Home() {
           </div>
           <div className="divide-y divide-slate-200 rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             {[
-              { q: "Combien de temps pour recevoir mon album ?",   a: "5 à 7 jours ouvrés en France métropolitaine. Fabrication en 2 à 3 jours, puis expédition en 2 à 4 jours." },
+              { q: "Combien de temps pour recevoir mon album ?",   a: "7 à 12 jours ouvrés en France métropolitaine. Fabrication en 2 à 4 jours, puis expédition suivie en 5 à 8 jours." },
               { q: "Puis-je voir mon album avant de payer ?",      a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu." },
               { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché brillant 170 g/m². Impression haute résolution, finition premium Gelato." },
               { q: "Et si l'album ne me plaît pas ?",              a: "Satisfait ou remboursé sous 14 jours. Si l'album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement." },
@@ -553,7 +553,7 @@ export default function Home() {
             <span className="bg-gradient-to-r from-white via-slate-100 to-amber-200 bg-clip-text text-transparent">ton album ce soir ?</span>
           </h2>
           <p className="mx-auto mt-5 max-w-md text-slate-400">
-            Quelques minutes pour le créer. Aucun paiement avant validation. Livré chez toi sous 5 à 7 jours.
+            Quelques minutes pour le créer. Aucun paiement avant validation. Livré chez toi sous 7 à 12 jours.
           </p>
           <Link href="/create" className="group mt-9 inline-flex items-center justify-center rounded-full bg-white px-10 py-4 text-sm font-semibold text-slate-900 shadow-[0_8px_30px_rgba(255,255,255,0.18)] transition hover:bg-slate-100 hover:shadow-[0_12px_40px_rgba(255,255,255,0.25)]">
             Créer mon album

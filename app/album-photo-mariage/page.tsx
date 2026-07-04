@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Album photo mariage premium — L'Instantané",
-  description: "Crée l'album photo de ton mariage. Format A4, papier brillant 170 g/m², couverture rigide. Imprimé en France & Europe, livré en 5-7 jours. Idéal cadeau pour les témoins.",
+  description: "Crée l'album photo de ton mariage. Format A4, papier brillant 170 g/m², couverture rigide. Imprimé en France & Europe, livré en 7-12 jours. Idéal cadeau pour les témoins.",
   alternates: { canonical: "/album-photo-mariage" },
   openGraph: {
     title: "Album photo mariage premium",
@@ -70,7 +70,7 @@ export default function AlbumPhotoMariagePage() {
                 <Dot /> À partir de 29 €
               </span>
               <span className="flex items-center gap-1.5">
-                <Dot /> Livraison 5–7 j
+                <Dot /> Livraison 7–12 j
               </span>
               <span className="flex items-center gap-1.5">
                 <Dot /> Satisfait ou remboursé 14 j

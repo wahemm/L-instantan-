@@ -51,7 +51,7 @@ export default function CgvPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">5. Livraison</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p>Les commandes sont expédiées en France métropolitaine uniquement. Délai de fabrication et livraison : 5 à 7 jours ouvrés à compter de la confirmation du paiement.</p>
+            <p>Les commandes sont expédiées en France métropolitaine uniquement. Délai de fabrication et livraison : 7 à 12 jours ouvrés à compter de la confirmation du paiement.</p>
             <p>Les frais de port sont indiqués au moment du paiement en fonction de la destination.</p>
           </div>
         </section>

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Album photo naissance et bébé — L'Instantané",
-  description: "Crée l'album photo de naissance de ton bébé. Premiers mois, premiers sourires, premiers pas. Format A4, papier brillant 170 g/m², livré en 5-7 jours. Cadeau de naissance idéal.",
+  description: "Crée l'album photo de naissance de ton bébé. Premiers mois, premiers sourires, premiers pas. Format A4, papier brillant 170 g/m², livré en 7-12 jours. Cadeau de naissance idéal.",
   alternates: { canonical: "/album-photo-naissance" },
   openGraph: {
     title: "Album photo naissance et bébé",
@@ -65,7 +65,7 @@ export default function AlbumPhotoNaissancePage() {
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span className="flex items-center gap-1.5"><Dot /> À partir de 29 €</span>
-              <span className="flex items-center gap-1.5"><Dot /> Livraison 5–7 j</span>
+              <span className="flex items-center gap-1.5"><Dot /> Livraison 7–12 j</span>
               <span className="flex items-center gap-1.5"><Dot /> Satisfait ou remboursé 14 j</span>
             </div>
           </div>

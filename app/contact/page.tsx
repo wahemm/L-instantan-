@@ -45,7 +45,7 @@ export default function ContactPage() {
             </div>
             <div>
               <p className="font-semibold text-slate-900">Mon colis est en retard.</p>
-              <p>Les délais sont de 5 à 7 jours ouvrés. Au-delà, <Link href="/livraison" className="underline hover:text-slate-900">consulte notre politique de livraison</Link> ou écris-nous.</p>
+              <p>Les délais sont de 7 à 12 jours ouvrés. Au-delà, <Link href="/livraison" className="underline hover:text-slate-900">consulte notre politique de livraison</Link> ou écris-nous.</p>
             </div>
             <div>
               <p className="font-semibold text-slate-900">Mon album a un défaut.</p>

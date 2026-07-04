@@ -90,23 +90,49 @@ export async function getGelatoCoverDimensions(pageCount: number): Promise<{
 // collected by Stripe during checkout, so shipping is estimated from country
 // alone using a valid sample postcode. Unknown countries fall back to FR.
 const POSTCODE_BY_COUNTRY: Record<string, string> = {
-  FR: "75001", BE: "1000", LU: "1009", DE: "10115", CH: "8001",
+  FR: "75001", BE: "1000", LU: "1009", MC: "98000", DE: "10115", CH: "8001",
   ES: "28001", IT: "00118", NL: "1011", PT: "1000-001", GB: "SW1A 1AA",
   IE: "D01 F5P2", AT: "1010", US: "10001", CA: "M5V 2T6",
 };
 
+// Longest shipping transit we'll offer as "standard". Excludes the cheapest
+// untracked economy services (e.g. DHL Warenpost, ~11 days) in favour of a
+// tracked method — important for a premium product and for the tracking-code
+// emails to actually carry a code. Falls back to the cheapest method if none
+// meets the threshold.
+const STANDARD_MAX_DELIVERY_DAYS = 10;
+
+export interface GelatoShippingQuote {
+  /** Shipping price in EUR for the chosen method */
+  price: number;
+  /** Gelato shipment method UID — pinned on the order so charged = shipped */
+  shipmentMethodUid: string;
+  minDeliveryDays: number;
+  maxDeliveryDays: number;
+}
+
+interface GelatoShipmentMethod {
+  price?: number;
+  type?: string;
+  shipmentMethodUid?: string;
+  minDeliveryDays?: number;
+  maxDeliveryDays?: number;
+}
+
 /**
- * Estimate the shipping cost (in EUR) for one hardcover album of the given
- * interior page count, shipped to `countryCode`. Uses Gelato's read-only
- * order-quote endpoint (no order is created, nothing is charged) and returns
- * the cheapest available "normal" shipping method price.
+ * Get a shipping quote for one hardcover album of the given interior page
+ * count, shipped to `countryCode`. Uses Gelato's read-only order-quote
+ * endpoint (no order is created, nothing is charged).
  *
- * Returns null on any failure so the caller can apply its own fallback.
+ * Selects the cheapest TRACKED "normal" method (maxDeliveryDays ≤ threshold),
+ * returning its price, method UID and delivery window so the same method can
+ * be pinned on the real order. Returns null on any failure so the caller can
+ * apply its own fallback.
  */
-export async function getGelatoShippingCost(
+export async function getGelatoShippingQuote(
   pageCount: number,
   countryCode: string
-): Promise<number | null> {
+): Promise<GelatoShippingQuote | null> {
   const safeCount = Math.max(
     GELATO_MIN_PAGES,
     pageCount % 2 === 0 ? pageCount : pageCount + 1
@@ -148,16 +174,29 @@ export async function getGelatoShippingCost(
       return null;
     }
     const data = await res.json();
-    const methods: Array<{ price?: number; type?: string }> =
-      data.quotes?.[0]?.shipmentMethods ?? [];
+    const methods: GelatoShipmentMethod[] = data.quotes?.[0]?.shipmentMethods ?? [];
     if (methods.length === 0) return null;
+
     // Prefer "normal" methods (exclude express/pallet), fall back to any.
     const normal = methods.filter((m) => m.type === "normal");
-    const pool = normal.length > 0 ? normal : methods;
-    const cheapest = pool.reduce((min, m) =>
+    const base = normal.length > 0 ? normal : methods;
+    // Prefer a reasonably fast (= tracked) standard method; fall back to any.
+    const tracked = base.filter(
+      (m) => (m.maxDeliveryDays ?? 99) <= STANDARD_MAX_DELIVERY_DAYS
+    );
+    const pool = tracked.length > 0 ? tracked : base;
+
+    const chosen = pool.reduce((min, m) =>
       (m.price ?? Infinity) < (min.price ?? Infinity) ? m : min
     );
-    return typeof cheapest.price === "number" ? cheapest.price : null;
+    if (typeof chosen.price !== "number" || !chosen.shipmentMethodUid) return null;
+
+    return {
+      price: chosen.price,
+      shipmentMethodUid: chosen.shipmentMethodUid,
+      minDeliveryDays: chosen.minDeliveryDays ?? 0,
+      maxDeliveryDays: chosen.maxDeliveryDays ?? 0,
+    };
   } catch (err) {
     console.warn("[Gelato] shipping quote failed:", err);
     return null;
@@ -186,6 +225,10 @@ export async function createGelatoOrder(params: {
     phoneNumber: string;
     email: string;
   };
+  /** Gelato shipment method to pin (from the checkout quote), so the method
+   *  the customer paid for is exactly the one Gelato ships. Optional — if
+   *  omitted, Gelato picks the cheapest available method. */
+  shipmentMethodUid?: string;
 }) {
   const safePageCount = Math.max(
     GELATO_MIN_PAGES,
@@ -221,6 +264,11 @@ export async function createGelatoOrder(params: {
       phone: params.shippingAddress.phoneNumber,
       email: params.shippingAddress.email,
     },
+    // Pin the shipping method chosen at checkout so what the customer paid for
+    // is exactly what Gelato ships (no cheaper/untracked substitution).
+    ...(params.shipmentMethodUid
+      ? { shipmentMethodUid: params.shipmentMethodUid }
+      : {}),
     metadata: [{ key: "albumTitle", value: params.title }],
   };
 

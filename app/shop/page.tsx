@@ -171,12 +171,12 @@ export default function ShopPage() {
                 {
                   key: "format",
                   title: "Format & Qualité",
-                  content: "Album au format A4 (21 × 28 cm), papier photo brillant 170g/m², couverture rigide personnalisée. De 24 à 200 pages selon le nombre de photos.",
+                  content: "Album au format A4 (21 × 28 cm), papier photo brillant 170g/m², couverture rigide personnalisée. De 32 à 200 pages selon le nombre de photos.",
                 },
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 5 à 7 jours ouvrés. Satisfait ou remboursé sous 14 jours.",
+                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 7 à 12 jours ouvrés. Satisfait ou remboursé sous 14 jours.",
                 },
               ].map(item => (
                 <div key={item.key}>
@@ -213,7 +213,7 @@ export default function ShopPage() {
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
               { v: "100 %", l: "Aperçu avant achat" },
-              { v: "5–7 j", l: "Livraison France" },
+              { v: "7–12 j", l: "Livraison France" },
               { v: "14 j",  l: "Remboursé sans condition" },
             ].map(s => (
               <div key={s.l} className="rounded-2xl border border-gray-200 bg-white px-3 py-4">

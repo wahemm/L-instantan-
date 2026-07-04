@@ -74,6 +74,10 @@ export async function POST(req: NextRequest) {
         const lastName = nameParts.slice(1).join(" ") || firstName;
 
         const pageCount = parseInt(session.metadata?.pageCount ?? "32", 10);
+        // Pin the exact shipping method the customer paid for at checkout, so
+        // Gelato ships the method they were charged for. May be empty for older
+        // sessions — Gelato then falls back to the cheapest available method.
+        const shipmentMethodUid = session.metadata?.shipmentMethodUid || undefined;
 
         try {
           const order = await createGelatoOrder({
@@ -82,6 +86,7 @@ export async function POST(req: NextRequest) {
             pageCount,
             coverUrl,
             interiorUrl,
+            shipmentMethodUid,
             shippingAddress: {
               firstName,
               lastName,

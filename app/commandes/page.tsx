@@ -261,7 +261,7 @@ export default async function CommandesPage() {
                     {/* Delivery estimate */}
                     {!isFailure && statusKey !== "DELIVERED" && statusKey !== "SHIPPED" && (
                       <p className="text-xs text-slate-400 mt-3">
-                        Livraison estimée sous 5–7 jours ouvrés
+                        Livraison estimée sous 7–12 jours ouvrés
                       </p>
                     )}
                   </div>

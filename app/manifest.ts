@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "L'Instantané — Album photo premium",
     short_name: "L'Instantané",
-    description: "Crée ton album photo premium en quelques minutes. Imprimé et livré chez toi en 5–7 jours.",
+    description: "Crée ton album photo premium en quelques minutes. Imprimé et livré chez toi en 7–12 jours.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

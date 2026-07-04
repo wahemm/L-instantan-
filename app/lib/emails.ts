@@ -117,7 +117,7 @@ export function buildConfirmationEmail(args: {
   const inner = `
     <p style="margin:0 0 8px;font-size:26px;color:#0f172a;font-family:Georgia,serif;">${greeting}</p>
     <p style="margin:0 0 28px;font-size:15px;color:#475569;font-family:Arial,sans-serif;line-height:1.6;">
-      Ta commande a bien été reçue. Ton album est en cours d'impression et sera expédié sous 5 à 7 jours ouvrés.
+      Ta commande a bien été reçue. Ton album est en cours d'impression et sera livré sous 7 à 12 jours ouvrés.
     </p>
     ${divider()}
     ${sectionLabel("Récapitulatif de commande")}
@@ -133,14 +133,14 @@ export function buildConfirmationEmail(args: {
     ${divider()}
     ${sectionLabel("Livraison")}
     <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
-      Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 5–7 jours ouvrés. Tu recevras un email avec ton numéro de suivi dès l'expédition.
+      Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 7–12 jours ouvrés. Tu recevras un email avec ton numéro de suivi dès l'expédition.
     </p>
     ${ctaButton("Créer un nouvel album →", "https://linstantane.fr/create")}
   `;
 
   return {
     subject: `Ta commande « ${args.albumTitle} » est confirmée ✨`,
-    html: wrap(inner, `Ton album est en cours d'impression. Livraison sous 5–7 jours.`),
+    html: wrap(inner, `Ton album est en cours d'impression. Livraison sous 7–12 jours.`),
   };
 }
 

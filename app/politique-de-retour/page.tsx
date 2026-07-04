@@ -48,7 +48,7 @@ export default function PolitiqueRetourPage() {
           <ol className="list-decimal pl-6 text-sm leading-relaxed text-slate-600 space-y-2">
             <li>Envoie un email à <a href="mailto:linstantane.officiel@gmail.com" className="underline hover:text-slate-900">linstantane.officiel@gmail.com</a> avec : ton nom, numéro de commande et photos du défaut.</li>
             <li>On te répond sous 24-48h avec la solution retenue (remplacement ou remboursement).</li>
-            <li>Si remplacement : un nouvel album est fabriqué et expédié gratuitement, sous 5 à 7 jours ouvrés.</li>
+            <li>Si remplacement : un nouvel album est fabriqué et expédié gratuitement, sous 7 à 12 jours ouvrés.</li>
             <li>Si remboursement : le montant est recrédité sur ta carte bancaire sous 5 à 10 jours ouvrés après validation.</li>
           </ol>
         </section>
