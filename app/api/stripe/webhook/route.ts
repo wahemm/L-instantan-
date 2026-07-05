@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const email = session.customer_details?.email;
     const name = session.customer_details?.name ?? "";
     const albumTitle = session.metadata?.albumTitle ?? "votre album";
-    const pageCount = session.metadata?.pageCount ?? "24";
+    const pageCount = session.metadata?.pageCount ?? "32"; // Gelato floor, matches INCLUDED_PAGES
     const amountPaid = session.amount_total ? `${(session.amount_total / 100).toFixed(2)} €` : "";
     const interiorUrl = session.metadata?.interiorUrl;
     const coverUrl = session.metadata?.coverUrl;

@@ -51,7 +51,7 @@ export async function GET() {
   const orders = allSessions.map((session: any) => ({
     id: session.id,
     albumTitle: session.metadata?.albumTitle ?? "Mon Album",
-    pageCount: Number(session.metadata?.pageCount ?? 24),
+    pageCount: Number(session.metadata?.pageCount ?? 32),
     amount: session.amount_total ?? 0,
     currency: session.currency ?? "eur",
     createdAt: session.created,
