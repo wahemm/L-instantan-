@@ -95,12 +95,14 @@ const POSTCODE_BY_COUNTRY: Record<string, string> = {
   IE: "D01 F5P2", AT: "1010", US: "10001", CA: "M5V 2T6",
 };
 
-// Longest shipping transit we'll offer as "standard". Excludes the cheapest
-// untracked economy services (e.g. DHL Warenpost, ~11 days) in favour of a
-// tracked method — important for a premium product and for the tracking-code
-// emails to actually carry a code. Falls back to the cheapest method if none
-// meets the threshold.
-const STANDARD_MAX_DELIVERY_DAYS = 10;
+// Untracked economy services to exclude. A premium album must ship WITH a
+// tracking number: the confirmation email promises one, and Gelato only emits a
+// tracking code for tracked methods. We match on the shipment-method UID rather
+// than delivery days, because Gelato's day estimates fluctuate around the
+// tracked/untracked boundary (e.g. DHL Warenpost flips between 10 and 11 days)
+// and therefore can't reliably tell tracked from untracked.
+// "warenpost" = Deutsche Post untracked small-packet; "letter" = letter-post.
+const UNTRACKED_UID_FRAGMENTS = ["warenpost", "letter"];
 
 export interface GelatoShippingQuote {
   /** Shipping price in EUR for the chosen method */
@@ -180,9 +182,14 @@ export async function getGelatoShippingQuote(
     // Prefer "normal" methods (exclude express/pallet), fall back to any.
     const normal = methods.filter((m) => m.type === "normal");
     const base = normal.length > 0 ? normal : methods;
-    // Prefer a reasonably fast (= tracked) standard method; fall back to any.
+    // Keep only TRACKED methods: drop untracked economy services so the album
+    // always ships with a tracking number. Fall back to any normal method only
+    // if a route somehow offers nothing tracked (never block checkout).
     const tracked = base.filter(
-      (m) => (m.maxDeliveryDays ?? 99) <= STANDARD_MAX_DELIVERY_DAYS
+      (m) =>
+        !UNTRACKED_UID_FRAGMENTS.some((frag) =>
+          (m.shipmentMethodUid ?? "").toLowerCase().includes(frag)
+        )
     );
     const pool = tracked.length > 0 ? tracked : base;
 
