@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 const FAQ_ITEMS = [
-  { q: "Combien de pages pour un album mariage ?", a: "L'album de base fait 24 pages. Pour un mariage, on recommande entre 40 et 60 pages. Tu peux ajouter des pages supplémentaires à tout moment dans l'éditeur, facturées à l'unité." },
+  { q: "Combien de pages pour un album mariage ?", a: "L'album de base fait 32 pages. Pour un mariage, on recommande entre 40 et 60 pages. Tu peux ajouter des pages supplémentaires à tout moment dans l'éditeur, facturées à l'unité." },
   { q: "Mon photographe m'a livré ses photos en RAW/TIFF. Est-ce compatible ?", a: "Notre éditeur accepte les fichiers JPEG et PNG. Si tes photos sont en RAW, demande à ton photographe des exports JPEG haute qualité — ça ne change rien à la qualité d'impression." },
   { q: "Pouvez-vous mettre l'album en page à ma place ?", a: "Notre éditeur est conçu pour être simple : en moyenne, ça prend 30 à 45 minutes pour un album mariage. Si tu veux un service de mise en page sur-mesure, écris-nous." },
   { q: "Commande groupée pour offrir aux témoins ?", a: "Oui, c'est possible. Contacte-nous par email avant de commander pour bénéficier d'un tarif dégressif sur plusieurs exemplaires identiques." },

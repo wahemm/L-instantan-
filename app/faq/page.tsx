@@ -11,7 +11,7 @@ const FAQS = [
     items: [
       {
         q: "Combien de photos peut-on mettre ?",
-        a: "Autant que tu veux. L'album va de 24 à 200 pages selon le contenu. En mode éditeur, tu crées autant de pages que nécessaire avec 1 à 4 photos par page — il n'y a pas de limite stricte au nombre de photos.",
+        a: "Autant que tu veux. L'album va de 32 à 200 pages selon le contenu. En mode éditeur, tu crées autant de pages que nécessaire avec 1 à 4 photos par page — il n'y a pas de limite stricte au nombre de photos.",
       },
       {
         q: "Quel est le format de l'album ?",
@@ -45,7 +45,7 @@ const FAQS = [
     items: [
       {
         q: "Combien coûte un album ?",
-        a: "À partir de 29 € pour un album de 24 pages. Chaque page supplémentaire est à 0,50 €. Pas de frais cachés, pas d'abonnement.",
+        a: "À partir de 29 € pour un album de 32 pages. Chaque page supplémentaire est à 0,50 €. Pas de frais cachés, pas d'abonnement.",
       },
       {
         q: "Comment fonctionne le paiement ?",

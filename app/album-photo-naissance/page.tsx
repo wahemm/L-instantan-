@@ -17,7 +17,7 @@ const FAQ_ITEMS = [
   { q: "À partir de quand puis-je faire l'album ?", a: "Quand tu veux ! Beaucoup de parents font un premier album au bout du 1er mois (« Le premier mois de [prénom] »), d'autres attendent le 1er anniversaire. C'est toi qui choisis." },
   { q: "Je veux l'offrir — peut-on livrer directement chez les grands-parents ?", a: "Bien sûr. À la commande, indique simplement l'adresse de livraison souhaitée. C'est un très beau cadeau de naissance." },
   { q: "Mes photos sont un peu sombres (maternité, nuit…). Ça va rendre ?", a: "Les photos en basse lumière des smartphones récents passent bien en général. Évite juste celles qui sont vraiment floues ou très granuleuses." },
-  { q: "Combien de pages pour couvrir la première année ?", a: "Pour 12 mois, compte 36 à 48 pages (3 à 4 pages par mois). Tu peux commencer plus court (24 pages) puis faire un 2e album pour la suite." },
+  { q: "Combien de pages pour couvrir la première année ?", a: "Pour 12 mois, compte 36 à 48 pages (3 à 4 pages par mois). Le minimum est 32 pages — tu peux ensuite faire un 2e album si tes photos débordent." },
 ];
 
 export default function AlbumPhotoNaissancePage() {

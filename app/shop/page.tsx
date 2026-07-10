@@ -110,7 +110,7 @@ export default function ShopPage() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">🔒 Paiement sécurisé</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
-                Format A4 · Papier photo 170g/m² · Couverture rigide · De 24 à 200 pages
+                Format A4 · Papier photo 170g/m² · Couverture rigide · De 32 à 200 pages
               </p>
             </div>
 
@@ -120,7 +120,7 @@ export default function ShopPage() {
                 <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">29 €</span>
                 <span className="text-sm text-slate-400">+ livraison</span>
               </div>
-              <p className="mt-2 text-xs text-slate-500">24 pages incluses · 0,50 € par page supplémentaire</p>
+              <p className="mt-2 text-xs text-slate-500">32 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livre imprimé finition premium</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Papier brillant 170g/m²</li>

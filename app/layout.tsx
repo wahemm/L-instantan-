@@ -103,8 +103,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     "@type": "OfferShippingDetails",
                     deliveryTime: {
                       "@type": "ShippingDeliveryTime",
-                      handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 3, unitCode: "DAY" },
-                      transitTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 4, unitCode: "DAY" },
+                      handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 4, unitCode: "DAY" },
+                      transitTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 8, unitCode: "DAY" },
                     },
                     shippingDestination: { "@type": "DefinedRegion", addressCountry: ["FR", "BE", "CH", "LU", "MC"] },
                   },

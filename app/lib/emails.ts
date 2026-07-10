@@ -221,7 +221,7 @@ export function buildDeliveredEmail(args: {
   };
 }
 
-// ─── 4. ALERTE ADMIN — ÉCHEC LULU IMPRESSION (Stripe webhook) ───────────────
+// ─── 4. ALERTE ADMIN — ÉCHEC GELATO IMPRESSION (Stripe webhook) ──────────────
 export function buildAdminLuluFailureEmail(args: {
   errorMessage: string;
   sessionId: string;
@@ -231,9 +231,9 @@ export function buildAdminLuluFailureEmail(args: {
   coverUrl: string;
 }): { subject: string; html: string } {
   return {
-    subject: `[URGENT] Échec impression Lulu — Commande ${args.sessionId}`,
+    subject: `[URGENT] Échec impression Gelato — Commande ${args.sessionId}`,
     html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#0f172a;">
-<h2>Échec de création du job d'impression Lulu</h2>
+<h2>Échec de création du job d'impression Gelato</h2>
 <p><strong>Erreur :</strong> ${escape(args.errorMessage)}</p>
 <hr />
 <table cellpadding="6">
@@ -248,7 +248,7 @@ export function buildAdminLuluFailureEmail(args: {
   };
 }
 
-// ─── 5. ALERTE ADMIN — STATUS LULU REJECTED/ERROR/CANCELED ──────────────────
+// ─── 5. ALERTE ADMIN — STATUS GELATO REJECTED/ERROR/CANCELED ────────────────
 export function buildAdminLuluStatusEmail(args: {
   status: string;
   statusMessage: string;
@@ -257,9 +257,9 @@ export function buildAdminLuluStatusEmail(args: {
   topic: string;
 }): { subject: string; html: string } {
   return {
-    subject: `[URGENT] Impression Lulu ${args.status} — Job ${args.printJobId}`,
+    subject: `[URGENT] Impression Gelato ${args.status} — Job ${args.printJobId}`,
     html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#0f172a;">
-<h2>Job d'impression Lulu en échec</h2>
+<h2>Job d'impression Gelato en échec</h2>
 <p><strong>Statut :</strong> ${escape(args.status)}</p>
 <p><strong>Détail :</strong> ${escape(args.statusMessage)}</p>
 <hr />

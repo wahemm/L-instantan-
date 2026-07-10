@@ -28,7 +28,7 @@ export default function CgvPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Produit</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
             <p><strong>Album imprimé</strong> — Livre photo au format A4 (21 × 28 cm), papier photo brillant 170 g/m², couverture rigide personnalisée.</p>
-            <p>Les albums comportent au minimum 24 pages. Des pages supplémentaires peuvent être ajoutées et sont facturées selon le tarif en vigueur.</p>
+            <p>Les albums comportent au minimum 32 pages. Des pages supplémentaires peuvent être ajoutées et sont facturées selon le tarif en vigueur.</p>
           </div>
         </section>
 
@@ -36,7 +36,7 @@ export default function CgvPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Prix</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
             <p>Les prix sont indiqués en euros TTC. L&apos;Instantané se réserve le droit de modifier ses tarifs à tout moment, sans que cela affecte les commandes en cours.</p>
-            <p>Tarif indicatif : 29 € pour un album de 24 pages, 0,50 € par page supplémentaire. Frais de port calculés au moment du paiement selon la destination.</p>
+            <p>Tarif indicatif : 29 € pour un album de 32 pages, 0,50 € par page supplémentaire. Frais de port calculés au moment du paiement selon la destination.</p>
           </div>
         </section>
 
