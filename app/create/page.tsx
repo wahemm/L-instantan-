@@ -272,38 +272,53 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   const elRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastClickRef = useRef<number>(0);
+  const draggedRef = useRef(false);
 
   const fontFamily = el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)";
 
-  function startDrag(e: React.MouseEvent) {
+  // Pointer Events unify mouse + touch + pen. A movement threshold distinguishes
+  // a tap (select / enter edit) from a drag (reposition), so the same handler
+  // works on desktop and touchscreens.
+  // Pointer Events handle DRAG only (works on mouse + touch + pen). Tap-to-edit
+  // stays on the real click handler below so focus()/keyboard fires inside a
+  // click gesture (required by iOS Safari). draggedRef lets the click handler
+  // know a drag just happened and swallow the trailing click.
+  function startDrag(e: React.PointerEvent) {
     if (editing) return;
     e.stopPropagation();
+    draggedRef.current = false;
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
 
-    function onMove(me: MouseEvent) {
+    function onMove(me: PointerEvent) {
+      const dx = me.clientX - startX, dy = me.clientY - startY;
+      if (!draggedRef.current && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+      draggedRef.current = true;
       if (!elRef.current) return;
-      const nx = Math.max(0, Math.min(85, ox + ((me.clientX - startX) / rect.width) * 100));
-      const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
+      const nx = Math.max(0, Math.min(85, ox + (dx / rect.width) * 100));
+      const ny = Math.max(0, Math.min(90, oy + (dy / rect.height) * 100));
       elRef.current.style.left = `${nx}%`;
       elRef.current.style.top = `${ny}%`;
     }
-    function onUp(me: MouseEvent) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+    function onUp(me: PointerEvent) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+      if (!draggedRef.current) return;
       const nx = Math.max(0, Math.min(85, ox + ((me.clientX - startX) / rect.width) * 100));
       const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
       onUpdate({ x: nx, y: ny });
+      if (!isSelected) onSelect();
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-    onSelect();
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }
 
-  function startResize(e: React.MouseEvent) {
+  function startResize(e: React.PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
@@ -312,19 +327,21 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
     if (!container) return;
     const rect = container.getBoundingClientRect();
 
-    function onMove(me: MouseEvent) {
+    function onMove(me: PointerEvent) {
       if (!elRef.current) return;
       const nw = Math.max(15, Math.min(95, ow + ((me.clientX - startX) / rect.width) * 100));
       elRef.current.style.width = `${nw}%`;
     }
-    function onUp(me: MouseEvent) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+    function onUp(me: PointerEvent) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
       const nw = Math.max(15, Math.min(95, ow + ((me.clientX - startX) / rect.width) * 100));
       onUpdate({ w: nw });
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }
 
   const textStyle: React.CSSProperties = {
@@ -342,20 +359,13 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
     <div
       ref={elRef}
       className={`absolute z-20 ${editing ? "cursor-text" : "cursor-move"} ${isSelected ? "outline outline-2 outline-offset-1 outline-blue-400" : ""}`}
-      style={{ left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%` }}
-      onMouseDown={startDrag}
+      style={{ left: `${el.x}%`, top: `${el.y}%`, width: `${el.w}%`, touchAction: "none" }}
+      onPointerDown={startDrag}
       onClick={(e) => {
         e.stopPropagation();
-        if (isSelected) { setEditing(true); setLocalText(el.text); textareaRef.current?.focus(); }
+        if (draggedRef.current) { draggedRef.current = false; return; }
+        if (isSelected) { setLocalText(el.text); setEditing(true); textareaRef.current?.focus(); }
         else { onSelect(); }
-      }}
-      onTouchEnd={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onSelect();
-        setLocalText(el.text);
-        setEditing(true);
-        textareaRef.current?.focus();
       }}
     >
       <div style={{ position: "relative" }}>
@@ -387,13 +397,14 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
       {isSelected && !editing && (
         <>
           <button
-            onMouseDown={e => e.stopPropagation()}
+            onPointerDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); onDelete(); }}
             className="absolute -top-2.5 -right-2.5 z-30 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow hover:bg-red-600"
           >×</button>
           <div
             className="absolute -bottom-2 -right-2 z-30 h-4 w-4 cursor-se-resize rounded-sm bg-blue-500 shadow"
-            onMouseDown={startResize}
+            style={{ touchAction: "none" }}
+            onPointerDown={startResize}
           />
         </>
       )}
@@ -412,71 +423,82 @@ function StickerElComponent({ el, isSelected, containerRef, onSelect, onUpdate, 
 }) {
   const elRef = useRef<HTMLDivElement>(null);
 
-  function startDrag(e: React.MouseEvent) {
+  function startDrag(e: React.PointerEvent) {
     e.stopPropagation();
     const startX = e.clientX, startY = e.clientY;
     const ox = el.x, oy = el.y;
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    function onMove(me: MouseEvent) {
+    let moved = false;
+    function onMove(me: PointerEvent) {
+      const dx = me.clientX - startX, dy = me.clientY - startY;
+      if (!moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+      moved = true;
       if (!elRef.current) return;
-      const nx = Math.max(0, Math.min(90, ox + ((me.clientX - startX) / rect.width) * 100));
-      const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
+      const nx = Math.max(0, Math.min(90, ox + (dx / rect.width) * 100));
+      const ny = Math.max(0, Math.min(90, oy + (dy / rect.height) * 100));
       elRef.current.style.left = `${nx}%`;
       elRef.current.style.top = `${ny}%`;
     }
-    function onUp(me: MouseEvent) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
-      const nx = Math.max(0, Math.min(90, ox + ((me.clientX - startX) / rect.width) * 100));
-      const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
-      onUpdate({ x: nx, y: ny });
+    function onUp(me: PointerEvent) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
+      if (moved) {
+        const nx = Math.max(0, Math.min(90, ox + ((me.clientX - startX) / rect.width) * 100));
+        const ny = Math.max(0, Math.min(90, oy + ((me.clientY - startY) / rect.height) * 100));
+        onUpdate({ x: nx, y: ny });
+      }
+      if (!isSelected) onSelect();
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-    onSelect();
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }
 
-  function startResize(e: React.MouseEvent) {
+  function startResize(e: React.PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
     const os = el.size;
-    function onMove(me: MouseEvent) {
+    function onMove(me: PointerEvent) {
       if (!elRef.current) return;
       const ns = Math.max(16, Math.min(180, os + (me.clientX - startX)));
       elRef.current.style.fontSize = `${ns}px`;
     }
-    function onUp(me: MouseEvent) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+    function onUp(me: PointerEvent) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
       const ns = Math.max(16, Math.min(180, os + (me.clientX - startX)));
       onUpdate({ size: ns });
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }
 
   return (
     <div
       ref={elRef}
       className={`absolute z-20 cursor-move select-none leading-none ${isSelected ? "outline outline-2 outline-offset-2 outline-blue-400 rounded-lg" : ""}`}
-      style={{ left: `${el.x}%`, top: `${el.y}%`, fontSize: el.size }}
-      onMouseDown={startDrag}
+      style={{ left: `${el.x}%`, top: `${el.y}%`, fontSize: el.size, touchAction: "none" }}
+      onPointerDown={startDrag}
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
     >
       {el.emoji}
       {isSelected && (
         <>
           <button
-            onMouseDown={e => e.stopPropagation()}
+            onPointerDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); onDelete(); }}
             className="absolute -top-2.5 -right-2.5 z-30 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow hover:bg-red-600"
           >×</button>
           <div
             className="absolute -bottom-2 -right-2 z-30 h-4 w-4 cursor-se-resize rounded-sm bg-blue-500 shadow"
-            onMouseDown={startResize}
+            style={{ touchAction: "none" }}
+            onPointerDown={startResize}
           />
         </>
       )}
@@ -506,13 +528,13 @@ function Slot({ photo, isActive, isDragOver, className = "", bgColor, objectPosi
   const didReposition = useRef(false);
   const pos = objectPosition ?? { x: 50, y: 50 };
 
-  function handleMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (!photo || !isActive || !onReposition) return;
     didReposition.current = false;
     const rect = e.currentTarget.getBoundingClientRect();
     const startX = e.clientX, startY = e.clientY;
 
-    function onMove(me: MouseEvent) {
+    function onMove(me: PointerEvent) {
       const dx = me.clientX - startX, dy = me.clientY - startY;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didReposition.current = true;
       if (!didReposition.current) return;
@@ -520,16 +542,18 @@ function Slot({ photo, isActive, isDragOver, className = "", bgColor, objectPosi
       const y = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
       if (imgRef.current) imgRef.current.style.objectPosition = `${x}% ${y}%`;
     }
-    function onUp(me: MouseEvent) {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
+    function onUp(me: PointerEvent) {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onUp);
       if (!didReposition.current) return;
       const x = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
       const y = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
       onReposition?.({ x, y });
     }
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onUp);
   }
 
   function handleClick() {
@@ -542,10 +566,10 @@ function Slot({ photo, isActive, isDragOver, className = "", bgColor, objectPosi
       className={`relative overflow-hidden transition-all ${className} ${
         isDragOver ? "ring-4 ring-inset ring-blue-400" : isActive ? "ring-2 ring-inset ring-blue-500" : "hover:brightness-[0.97]"
       } ${isActive && photo ? "cursor-move" : "cursor-pointer"}`}
-      style={{ backgroundColor: bg }}
+      style={{ backgroundColor: bg, touchAction: isActive && photo ? "none" : "manipulation" }}
       onClick={handleClick} onDoubleClick={onDoubleClick}
       onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
     >
       {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
