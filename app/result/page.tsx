@@ -612,7 +612,7 @@ function ResultContent() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Papier</span>
-                  <span className="font-semibold text-slate-900">Glacé premium 170 g/m²</span>
+                  <span className="font-semibold text-slate-900">Satiné premium 170 g/m²</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Pages</span>
@@ -788,7 +788,7 @@ function ResultContent() {
                 Commander mon album
               </h2>
               <p className="mt-2 text-sm text-slate-500">
-                Hardcover 21×28 cm · Papier glacé premium
+                Hardcover 21×28 cm · Papier satiné premium
               </p>
             </div>
             <div className="mx-auto max-w-sm">
@@ -799,7 +799,7 @@ function ResultContent() {
                 </div>
                 <ul className="space-y-2 text-xs text-slate-600">
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Couverture rigide premium</li>
-                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier glacé 170 g/m²</li>
+                  <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Papier satiné 170 g/m²</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> {pageCount} pages intérieures</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison en France et Europe</li>
                   <li className="flex items-center gap-2"><span className="text-green-500">✓</span> Livraison sous 7–12 jours ouvrés</li>

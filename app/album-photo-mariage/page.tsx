@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Album photo mariage premium — L'Instantané",
-  description: "Crée l'album photo de ton mariage. Format A4, papier brillant 170 g/m², couverture rigide. Imprimé en France & Europe, livré en 7-12 jours. Idéal cadeau pour les témoins.",
+  description: "Crée l'album photo de ton mariage. Format A4, papier satiné 170 g/m², couverture rigide. Imprimé en France & Europe, livré en 7-12 jours. Idéal cadeau pour les témoins.",
   alternates: { canonical: "/album-photo-mariage" },
   openGraph: {
     title: "Album photo mariage premium",
@@ -110,7 +110,7 @@ export default function AlbumPhotoMariagePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { icon: "💎", title: "Finition premium", desc: "Papier photo brillant 170 g/m², couverture rigide personnalisée. Un livre qui a du poids dans la main, fait pour être transmis." },
+              { icon: "💎", title: "Finition premium", desc: "Papier photo satiné 170 g/m², couverture rigide personnalisée. Un livre qui a du poids dans la main, fait pour être transmis." },
               { icon: "👰", title: "Couvertures élégantes", desc: "Designs sobres et chic adaptés au mariage, ou une photo plein cadre de vous deux en couverture." },
               { icon: "💝", title: "Idéal pour les témoins", desc: "Commande plusieurs exemplaires — un pour vous, un pour chaque famille, un pour les témoins. Un cadeau plein de sens à un prix accessible." },
               { icon: "✍️", title: "Textes et légendes", desc: "Ajoute vos dates, le nom de vos témoins, une citation qui vous tient à cœur. Le texte se pose librement sur chaque page." },

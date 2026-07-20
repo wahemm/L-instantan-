@@ -202,7 +202,7 @@ function CartCard({
                 {item.title}
               </h3>
               <p className="mt-1 text-xs text-slate-500">
-                {item.pageCount} page{item.pageCount > 1 ? "s" : ""} · Hardcover 21×28 cm · Papier glacé 170 g/m²
+                {item.pageCount} page{item.pageCount > 1 ? "s" : ""} · Hardcover 21×28 cm · Papier satiné 170 g/m²
               </p>
             </div>
             <p className="font-[family-name:var(--font-playfair)] text-2xl font-bold text-slate-900 whitespace-nowrap">

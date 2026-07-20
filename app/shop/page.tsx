@@ -123,7 +123,7 @@ export default function ShopPage() {
               <p className="mt-2 text-xs text-slate-500">32 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livre imprimé finition premium</li>
-                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Papier brillant 170g/m²</li>
+                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Papier satiné 170g/m²</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Couverture rigide personnalisée</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livraison France & Europe</li>
               </ul>
@@ -171,7 +171,7 @@ export default function ShopPage() {
                 {
                   key: "format",
                   title: "Format & Qualité",
-                  content: "Album au format A4 (21 × 28 cm), papier photo brillant 170g/m², couverture rigide personnalisée. De 32 à 200 pages selon le nombre de photos.",
+                  content: "Album au format A4 (21 × 28 cm), papier photo satiné 170g/m², couverture rigide personnalisée. De 32 à 200 pages selon le nombre de photos.",
                 },
                 {
                   key: "livraison",

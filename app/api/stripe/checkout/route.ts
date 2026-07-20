@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
           unit_amount: albumCents,
           product_data: {
             name: `Album Photo — L'Instantané${pageDesc}`,
-            description: `Album "${albumTitle}" · Hardcover 21×28 cm · Papier glacé premium 170 g/m²`,
+            description: `Album "${albumTitle}" · Hardcover 21×28 cm · Papier satiné premium 170 g/m²`,
           },
         },
       },

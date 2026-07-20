@@ -27,7 +27,7 @@ export default function CgvPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Produit</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
-            <p><strong>Album imprimé</strong> — Livre photo au format A4 (21 × 28 cm), papier photo brillant 170 g/m², couverture rigide personnalisée.</p>
+            <p><strong>Album imprimé</strong> — Livre photo au format A4 (21 × 28 cm), papier photo satiné 170 g/m², couverture rigide personnalisée.</p>
             <p>Les albums comportent au minimum 32 pages. Des pages supplémentaires peuvent être ajoutées et sont facturées selon le tarif en vigueur.</p>
           </div>
         </section>

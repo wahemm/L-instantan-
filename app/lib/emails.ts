@@ -123,7 +123,7 @@ export function buildConfirmationEmail(args: {
     ${sectionLabel("Récapitulatif de commande")}
     <table width="100%" cellpadding="0" cellspacing="0">
       ${row("Album", `&laquo;&nbsp;${escape(args.albumTitle)}&nbsp;&raquo;`)}
-      ${row("Format", "Hardcover 21×28 cm · Papier glacé")}
+      ${row("Format", "Hardcover 21×28 cm · Papier satiné")}
       ${row("Pages", `${escape(args.pageCount)} pages`, !args.amountPaid)}
       ${args.amountPaid ? `<tr>
         <td style="padding:14px 0 0;"><span style="font-size:15px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">Total</span></td>
@@ -133,7 +133,7 @@ export function buildConfirmationEmail(args: {
     ${divider()}
     ${sectionLabel("Livraison")}
     <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
-      Album imprimé hardcover · Papier glacé premium 170 g/m² · Livraison sous 7–12 jours ouvrés. Tu recevras un email avec ton numéro de suivi dès l'expédition.
+      Album imprimé hardcover · Papier satiné premium 170 g/m² · Livraison sous 7–12 jours ouvrés. Tu recevras un email avec ton numéro de suivi dès l'expédition.
     </p>
     ${ctaButton("Créer un nouvel album →", "https://linstantane.fr/create")}
   `;

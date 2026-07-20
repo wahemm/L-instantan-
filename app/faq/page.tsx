@@ -15,7 +15,7 @@ const FAQS = [
       },
       {
         q: "Quel est le format de l'album ?",
-        a: "Le format est A4 (21 × 28 cm), imprimé sur papier photo brillant 170 g/m² avec une couverture rigide personnalisée. Un rendu premium, digne des meilleurs albums professionnels.",
+        a: "Le format est A4 (21 × 28 cm), imprimé sur papier photo satiné 170 g/m² avec une couverture rigide personnalisée. Un rendu premium, digne des meilleurs albums professionnels.",
       },
       {
         q: "Quels formats d'images sont acceptés ?",

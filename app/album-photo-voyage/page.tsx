@@ -100,7 +100,7 @@ export default function AlbumPhotoVoyagePage() {
             </div>
             <div className="rounded-2xl border border-slate-200 p-6">
               <p className="text-2xl mb-3">✨</p>
-              <h3 className="font-semibold text-slate-900 mb-2">Papier photo brillant 170g/m²</h3>
+              <h3 className="font-semibold text-slate-900 mb-2">Papier photo satiné 170g/m²</h3>
               <p className="text-sm text-slate-600 leading-relaxed">Rendu couleur fidèle à ce que tu vois sur ton écran. Les paysages, couchers de soleil et plats locaux ressortent magnifiquement.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 p-6">

@@ -197,7 +197,7 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-4">
             {[
               { icon: <IconDocument />, label: "Format 21×28 cm",   desc: "Portrait, couverture rigide" },
-              { icon: <IconPhoto />,    label: "Papier photo",      desc: "170 g/m², finition brillante" },
+              { icon: <IconPhoto />,    label: "Papier photo",      desc: "170 g/m², finition satinée" },
               { icon: <IconBook />,     label: "Couverture rigide", desc: "Qualité premium"             },
               { icon: <IconTruck />,    label: "Livraison suivie",  desc: "France, 7–12 jours ouvrés"  },
             ].map((p, i) => (
@@ -444,7 +444,7 @@ export default function Home() {
               <ul className="mb-8 flex flex-col gap-3 text-left">
                 {[
                   "Livre imprimé finition premium",
-                  "Format 21×28 cm · Papier brillant 170 g/m²",
+                  "Format 21×28 cm · Papier satiné 170 g/m²",
                   "Livraison sous 7–12 jours ouvrés",
                   "Pour offrir ou garder",
                 ].map(p => (
@@ -476,7 +476,7 @@ export default function Home() {
                 icon: <IconPrinter />,
                 accent: "bg-slate-100 text-slate-700",
                 title: "Impression professionnelle",
-                desc: "Papier photo brillant 170 g/m², impression numérique haute résolution. Couleurs vives et détails nets — du niveau d'un beau livre de librairie.",
+                desc: "Papier photo satiné 170 g/m², impression numérique haute résolution. Couleurs vives et détails nets — du niveau d'un beau livre de librairie.",
               },
               {
                 icon: <IconShield />,
@@ -516,7 +516,7 @@ export default function Home() {
             {[
               { q: "Combien de temps pour recevoir mon album ?",   a: "7 à 12 jours ouvrés en France métropolitaine. Fabrication en 2 à 4 jours, puis expédition suivie en 5 à 8 jours." },
               { q: "Puis-je voir mon album avant de payer ?",      a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu." },
-              { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché brillant 170 g/m². Impression haute résolution, finition premium Gelato." },
+              { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché satiné 170 g/m². Impression haute résolution, finition premium Gelato." },
               { q: "Et si l'album ne me plaît pas ?",              a: "Satisfait ou remboursé sous 14 jours. Si l'album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement." },
               { q: "Combien ça coûte vraiment ?",                  a: "29 € pour un album de 32 pages, puis 0,50 € par page supplémentaire. Frais de port calculés au paiement. Aucun abonnement, aucun frais caché." },
             ].map((item, idx) => (

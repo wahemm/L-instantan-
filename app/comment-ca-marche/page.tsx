@@ -40,7 +40,7 @@ const STEPS = [
     num: "04",
     emoji: "🚚",
     title: "Reçois ton livre",
-    desc: "Ton album est imprimé sur papier photo brillant 170 g/m², relié couverture rigide, et livré en France en 7 à 12 jours ouvrés.",
+    desc: "Ton album est imprimé sur papier photo satiné 170 g/m², relié couverture rigide, et livré en France en 7 à 12 jours ouvrés.",
     detail: "Emballage soigné, prêt à offrir.",
   },
 ];
@@ -49,7 +49,7 @@ const PERKS = [
   {
     icon: "✨",
     title: "Qualité premium",
-    desc: "Papier 170 g/m² brillant, couverture rigide, couleurs fidèles. Un album digne des meilleurs imprimeurs professionnels.",
+    desc: "Papier 170 g/m² satiné, couverture rigide, couleurs fidèles. Un album digne des meilleurs imprimeurs professionnels.",
   },
   {
     icon: "🔒",
