@@ -131,39 +131,42 @@ export default function Home() {
     <main className="min-h-screen bg-white text-slate-900">
       <Nav />
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[#0c1220] px-6 pt-20 pb-0 text-white sm:pt-28">
-        <div className="pointer-events-none absolute inset-0" style={{ background:"radial-gradient(ellipse 70% 50% at 50% -10%, rgba(120,100,255,0.14) 0%, transparent 70%)" }}/>
-        <div className="pointer-events-none absolute inset-0" style={{ background:"radial-gradient(ellipse 50% 40% at 50% 80%, rgba(255,140,90,0.12) 0%, transparent 70%)" }}/>
+      {/* ── Hero (dégradé chaud animé) ───────────────────────────────────── */}
+      <section className="relative overflow-hidden px-6 pt-20 pb-0 text-white sm:pt-28" style={{ background:"linear-gradient(160deg, #3a1518 0%, #7a2e24 52%, #b0432a 100%)" }}>
+        <div className="hero-blob hb1" aria-hidden="true" />
+        <div className="hero-blob hb2" aria-hidden="true" />
+        <div className="hero-blob hb3" aria-hidden="true" />
+        <div className="hero-blob hb4" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0" style={{ background:"radial-gradient(ellipse 72% 58% at 50% 32%, rgba(26,9,7,0.45) 0%, transparent 72%)" }}/>
 
-        <div className="relative mx-auto max-w-5xl">
+        <div className="relative z-10 mx-auto max-w-5xl">
           <div className="flex flex-col items-center text-center animate-fade-up">
-            <span className="mb-5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+            <span className="mb-5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-50">
               <span className="text-amber-300">★</span> Album photo premium · Imprimé en France & Europe
             </span>
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl italic leading-tight text-white sm:text-5xl lg:text-6xl">
               Tes souvenirs méritent
               <br />
-              <span className="bg-gradient-to-r from-white via-amber-100 to-orange-300 bg-clip-text text-transparent">un beau livre.</span>
+              <span className="bg-gradient-to-r from-white to-amber-100 bg-clip-text text-transparent">un beau livre.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-slate-400">
+            <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/80">
               Choisis ta couverture, place tes photos, prévisualise chaque page. Imprimé avec soin et livré chez toi en 7 à 12 jours.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-              <Link href="/create" className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 hover:shadow-[0_8px_30px_rgba(255,255,255,0.18)]">
+              <Link href="/create" className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 hover:shadow-[0_8px_30px_rgba(255,255,255,0.25)]">
                 Créer mon album
                 <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
               </Link>
-              <Link href="/comment-ca-marche" className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:border-white/30">
+              <Link href="/comment-ca-marche" className="inline-flex items-center justify-center rounded-full border border-white/25 px-8 py-3.5 text-sm font-medium text-white/90 transition hover:bg-white/10 hover:border-white/40">
                 Comment ça marche
               </Link>
             </div>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500">
-              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Imprimé en France & Europe</span>
-              <span className="text-slate-700">·</span>
-              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> À partir de 29 €</span>
-              <span className="text-slate-700">·</span>
-              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Satisfait ou remboursé 14 j</span>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/75">
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Imprimé en France & Europe</span>
+              <span className="text-white/30">·</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> À partir de 29 €</span>
+              <span className="text-white/30">·</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Satisfait ou remboursé 14 j</span>
             </div>
           </div>
 
