@@ -274,6 +274,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── En vrai (lifestyle) ───────────────────────────────────────────── */}
+      <section className="bg-[#f8f7f4] py-20 sm:py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            {/* Photo lifestyle */}
+            <div className="mx-auto w-full max-w-md">
+              <div className="overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/5" style={{ aspectRatio: "3/4" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/lifestyle/mexico.jpg"
+                  alt="Un lecteur feuillette son album L'Instantané « Mexique »"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Texte */}
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">En vrai</p>
+              <blockquote className="font-[family-name:var(--font-playfair)] text-2xl italic leading-snug text-slate-900 sm:text-3xl">
+                « Tes plus beaux voyages, enfin entre tes mains. »
+              </blockquote>
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">
+                Pas un fichier de plus perdu dans la galerie — un vrai livre à feuilleter, à offrir et à transmettre.
+              </p>
+
+              <ul className="mt-8 flex flex-col gap-4">
+                {[
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    ),
+                    text: "Parfait pour les photos de téléphone",
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+                    ),
+                    text: "Imprimé en Europe, à la demande",
+                  },
+                  {
+                    icon: (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                    ),
+                    text: "Garantie qualité premium",
+                  },
+                ].map(f => (
+                  <li key={f.text} className="flex items-center gap-3 text-slate-700">
+                    <span className="shrink-0 text-slate-400">{f.icon}</span>
+                    <span className="text-sm sm:text-base">{f.text}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/create" className="mt-9 inline-flex items-center justify-center rounded-full bg-slate-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">
+                Créer mon album →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Storytelling ─────────────────────────────────────────────────── */}
       <section className="bg-[#0c1220] py-20 text-white sm:py-28">
         <div className="mx-auto grid max-w-5xl gap-14 px-6 lg:grid-cols-2 lg:items-center">
