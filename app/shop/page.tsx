@@ -64,12 +64,16 @@ export default function ShopPage() {
 
           {/* ── Left: visual ── */}
           <div className="flex flex-col gap-5">
-            <div className="mx-auto w-full max-w-[340px]">
-              <div className="relative overflow-hidden rounded-lg shadow-xl" style={{ aspectRatio: "210/297" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
-                {/* Book spine effect */}
-                <div className="absolute inset-y-0 left-0 w-3" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.35), transparent)" }} />
+            <div className="book3d-scene mx-auto w-full max-w-[340px]">
+              <div className="book3d">
+                {/* Tranche 3D (dos du livre), révélée au survol */}
+                <div className="book3d-spine" />
+                <div className="book3d-cover relative overflow-hidden rounded-lg shadow-xl" style={{ aspectRatio: "210/297" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
+                  {/* Ombre du pli côté reliure */}
+                  <div className="absolute inset-y-0 left-0 w-3" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.35), transparent)" }} />
+                </div>
               </div>
             </div>
 
