@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
+import Coverflow from "@/app/components/Coverflow";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -222,22 +223,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
-            {COVER_PREVIEWS.map(tpl => (
-              <Link key={tpl.id} href="/create" className="group flex flex-col items-center gap-2">
-                <div className="w-full overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5 transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-2 group-hover:ring-black/10">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={tpl.src} alt={tpl.name}
-                    className="w-full object-cover"
-                    style={{ aspectRatio:"210/280", objectPosition:"right center" }}
-                    loading="lazy"
-                  />
-                </div>
-                <span className="text-[11px] text-slate-400 group-hover:text-slate-700 transition">{tpl.name}</span>
-              </Link>
-            ))}
-          </div>
+          <Coverflow covers={COVER_PREVIEWS} />
 
           <div className="mt-12 text-center">
             <Link href="/create" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700">
