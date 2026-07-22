@@ -117,37 +117,61 @@ img {
   html { scroll-behavior: auto }
 }
 
-/* ─── Livre 3D : pivote au survol (desktop) ─────────────── */
+/* ─── Livre 3D : vrai livre épais qui pivote au survol ─── */
 .book3d-scene {
-  perspective: 1600px;
+  perspective: 2000px;
+  perspective-origin: 50% 40%;
 }
 .book3d {
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform-origin: center center 12px;
+  transition: transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
 }
 .book3d-scene:hover .book3d {
-  transform: rotateY(-26deg) translateY(-6px);
+  transform: rotateY(22deg) translateY(-8px);
 }
-/* Face de la tranche (dos du livre), révélée par la rotation */
-.book3d-spine {
+.book3d-face {
   position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 22px;
-  background: linear-gradient(90deg, #171717 0%, #3f3f46 100%);
-  transform-origin: right center;
-  transform: translateX(-22px) rotateY(90deg);
-  border-radius: 8px 0 0 8px;
+  inset: 0;
+  border-radius: 3px 7px 7px 3px;
+  overflow: hidden;
 }
+/* Couverture (devant) — posée sur l'épaisseur, déborde un peu (relié rigide) */
 .book3d-cover {
-  position: relative;
-  transition: box-shadow 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: translateZ(24px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+  transition: box-shadow 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .book3d-scene:hover .book3d-cover {
-  box-shadow: 28px 24px 44px rgba(15, 23, 42, 0.3);
+  box-shadow: 24px 26px 44px rgba(15, 23, 42, 0.28);
+}
+/* Quatrième de couverture (derrière) */
+.book3d-back {
+  transform: translateZ(0);
+  background: #5a1414;
+}
+/* Pile de pages crème — donne l'épaisseur, visible sur la tranche */
+.book3d-page {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 2px;
+  right: 4px;
+  border-radius: 1px 3px 3px 1px;
+}
+/* Dos / reliure à gauche */
+.book3d-spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(-90deg);
+  background: linear-gradient(90deg, #3f0d0d 0%, #741a1a 100%);
+  border-radius: 3px 0 0 3px;
 }
 /* Mobile / tactile : pas de survol → léger zoom au toucher */
 @media (hover: none) {
@@ -155,12 +179,11 @@ img {
     transition: transform 0.3s ease;
   }
   .book3d-scene:active .book3d-cover {
-    transform: scale(1.03);
+    transform: translateZ(24px) scale(1.02);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .book3d,
-  .book3d-cover {
+  .book3d {
     transition: none !important;
   }
   .book3d-scene:hover .book3d {

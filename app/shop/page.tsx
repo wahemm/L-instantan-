@@ -65,10 +65,24 @@ export default function ShopPage() {
           {/* ── Left: visual ── */}
           <div className="flex flex-col gap-5">
             <div className="book3d-scene mx-auto w-full max-w-[340px]">
-              <div className="book3d">
-                {/* Tranche 3D (dos du livre), révélée au survol */}
+              <div className="book3d" style={{ aspectRatio: "210/297" }}>
+                {/* Quatrième de couverture (derrière) */}
+                <div className="book3d-face book3d-back" />
+                {/* Pile de pages crème (épaisseur du livre) */}
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="book3d-page"
+                    style={{
+                      transform: `translateZ(${(i + 1) * 1.2}px)`,
+                      background: i % 2 ? "#efe7d6" : "#e3d9c2",
+                    }}
+                  />
+                ))}
+                {/* Dos / reliure */}
                 <div className="book3d-spine" />
-                <div className="book3d-cover relative overflow-hidden rounded-lg shadow-xl" style={{ aspectRatio: "210/297" }}>
+                {/* Couverture (devant) */}
+                <div className="book3d-face book3d-cover">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
                   {/* Ombre du pli côté reliure */}
