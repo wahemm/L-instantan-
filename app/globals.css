@@ -216,6 +216,7 @@ img {
 /* ─── Coverflow 3D (carrousel couvertures) ─────────────── */
 .cf-scene {
   position: relative;
+  width: 100%;
   height: clamp(300px, 44vw, 360px);
   perspective: 1150px;
   overflow: hidden;

@@ -3,21 +3,11 @@ import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
 import Coverflow from "@/app/components/Coverflow";
+import { ALL_COVERS } from "@/app/lib/covers";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
-
-const COVER_PREVIEWS = [
-  { id: "espagne",   name: "Espagne",   src: "/covers/Espagne.png" },
-  { id: "italie",    name: "Italie",    src: "/covers/Italie.png" },
-  { id: "provence",  name: "Provence",  src: "/covers/Provence.png" },
-  { id: "miami",     name: "Miami",     src: "/covers/Miami.png" },
-  { id: "marrakech", name: "Marrakech", src: "/covers/Marrakech.png" },
-  { id: "bali",      name: "Bali",      src: "/covers/bali 1.png" },
-  { id: "paris",     name: "Paris",     src: "/covers/paris.png" },
-  { id: "perou",     name: "Pérou",     src: "/covers/Perou.png" },
-];
 
 // ── Icônes SVG ────────────────────────────────────────────────────────────────
 
@@ -223,7 +213,7 @@ export default function Home() {
             </p>
           </div>
 
-          <Coverflow covers={COVER_PREVIEWS} />
+          <Coverflow covers={ALL_COVERS} />
 
           <div className="mt-12 text-center">
             <Link href="/create" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700">

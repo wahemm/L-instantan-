@@ -80,7 +80,7 @@ export default function Coverflow({ covers }: { covers: Cover[] }) {
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={cov.src} alt={cov.name} style={{ objectPosition: "right center" }} />
+              <img src={cov.src} alt={cov.name} loading="lazy" style={{ objectPosition: "right center" }} />
             </Link>
           );
         })}
