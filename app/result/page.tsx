@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
 import { INCLUDED_PAGES } from "@/app/lib/pricing";
@@ -297,10 +296,6 @@ function ResultContent() {
   const [shippingCost, setShippingCost] = useState<number | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added">("idle");
-  // Checkout uploads the album PDFs to an auth-gated endpoint (/api/upload-pdf,
-  // Clerk-protected). We check sign-in state up front so a logged-out user is
-  // sent to sign in BEFORE we spend time generating the album.
-  const { isSignedIn, isLoaded: authLoaded } = useUser();
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
 
@@ -408,17 +403,8 @@ function ResultContent() {
 
   async function onCheckout() {
     if (!album || album.type !== "manual") return;
-    // Require sign-in first. The PDF upload endpoint is Clerk-protected, so a
-    // logged-out user would generate the whole album and then hit a 401
-    // ("Failed to retrieve the client token") at upload. Redirect to sign-in
-    // with a return URL back here — the album lives in sessionStorage, which
-    // survives the same-tab round-trip. Only redirect once auth state is known
-    // (authLoaded) so a signed-in user is never bounced on an ultra-early click.
-    if (authLoaded && !isSignedIn) {
-      const returnUrl = `${window.location.origin}/result`;
-      window.location.href = `/connexion?redirect_url=${encodeURIComponent(returnUrl)}`;
-      return;
-    }
+    // Pas de compte requis : /api/upload-pdf accepte les invités, Stripe
+    // récupère l'email et « Mes commandes » retrouve la commande par email.
     if (checkoutInFlightRef.current) return;
     checkoutInFlightRef.current = true;
 
