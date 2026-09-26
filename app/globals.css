@@ -192,19 +192,21 @@ img {
 }
 
 /* ─── Hero : dégradé chaud animé (coucher de soleil) ────── */
+/* Dégradés radiaux (cœur plein → transparent) plutôt que filter: blur() :
+   même halo, mais sans re-flouter de grandes surfaces animées (lourd sur
+   mobile, surtout Safari). Tailles +10rem pour retrouver l'étalement du flou. */
 .hero-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
   opacity: 0.8;
   z-index: 0;
   pointer-events: none;
   will-change: transform;
 }
-.hero-blob.hb1 { width: 34rem; height: 34rem; background: #f4693f; top: -8rem;  left: -6rem;  animation: heroFloat1 15s ease-in-out infinite; }
-.hero-blob.hb2 { width: 36rem; height: 36rem; background: #f6a623; top: -6rem;  right: -8rem; animation: heroFloat2 18s ease-in-out infinite; }
-.hero-blob.hb3 { width: 32rem; height: 32rem; background: #e85d86; bottom: -10rem; left: 15%; animation: heroFloat3 17s ease-in-out infinite; }
-.hero-blob.hb4 { width: 30rem; height: 30rem; background: #ffb279; bottom: -8rem; right: 6%;  animation: heroFloat4 20s ease-in-out infinite; }
+.hero-blob.hb1 { width: 44rem; height: 44rem; top: -13rem;  left: -11rem;  background: radial-gradient(circle closest-side, rgb(244 105 63) 0%, rgb(244 105 63) 35%, rgb(244 105 63 / 0) 100%); animation: heroFloat1 15s ease-in-out infinite; }
+.hero-blob.hb2 { width: 46rem; height: 46rem; top: -11rem;  right: -13rem; background: radial-gradient(circle closest-side, rgb(246 166 35) 0%, rgb(246 166 35) 35%, rgb(246 166 35 / 0) 100%); animation: heroFloat2 18s ease-in-out infinite; }
+.hero-blob.hb3 { width: 42rem; height: 42rem; bottom: -15rem; left: calc(15% - 5rem); background: radial-gradient(circle closest-side, rgb(232 93 134) 0%, rgb(232 93 134) 35%, rgb(232 93 134 / 0) 100%); animation: heroFloat3 17s ease-in-out infinite; }
+.hero-blob.hb4 { width: 40rem; height: 40rem; bottom: -13rem; right: calc(6% - 5rem); background: radial-gradient(circle closest-side, rgb(255 178 121) 0%, rgb(255 178 121) 35%, rgb(255 178 121 / 0) 100%); animation: heroFloat4 20s ease-in-out infinite; }
 @keyframes heroFloat1 { 0%,100%{ transform: translate(0,0) scale(1) }   50%{ transform: translate(60px,40px) scale(1.15) } }
 @keyframes heroFloat2 { 0%,100%{ transform: translate(0,0) scale(1) }   50%{ transform: translate(-50px,60px) scale(1.1) } }
 @keyframes heroFloat3 { 0%,100%{ transform: translate(0,0) scale(1) }   50%{ transform: translate(45px,-40px) scale(1.18) } }
