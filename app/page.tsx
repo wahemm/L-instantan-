@@ -155,9 +155,9 @@ export default function Home() {
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/75">
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Imprimé en France & Europe</span>
-              <span className="text-white/30">·</span>
+              <span className="hidden text-white/30 sm:inline">·</span>
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> À partir de 29 €</span>
-              <span className="text-white/30">·</span>
+              <span className="hidden text-white/30 sm:inline">·</span>
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Satisfait ou remboursé 14 j</span>
             </div>
           </div>
@@ -521,9 +521,9 @@ export default function Home() {
           </Link>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-500">
             <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Aperçu avant paiement</span>
-            <span className="text-slate-700">·</span>
+            <span className="hidden text-slate-700 sm:inline">·</span>
             <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Stripe sécurisé</span>
-            <span className="text-slate-700">·</span>
+            <span className="hidden text-slate-700 sm:inline">·</span>
             <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Remboursé 14 j</span>
           </div>
         </div>
