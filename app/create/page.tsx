@@ -2,6 +2,8 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+// Alias : `Image` reste le constructeur natif du navigateur (utilisé plus bas)
+import NextImage from "next/image";
 import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
@@ -1416,10 +1418,12 @@ export default function CreatePage() {
                 >
                   {/* Couverture avant = moitié droite de l'export Canva */}
                   <div className="aspect-[3/4] w-full overflow-hidden relative bg-gray-100">
-                    <img
+                    <NextImage
                       src={tpl.src}
                       alt={tpl.name}
-                      className="absolute top-0 right-0 h-full w-auto max-w-none transition group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 639px) 300px, 440px"
+                      className="object-cover object-right transition group-hover:scale-105"
                     />
                   </div>
                   {selected && (
@@ -1608,8 +1612,7 @@ export default function CreatePage() {
                               className={`relative overflow-hidden rounded-md border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900":"border-gray-200"}`}
                               style={{aspectRatio:"2000/1389"}}
                             >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={tpl.src} alt={tpl.name} className="h-full w-full object-cover"/>
+                              <NextImage src={tpl.src} alt={tpl.name} fill sizes="100px" className="object-cover"/>
                             </button>
                           ))}
                         </div>
@@ -1961,8 +1964,7 @@ export default function CreatePage() {
                                 className={`relative overflow-hidden rounded-lg border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900 shadow":"border-gray-200 hover:border-slate-400"}`}
                                 style={{aspectRatio:"2000/1389"}}
                               >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={tpl.src} alt={tpl.name} className="h-full w-full object-cover"/>
+                                <NextImage src={tpl.src} alt={tpl.name} fill sizes="100px" className="object-cover"/>
                                 {tpl.premium && (
                                   <span className="absolute top-0.5 right-0.5 rounded bg-amber-400 px-1 py-0.5 text-[7px] font-bold text-slate-900">PRO</span>
                                 )}

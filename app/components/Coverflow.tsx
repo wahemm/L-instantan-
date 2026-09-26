@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Cover {
@@ -50,6 +51,9 @@ export default function Coverflow({ covers }: { covers: Cover[] }) {
           if (off > n / 2) off -= n;
           if (off < -n / 2) off += n;
           const ax = Math.abs(off);
+          // Fenêtre de rendu : seules les 7 cartes autour du centre existent
+          // (celles à ±3 sont transparentes et servent d'entrée en fondu).
+          if (ax > 3) return null;
           const x = off * cw * 0.72;
           const z = -ax * cw * 0.8;
           const ry = off * -40;
@@ -79,8 +83,7 @@ export default function Coverflow({ covers }: { covers: Cover[] }) {
                 }
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={cov.src} alt={cov.name} loading="lazy" style={{ objectPosition: "right center" }} />
+              <Image src={cov.src} alt={cov.name} fill sizes="320px" style={{ objectPosition: "right center" }} />
             </Link>
           );
         })}

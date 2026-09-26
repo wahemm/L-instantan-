@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
@@ -97,8 +98,8 @@ function IconStar() {
 }
 
 // Book mockup
-function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0 }: {
-  src: string; alt: string; rotate?: number; scale?: number; zIndex?: number;
+function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0, hi = false }: {
+  src: string; alt: string; rotate?: number; scale?: number; zIndex?: number; hi?: boolean;
 }) {
   return (
     <div style={{
@@ -107,9 +108,9 @@ function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0 }: {
       position: "relative", flexShrink: 0, transformStyle: "preserve-3d",
     }}>
       <div style={{ position:"absolute", left:-6, top:2, bottom:2, width:12, background:"linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.15))", borderRadius:"4px 0 0 4px", transform:"translateZ(-1px)" }}/>
-      <div style={{ width:"100%", height:"100%", borderRadius:4, overflow:"hidden", boxShadow:"8px 12px 28px rgba(0,0,0,0.45), 2px 2px 8px rgba(0,0,0,0.2)" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} style={{ width:"200%", height:"100%", objectFit:"cover", objectPosition:"100% center", display:"block" }}/>
+      <div style={{ position:"relative", width:"100%", height:"100%", borderRadius:4, overflow:"hidden", boxShadow:"8px 12px 28px rgba(0,0,0,0.45), 2px 2px 8px rgba(0,0,0,0.2)" }}>
+        {/* Export Canva = couverture dépliée (dos | tranche | avant) → on cale à droite */}
+        <Image src={src} alt={alt} fill sizes="350px" loading="eager" fetchPriority={hi ? "high" : undefined} style={{ objectFit:"cover", objectPosition:"right center" }}/>
       </div>
       <div style={{ position:"absolute", right:-3, top:4, bottom:4, width:6, background:"linear-gradient(to right, #e8e4df, #f5f2ed, #e8e4df)", borderRadius:"0 2px 2px 0", zIndex:-1 }}/>
       <div style={{ position:"absolute", left:4, right:4, bottom:-3, height:6, background:"linear-gradient(to bottom, #e8e4df, #f5f2ed, #e8e4df)", borderRadius:"0 0 2px 2px", zIndex:-1 }}/>
@@ -166,7 +167,7 @@ export default function Home() {
               <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1}/>
             </div>
             <div className="animate-float-slow" style={{ marginBottom:0 }}>
-              <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3}/>
+              <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} hi/>
             </div>
             <div className="hidden sm:block animate-float-slow" style={{ marginBottom:16, animationDelay:"0.4s" }}>
               <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1}/>
@@ -229,13 +230,13 @@ export default function Home() {
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             {/* Photo lifestyle */}
             <div className="mx-auto w-full max-w-md">
-              <div className="overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/5" style={{ aspectRatio: "3/4" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/5" style={{ aspectRatio: "3/4" }}>
+                <Image
                   src="/lifestyle/mexico.jpg"
                   alt="Un lecteur feuillette son album L'Instantané « Mexique »"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 500px) 92vw, 448px"
+                  className="object-cover"
                 />
               </div>
             </div>

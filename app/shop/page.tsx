@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
@@ -83,8 +84,7 @@ export default function ShopPage() {
                 <div className="book3d-spine" />
                 {/* Couverture (devant) */}
                 <div className="book3d-face book3d-cover">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
+                  <Image src={cover.src} alt={cover.name} fill sizes="700px" loading="eager" fetchPriority="high" className="object-cover" style={{ objectPosition: "right center" }} />
                   {/* Ombre du pli côté reliure */}
                   <div className="absolute inset-y-0 left-0 w-3" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.35), transparent)" }} />
                 </div>
@@ -99,14 +99,14 @@ export default function ShopPage() {
                     key={c.id}
                     onClick={() => setSelectedCoverId(c.id)}
                     title={c.name}
-                    className={`overflow-hidden rounded-md transition-all ${
+                    className={`relative overflow-hidden rounded-md transition-all ${
                       selectedCoverId === c.id
                         ? "ring-2 ring-slate-900 ring-offset-2 scale-105"
                         : "hover:ring-1 hover:ring-slate-300 hover:ring-offset-1"
                     }`}
+                    style={{ aspectRatio: "210/297" }}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.src} alt={c.name} className="w-full h-full object-cover" style={{ aspectRatio: "210/297", objectPosition: "right center" }} />
+                    <Image src={c.src} alt={c.name} fill sizes="(max-width: 639px) 160px, (max-width: 1023px) 270px, 140px" className="object-cover" style={{ objectPosition: "right center" }} />
                   </button>
                 ))}
               </div>
@@ -151,9 +151,8 @@ export default function ShopPage() {
             <div>
               <p className="mb-2.5 text-sm font-medium text-slate-700">Couverture sélectionnée</p>
               <div className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
-                <div className="h-11 w-8 shrink-0 overflow-hidden rounded" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={cover.src} alt={cover.name} className="h-full w-full object-cover" style={{ objectPosition: "right center" }} />
+                <div className="relative h-11 w-8 shrink-0 overflow-hidden rounded" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
+                  <Image src={cover.src} alt={cover.name} fill sizes="64px" className="object-cover" style={{ objectPosition: "right center" }} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-slate-900">{cover.name}</p>
