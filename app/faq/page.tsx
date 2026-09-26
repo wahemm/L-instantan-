@@ -45,7 +45,7 @@ const FAQS = [
     items: [
       {
         q: "Combien coûte un album ?",
-        a: "À partir de 29 € pour un album de 32 pages. Chaque page supplémentaire est à 0,50 €. Pas de frais cachés, pas d'abonnement.",
+        a: "À partir de 29 € pour un album de 32 pages. Chaque page supplémentaire est à 0,50 €. Livraison suivie en plus : environ 9 € en France, le montant exact s'affiche avant le paiement. Pas de frais cachés, pas d'abonnement.",
       },
       {
         q: "Comment fonctionne le paiement ?",

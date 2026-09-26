@@ -65,7 +65,7 @@ export default function LivraisonPage() {
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Frais de port</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p>Les frais de port sont calculés au moment du paiement, en fonction du pays de livraison et du poids du colis. Aucun frais caché.</p>
+            <p>Les frais de port dépendent du pays de livraison et du poids du colis — à titre indicatif, environ 9 € en France et 7 € en Belgique. Le montant exact s&apos;affiche avant le paiement. Aucun frais caché.</p>
           </div>
         </section>
 

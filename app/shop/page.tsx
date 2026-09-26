@@ -128,7 +128,7 @@ export default function ShopPage() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">🔒 Paiement sécurisé</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
-                Format A4 · Papier photo 170g/m² · Couverture rigide · De 32 à 200 pages
+                Format 21×28 cm · Papier photo 170g/m² · Couverture rigide · De 32 à 200 pages
               </p>
             </div>
 
@@ -136,7 +136,7 @@ export default function ShopPage() {
             <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6">
               <div className="flex items-baseline gap-2">
                 <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">29 €</span>
-                <span className="text-sm text-slate-400">+ livraison</span>
+                <span className="text-sm text-slate-400">+ livraison (≈ 9 € en France)</span>
               </div>
               <p className="mt-2 text-xs text-slate-500">32 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
