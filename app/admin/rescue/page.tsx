@@ -40,7 +40,7 @@ export default function RescuePage() {
   const [running, setRunning] = useState(false);
   const [gelatoOrderId, setGelatoOrderId] = useState<string | null>(null);
 
-  const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase();
+  const email = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
   const isAdmin = email === "hbbhugo.thomas@gmail.com" || email === "linstantane.officiel@gmail.com";
 
   useEffect(() => {

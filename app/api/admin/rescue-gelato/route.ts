@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentAdminEmail } from "@/app/lib/auth";
 import { createGelatoOrder, GELATO_MIN_PAGES } from "@/app/lib/gelato";
-
-// Admin allowlist
-const ADMIN_EMAILS = new Set(
-  (process.env.ADMIN_EMAILS ?? "hbbhugo.thomas@gmail.com,linstantane.officiel@gmail.com")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-);
 
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
   httpClient: Stripe.createNodeHttpClient(),
@@ -17,9 +9,7 @@ const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
 
 export async function POST(req: NextRequest) {
   // ── Admin auth ──
-  const user = await currentUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase();
-  if (!email || !ADMIN_EMAILS.has(email)) {
+  if (!(await currentAdminEmail())) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

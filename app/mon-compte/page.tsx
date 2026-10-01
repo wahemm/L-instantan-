@@ -41,6 +41,7 @@ export default function MonComptePage() {
     fetch("/api/orders")
       .then(r => r.json())
       .then(d => setOrders(d.orders ?? []))
+      .catch(() => { /* liste vide si le réseau ou l'API échoue */ })
       .finally(() => setLoadingOrders(false));
     return () => window.removeEventListener("linstantane:cart-changed", onChange);
   }, []);
@@ -81,7 +82,7 @@ export default function MonComptePage() {
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900">
             Bonjour {user?.firstName ?? ""}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">{user?.emailAddresses?.[0]?.emailAddress}</p>
+          <p className="mt-1 text-sm text-slate-500">{user?.primaryEmailAddress?.emailAddress}</p>
         </div>
 
         {/* Albums sauvegardés */}

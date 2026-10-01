@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
+import { currentVerifiedEmail } from "@/app/lib/auth";
+import { listPaidSessionsByEmail } from "@/app/lib/orders";
 import Stripe from "stripe";
 import { batchGelatoStatuses, gelatoStatusLabel } from "@/app/lib/gelato";
 
@@ -11,22 +13,11 @@ export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = await currentUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress;
+  const email = await currentVerifiedEmail();
   if (!email) return NextResponse.json({ orders: [] });
 
   try {
-    // Find customer by email
-    const customers = await stripe.customers.list({ email, limit: 5 });
-    if (customers.data.length === 0) return NextResponse.json({ orders: [] });
-
-    // Get all completed checkout sessions for this customer
-    const sessions = await stripe.checkout.sessions.list({
-      customer: customers.data[0].id,
-      limit: 20,
-    });
-
-    const paidSessions = sessions.data.filter(s => s.payment_status === "paid");
+    const paidSessions = await listPaidSessionsByEmail(stripe, email);
 
     // Fetch Gelato statuses in parallel
     let gelatoStatuses = new Map<string, { status: string; gelatoOrderId?: string; trackingCode?: string; trackingUrl?: string }>();

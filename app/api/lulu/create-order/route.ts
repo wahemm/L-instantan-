@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { currentAdminEmail } from "@/app/lib/auth";
 import { createPrintJob } from "@/app/lib/lulu";
 
 /**
- * POST /api/lulu/create-order
- * Called by the Stripe webhook after successful payment.
- * Creates a print job on Lulu with the uploaded PDFs.
+ * POST /api/lulu/create-order — ancien circuit Lulu (l'impression passe
+ * désormais par Gelato, depuis le webhook Stripe).
+ * Crée une impression réelle facturée sur le compte Lulu : réservé à l'admin.
  */
 export async function POST(req: NextRequest) {
+  if (!(await currentAdminEmail())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const {

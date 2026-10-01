@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { verifiedEmailOf } from "@/app/lib/auth";
+import { listPaidSessionsByEmail } from "@/app/lib/orders";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Nav from "@/app/components/Nav";
@@ -74,21 +76,7 @@ async function fetchOrders(email: string): Promise<Order[]> {
     httpClient: Stripe.createNodeHttpClient(),
   });
 
-  const customers = await stripe.customers.list({ email, limit: 10 });
-  if (customers.data.length === 0) return [];
-
-  const allSessions: Stripe.Checkout.Session[] = [];
-  for (const customer of customers.data) {
-    const sessions = await stripe.checkout.sessions.list({
-      customer: customer.id,
-      limit: 50,
-    });
-    allSessions.push(
-      ...sessions.data.filter((s) => s.payment_status === "paid")
-    );
-  }
-
-  allSessions.sort((a, b) => b.created - a.created);
+  const allSessions = await listPaidSessionsByEmail(stripe, email);
 
   // Fetch Gelato statuses for all sessions
   const sessionIds = allSessions.map((s) => s.id);
@@ -150,7 +138,7 @@ export default async function CommandesPage() {
   }
 
   const user = await currentUser();
-  const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
+  const email = verifiedEmailOf(user) ?? "";
   const firstName = user?.firstName ?? "";
 
   const orders = email ? await fetchOrders(email) : [];

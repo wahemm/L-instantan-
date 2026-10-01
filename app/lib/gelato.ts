@@ -294,11 +294,27 @@ export async function createGelatoOrder(params: {
 }
 
 /** Get a Gelato order by its internal ID */
-export async function getGelatoOrder(orderId: string) {
-  const res = await fetch(`${GELATO_ORDER_API}/v4/orders/${orderId}`, {
+/** Commande complète (GET /v4/orders/{id}) — seuls les champs utilisés. */
+export interface GelatoOrderDetails {
+  id: string;
+  orderReferenceId?: string;
+  fulfillmentStatus?: string;
+  shipment?: {
+    shipmentMethodName?: string;
+    packages?: { trackingCode?: string; trackingUrl?: string }[];
+  };
+  items?: {
+    fulfillments?: { trackingCode?: string; trackingUrl?: string; shipmentMethodName?: string }[];
+  }[];
+}
+
+/** Commande complète, ou null si elle n'existe pas dans notre compte Gelato. */
+export async function getGelatoOrder(orderId: string): Promise<GelatoOrderDetails | null> {
+  const res = await fetch(`${GELATO_ORDER_API}/v4/orders/${encodeURIComponent(orderId)}`, {
     headers: gelatoHeaders(),
     signal: AbortSignal.timeout(15_000),
   });
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Get Gelato order failed: ${res.status}`);
   return res.json();
 }
