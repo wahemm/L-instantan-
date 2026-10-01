@@ -4,7 +4,7 @@ import Footer from "@/app/components/Footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Laisser un avis — L'Instantané",
+  title: "Laisser un avis",
   description: "Tu as reçu ton album L'Instantané ? Partage ton ressenti. Ton avis aide d'autres parents et couples à se décider.",
   alternates: { canonical: "/avis" },
   robots: { index: true, follow: true },

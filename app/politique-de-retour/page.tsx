@@ -28,7 +28,7 @@ export default function PolitiqueRetourPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Garantie "Satisfait ou remboursé" — 14 jours</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">2. Garantie « Satisfait ou remboursé » — 14 jours</h2>
           <p className="text-sm leading-relaxed text-slate-600 mb-3">
             Si ton album présente <strong>un défaut de fabrication</strong> (impression abîmée, pages collées, couverture endommagée, page manquante…) ou s&apos;il <strong>ne correspond pas à l&apos;aperçu que tu as validé</strong>, on te propose :
           </p>

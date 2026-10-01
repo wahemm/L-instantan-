@@ -8,7 +8,7 @@ import Stripe from "stripe";
 import { batchGelatoStatuses } from "@/app/lib/gelato";
 
 export const metadata: Metadata = {
-  title: "Mes commandes — L'Instantané",
+  title: "Mes commandes",
   robots: { index: false, follow: false },
 };
 

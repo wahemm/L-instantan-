@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Album photo voyage personnalisé — L'Instantané",
+  title: "Album photo voyage personnalisé",
   description: "Crée ton album photo voyage sur-mesure. Couvertures Italie, Japon, Mexique, Grèce, Maroc… Imprimé en France, livré en 7-12 jours. À partir de 29€.",
   alternates: { canonical: "/album-photo-voyage" },
   openGraph: {

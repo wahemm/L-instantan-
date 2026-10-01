@@ -5,7 +5,7 @@ import Footer from "@/app/components/Footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Album photo mariage premium — L'Instantané",
+  title: "Album photo mariage premium",
   description: "Crée l'album photo de ton mariage. Format A4, papier satiné 170 g/m², couverture rigide. Imprimé en France & Europe, livré en 7-12 jours. Idéal cadeau pour les témoins.",
   alternates: { canonical: "/album-photo-mariage" },
   openGraph: {

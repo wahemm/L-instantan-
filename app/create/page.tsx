@@ -799,6 +799,11 @@ export default function CreatePage() {
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
   const [editingTitle, setEditingTitle] = useState(false);
   const undoStackRef = useRef<EditorPage[][]>([]);
+  // Copie toujours à jour des pages : snapshot() est aussi appelée depuis un
+  // useCallback mémorisé (import de photos) qui verrait sinon une vieille
+  // version de `pages` → « Annuler » restaurerait un état périmé.
+  const pagesRef = useRef(pages);
+  useEffect(() => { pagesRef.current = pages; }, [pages]);
   const [canUndo, setCanUndo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasSavedAlbum, setHasSavedAlbum] = useState(false);
@@ -958,7 +963,7 @@ export default function CreatePage() {
   const selectedText = selectedTextId ? (currentPage.texts||[]).find(t=>t.id===selectedTextId) ?? null : null;
 
   function snapshot() {
-    undoStackRef.current = [...undoStackRef.current.slice(-19), pages.map(p=>({...p,photos:[...p.photos],texts:[...(p.texts||[])],stickers:[...(p.stickers||[])]}))];
+    undoStackRef.current = [...undoStackRef.current.slice(-19), pagesRef.current.map(p=>({...p,photos:[...p.photos],texts:[...(p.texts||[])],stickers:[...(p.stickers||[])]}))];
     setCanUndo(true);
   }
   function undo() {
@@ -1039,6 +1044,7 @@ export default function CreatePage() {
     });
     // Jump to the first content page so user immediately sees the result
     setCurrentPageIdx(1);
+    // (snapshot() lit pagesRef, toujours à jour, d'où l'absence en dépendance)
   }, [selectedCover]);
 
   const [bulkImporting, setBulkImporting] = useState(false);

@@ -4,7 +4,7 @@ import Footer from "@/app/components/Footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Album photo naissance et bébé — L'Instantané",
+  title: "Album photo naissance et bébé",
   description: "Crée l'album photo de naissance de ton bébé. Premiers mois, premiers sourires, premiers pas. Format A4, papier satiné 170 g/m², livré en 7-12 jours. Cadeau de naissance idéal.",
   alternates: { canonical: "/album-photo-naissance" },
   openGraph: {

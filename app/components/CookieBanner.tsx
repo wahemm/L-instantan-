@@ -14,31 +14,48 @@
  *   (missing)   → show banner
  */
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 
 export const COOKIE_CONSENT_KEY = "cookie-consent";
 
-export default function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+// Le choix vit dans localStorage : on s'y abonne (changement sur cette page
+// via « cookie-consent-changed », ou dans un autre onglet via « storage »).
+function subscribe(onChange: () => void) {
+  window.addEventListener("cookie-consent-changed", onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener("cookie-consent-changed", onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+// Repli si localStorage refuse l'écriture : le choix vaut au moins pour la visite.
+let consentInMemory: string | null = null;
 
-  useEffect(() => {
-    try {
-      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-      if (!consent) setVisible(true);
-    } catch {
-      // localStorage blocked (e.g. private browsing in some browsers) — just hide
-    }
-  }, []);
+function readConsent(): string | null {
+  if (consentInMemory) return consentInMemory;
+  try {
+    return localStorage.getItem(COOKIE_CONSENT_KEY);
+  } catch {
+    // localStorage blocked (e.g. private browsing in some browsers) — just hide
+    return "blocked";
+  }
+}
+// Côté serveur, on ne sait pas encore : bandeau masqué jusqu'à l'hydratation.
+const readConsentOnServer = () => "unknown";
+
+export default function CookieBanner() {
+  const consent = useSyncExternalStore(subscribe, readConsent, readConsentOnServer);
+  const visible = consent === null;
 
   function setConsent(value: "accepted" | "refused") {
+    consentInMemory = value;
     try {
       localStorage.setItem(COOKIE_CONSENT_KEY, value);
     } catch {
       /* ignore */
     }
-    setVisible(false);
-    // Notify any analytics components mounted on the same page
+    // Masque le bandeau (via subscribe) et prévient les composants d'analytics
     window.dispatchEvent(new Event("cookie-consent-changed"));
   }
 
