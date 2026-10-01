@@ -16,6 +16,19 @@ const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
 // otherwise the amount charged here diverges from the price shown on /result.
 const INCLUDED_PAGES = 32;
 
+/** PDF d'album déposé sur notre Vercel Blob (cf. /api/upload-pdf). */
+function isStoredAlbumPdf(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:"
+      && u.hostname.endsWith(".public.blob.vercel-storage.com")
+      && u.pathname.startsWith("/albums/")
+      && u.pathname.endsWith(".pdf");
+  } catch {
+    return false;
+  }
+}
+
 // Pays livrables (= sélecteur de /result)
 const SHIP_COUNTRIES = ["FR", "BE", "CH", "LU", "MC"] as const;
 type ShipCountry = (typeof SHIP_COUNTRIES)[number];
@@ -68,18 +81,16 @@ export async function POST(req: NextRequest) {
       ? (requestedCountry as ShipCountry)
       : "FR";
 
+    // Fichiers d'impression OBLIGATOIRES et hébergés sur notre stockage : on ne
+    // crée jamais un paiement qui ne pourrait pas être imprimé.
+    if (!isStoredAlbumPdf(interiorUrl) || !isStoredAlbumPdf(coverUrl)) {
+      return NextResponse.json({ error: "Fichiers d'impression manquants ou invalides" }, { status: 400 });
+    }
+
     // Recompute shipping cost server-side. Never trust the client value: a
     // tampered request could send shippingCents=0 for an expensive country.
     const { cents: shippingCents, methodUid: shipmentMethodUid } =
       await calculateShipping(pageCount, shippingCountry);
-
-    // Validate PDF URLs (must be https Vercel Blob URLs)
-    if (interiorUrl && !interiorUrl.startsWith("https://")) {
-      return NextResponse.json({ error: "Invalid interior URL" }, { status: 400 });
-    }
-    if (coverUrl && !coverUrl.startsWith("https://")) {
-      return NextResponse.json({ error: "Invalid cover URL" }, { status: 400 });
-    }
 
     const origin = req.headers.get("origin") ?? "http://localhost:3000";
     const albumCents = calculatePrice(pageCount);
