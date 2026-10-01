@@ -4,7 +4,6 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 // Alias : `Image` reste le constructeur natif du navigateur (utilisé plus bas)
 import NextImage from "next/image";
-import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 import { COVER_TEMPLATES as COLOR_TEMPLATES } from "@/app/lib/templates";
@@ -749,19 +748,13 @@ function SidebarIcon({ active, onClick, icon, label }: { active:boolean; onClick
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
-async function serverSaveAlbum(album: unknown) {
-  await fetch("/api/album/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(album) });
-}
-
-async function serverLoadAlbum<T = unknown>(): Promise<T | null> {
-  const res = await fetch("/api/album/load");
-  if (!res.ok) return null;
-  return res.json();
-}
+// Le brouillon est sauvegardé dans le navigateur (IndexedDB, albumStore).
+// L'ancienne copie serveur (/api/album/save) n'a jamais fonctionné (stockage
+// Blob public, route en accès privé) et renvoyait tout l'album, photos
+// comprises, toutes les 2 s : retirée.
 
 export default function CreatePage() {
   const router = useRouter();
-  const { isSignedIn } = useUser();
   const editorInputRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(null);
@@ -811,19 +804,15 @@ export default function CreatePage() {
   useEffect(() => {
     (async () => {
       try {
-        if (isSignedIn) {
-          const saved = await serverLoadAlbum<{ type: string; pages: EditorPage[]; library?: string[] }>();
-          if (saved?.type === "manual" && saved.pages?.length > 0) { setHasSavedAlbum(true); return; }
-        }
         const { loadAlbum } = await import("@/app/lib/albumStore");
         const saved = await loadAlbum<{ type: string; pages: EditorPage[]; library?: string[] }>();
         if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
       } catch { /* ignore */ }
     })();
-  }, [isSignedIn]);
+  }, []);
 
   // Auto-save when pages or library change (debounced 2s)
-  // ALWAYS save to IndexedDB (no size limit, never fails). Also save to server best-effort.
+  // ALWAYS save to IndexedDB (no size limit, never fails).
   useEffect(() => {
     if (mode !== "manual") return;
     const t = setTimeout(async () => {
@@ -832,14 +821,10 @@ export default function CreatePage() {
         const { saveAlbum } = await import("@/app/lib/albumStore");
         await saveAlbum(album);
       } catch (err) { console.error("[autosave] IndexedDB failed:", err); }
-      if (isSignedIn) {
-        try { await serverSaveAlbum(album); }
-        catch (err) { console.error("[autosave] server failed:", err); }
-      }
     }, 2000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, library, mode, isSignedIn]);
+  }, [pages, library, mode]);
 
   // Save immediately when the user is about to leave the page (close tab, refresh, navigate away)
   useEffect(() => {
@@ -874,15 +859,6 @@ export default function CreatePage() {
     if (params.get("restore") === "true") {
       (async () => {
         try {
-          // Always try server first (returns null if not logged in)
-          const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
-          if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
-            setPages(serverAlbum.pages);
-            if (Array.isArray(serverAlbum.library)) setLibrary(serverAlbum.library);
-            setMode("manual");
-            return;
-          }
-          // Fallback: IndexedDB
           const { loadAlbum } = await import("@/app/lib/albumStore");
           const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
           if (album?.type === "manual" && Array.isArray(album.pages)) {
@@ -907,15 +883,6 @@ export default function CreatePage() {
       // If there's a saved album, restore it instead of resetting to DEFAULT_PAGES
       (async () => {
         try {
-          const saved = isSignedIn
-            ? await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>()
-            : null;
-          if (saved?.type === "manual" && Array.isArray(saved.pages) && saved.pages.length > 0) {
-            setPages(saved.pages);
-            if (Array.isArray(saved.library)) setLibrary(saved.library);
-            setMode("manual");
-            return;
-          }
           const { loadAlbum } = await import("@/app/lib/albumStore");
           const local = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
           if (local?.type === "manual" && Array.isArray(local.pages) && local.pages.length > 0) {
@@ -937,7 +904,6 @@ export default function CreatePage() {
         setMode("manual");
       })();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1210,8 +1176,6 @@ export default function CreatePage() {
     // Stash a small handoff for /result so we don't need a fresh load.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__linstantane_album = album;
-    // Also save to server if logged in (best-effort; server may reject huge payloads)
-    if (isSignedIn) serverSaveAlbum(album).catch(() => {});
     router.push("/result");
   }
 
@@ -1260,15 +1224,6 @@ export default function CreatePage() {
               <button
                 onClick={async () => {
                   try {
-                    // Always try server first (returns null if not logged in)
-                    const serverAlbum = await serverLoadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
-                    if (serverAlbum?.type === "manual" && Array.isArray(serverAlbum.pages)) {
-                      setPages(serverAlbum.pages);
-                      if (Array.isArray(serverAlbum.library)) setLibrary(serverAlbum.library);
-                      setMode("manual");
-                      return;
-                    }
-                    // Fallback: IndexedDB
                     const { loadAlbum } = await import("@/app/lib/albumStore");
                     const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
                     if (saved?.type === "manual" && Array.isArray(saved.pages)) {
@@ -1812,15 +1767,11 @@ export default function CreatePage() {
               setTimeout(() => setSaveStatus("idle"), 4000);
               return;
             }
-            // Best-effort server save (might fail on payload size; that's OK, IndexedDB has it)
-            if (isSignedIn) {
-              serverSaveAlbum(album).catch(err => console.error("Save failed (server):", err));
-            }
           }} disabled={saveStatus === "saving"} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-60" title="Enregistrer pour reprendre plus tard">
             {saveStatus === "saving" && "⏳ Enregistrement…"}
             {saveStatus === "saved"   && "✓ Enregistré"}
             {saveStatus === "error"   && "⚠️ Erreur"}
-            {saveStatus === "idle"    && "☁️ Enregistrer"}
+            {saveStatus === "idle"    && "💾 Enregistrer"}
           </button>
           <button onClick={()=>{setPreviewIdx(0);setShowPreview(true);}} className="rounded-full border border-gray-200 px-5 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-400 transition">👁 Aperçu</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-5 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition">Commander →</button>
