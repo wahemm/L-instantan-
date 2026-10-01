@@ -41,6 +41,18 @@ const STATUS_CONFIG: Record<string, { label: string; sub: string; color: string;
   delivered:        { label: "Livré",                   sub: "Profite bien de ton album !",                       color: "text-emerald-700", dot: "bg-emerald-500" },
   failed:           { label: "Erreur",                  sub: "Un problème est survenu — contacte-nous",          color: "text-red-700",     dot: "bg-red-400" },
   canceled:         { label: "Annulé",                  sub: "Cette commande a été annulée",                     color: "text-slate-500",   dot: "bg-slate-400" },
+  returned:         { label: "Retourné",                sub: "Le colis nous est revenu — contacte-nous",          color: "text-red-700",     dot: "bg-red-400" },
+};
+
+// Statuts Gelato v4 sans étape dédiée → étape affichée la plus proche
+// (on_hold / pending_approval : une alerte part côté admin ; le client voit
+// simplement que sa commande est prise en charge).
+const STATUS_ALIASES: Record<string, string> = {
+  uploading: "created",
+  on_hold: "passed",
+  not_connected: "passed",
+  printed: "in_production",
+  in_transit: "shipped",
 };
 
 const PROGRESS_STEPS = ["created", "passed", "in_production", "shipped", "delivered"];
@@ -181,10 +193,11 @@ export default async function CommandesPage() {
         ) : (
           <div className="flex flex-col gap-5">
             {orders.map((order) => {
-              const statusKey = order.gelatoStatus ?? "created";
+              const rawStatus = order.gelatoStatus ?? "created";
+              const statusKey = STATUS_ALIASES[rawStatus] ?? rawStatus;
               const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.created;
               const stepIdx = getStepIndex(statusKey);
-              const isFailure = ["failed", "canceled"].includes(statusKey);
+              const isFailure = ["failed", "canceled", "returned"].includes(statusKey);
 
               return (
                 <article

@@ -303,42 +303,44 @@ export async function getGelatoOrder(orderId: string) {
   return res.json();
 }
 
-/** Find a Gelato order by its orderReferenceId (= Stripe session ID) */
+/**
+ * Find a Gelato order by its orderReferenceId (= Stripe session ID).
+ * API v4 : la recherche est `POST /v4/orders:search` (il n'existe pas de GET
+ * de liste) ; le résumé renvoyé a `fulfillmentStatus` et `createdAt`.
+ */
 export async function findGelatoOrderByRef(refId: string) {
   try {
-    const res = await fetch(
-      `${GELATO_ORDER_API}/v4/orders?orderReferenceId=${encodeURIComponent(refId)}&limit=5`,
-      {
-        headers: gelatoHeaders(),
-        signal: AbortSignal.timeout(15_000),
-      }
-    );
+    const res = await fetch(`${GELATO_ORDER_API}/v4/orders:search`, {
+      method: "POST",
+      headers: gelatoHeaders(),
+      body: JSON.stringify({ orderReferenceIds: [refId], limit: 10 }),
+      signal: AbortSignal.timeout(15_000),
+    });
     if (!res.ok) return null;
     const data = await res.json();
-    // Gelato returns { orders: [...] }
-    const orders: GelatoOrder[] = data.orders ?? [];
+    // Sécurité : ne garder que les commandes dont la référence correspond
+    // EXACTEMENT. Sinon le webhook Stripe pourrait croire que la commande
+    // existe déjà et sauterait l'impression.
+    const orders: GelatoOrderSummary[] = (data.orders ?? []).filter(
+      (o: GelatoOrderSummary) => o.orderReferenceId === refId
+    );
     if (orders.length === 0) return null;
     // Prefer non-failed orders, then pick most recent
-    const alive = orders.filter(o => !["failed", "canceled"].includes(o.status ?? ""));
+    const alive = orders.filter(o => !["failed", "canceled"].includes(o.fulfillmentStatus ?? ""));
     return (alive.length > 0 ? alive : orders).sort((a, b) =>
-      new Date(b.created ?? 0).getTime() - new Date(a.created ?? 0).getTime()
+      new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
     )[0];
   } catch {
     return null;
   }
 }
 
-interface GelatoOrder {
+/** Résumé renvoyé par POST /v4/orders:search */
+interface GelatoOrderSummary {
   id?: string;
-  status?: string;
-  created?: string;
-  shipments?: GelatoShipment[];
-}
-interface GelatoShipment {
-  trackingCode?: string;
-  trackingUrl?: string;
-  shipmentMethodUid?: string;
-  fulfillmentCountry?: string;
+  orderReferenceId?: string;
+  fulfillmentStatus?: string;
+  createdAt?: string;
 }
 
 /**
@@ -364,12 +366,26 @@ export async function batchGelatoStatuses(sessionIds: string[]) {
       try {
         const order = await findGelatoOrderByRef(sid);
         if (!order) return;
-        const shipment = order.shipments?.[0];
+        const status = order.fulfillmentStatus ?? "created";
+        // Le résumé de recherche n'a pas le suivi : on lit la commande complète
+        // une fois expédiée (suivi dans shipment.packages[]).
+        let trackingCode: string | undefined;
+        let trackingUrl: string | undefined;
+        if (order.id && ["shipped", "in_transit", "delivered"].includes(status)) {
+          try {
+            const full = await getGelatoOrder(order.id);
+            const pkg = full?.shipment?.packages?.[0];
+            trackingCode = pkg?.trackingCode;
+            trackingUrl = pkg?.trackingUrl;
+          } catch {
+            // statut affiché sans suivi
+          }
+        }
         result.set(sid, {
-          status: order.status ?? "created",
+          status,
           gelatoOrderId: order.id,
-          trackingCode: shipment?.trackingCode,
-          trackingUrl: shipment?.trackingUrl,
+          trackingCode,
+          trackingUrl,
         });
       } catch {
         // silently skip — order just won't show status
@@ -383,18 +399,25 @@ export async function batchGelatoStatuses(sessionIds: string[]) {
 
 /**
  * Map Gelato order status to a human-readable label in French.
- * Gelato statuses: created | passed | failed | canceled |
- *                  in_production | shipped | delivered | pending_approval | draft
+ * Statuts v4 (doc « How orders work ») : created | uploading | passed |
+ * in_production | printed | shipped | in_transit | delivered | returned |
+ * on_hold | pending_approval | failed | canceled | draft | not_connected
  */
 export function gelatoStatusLabel(status: string): string {
   const map: Record<string, string> = {
     created: "Commande reçue",
+    uploading: "Commande reçue",
     passed: "Acceptée",
     pending_approval: "En attente",
+    on_hold: "En attente",
+    not_connected: "En attente",
     draft: "Brouillon",
     in_production: "En production",
+    printed: "Imprimée",
     shipped: "Expédiée",
+    in_transit: "En cours de livraison",
     delivered: "Livrée",
+    returned: "Retournée",
     failed: "Échec",
     canceled: "Annulée",
   };

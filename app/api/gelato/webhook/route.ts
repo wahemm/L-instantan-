@@ -27,12 +27,13 @@ async function fetchStripeSession(externalId: string) {
  * POST /api/gelato/webhook
  * Receives status updates from Gelato when an order changes state.
  *
- * Gelato statuses: created → passed → in_production → shipped → delivered
- * Failures: failed | canceled
+ * Statuts : created → passed → in_production → printed → shipped →
+ * in_transit → delivered. Alertes admin : failed | canceled | on_hold |
+ * pending_approval | returned.
  *
- * Gelato signs webhooks with HMAC-SHA256.
- * Configure GELATO_WEBHOOK_SECRET in Vercel env vars.
- * Set the webhook URL in Gelato dashboard to:
+ * ⚠️ D'après la doc Gelato (v4), les webhooks ne sont PAS signés : ne pas
+ * définir GELATO_WEBHOOK_SECRET, sinon tous les événements seraient rejetés.
+ * Dans le tableau de bord Gelato, webhook « Order Status Updated » vers :
  *   https://linstantane.fr/api/gelato/webhook
  */
 export async function POST(req: NextRequest) {
@@ -60,15 +61,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No payload" }, { status: 400 });
     }
 
-    const status = (order.status ?? "").toLowerCase();
+    // Doc v4 : l'événement utile est « order_status_updated » (statut de la
+    // commande dans fulfillmentStatus, suivi dans items[].fulfillments[]).
+    // Les événements par article (item_status / tracking_code) doublonneraient
+    // les emails d'une commande à 1 article → ignorés.
+    const eventType = String(event.event ?? "");
+    if (eventType && eventType !== "order_status_updated") {
+      console.log(`[Gelato Webhook] ${eventType} ignoré (seul order_status_updated est traité)`);
+      return NextResponse.json({ received: true });
+    }
+
+    const status = String(order.fulfillmentStatus ?? order.status ?? "").toLowerCase();
     const externalId = order.orderReferenceId ?? order.external_id;
-    const orderId = order.id;
+    const orderId = order.orderId ?? order.id;
 
     console.log(`[Gelato Webhook] Order ${orderId} (ref: ${externalId}) → ${status}`);
 
     // ── SHIPPED ────────────────────────────────────────────────────────────
     if (status === "shipped") {
-      const shipment = order.shipments?.[0];
+      // v4 : items[].fulfillments[] ; ancien format : shipments[]
+      const fulfillments = Array.isArray(order.items)
+        ? order.items.flatMap((it: { fulfillments?: unknown[] }) => it.fulfillments ?? [])
+        : [];
+      const shipment = (fulfillments[0] ?? order.shipments?.[0]) as
+        | { trackingCode?: string; tracking_code?: string; trackingUrl?: string; tracking_url?: string; shipmentMethodName?: string; shipmentMethodUid?: string }
+        | undefined;
       const trackingCode = shipment?.trackingCode ?? shipment?.tracking_code;
       const trackingUrl = shipment?.trackingUrl ?? shipment?.tracking_url;
 
@@ -86,7 +103,7 @@ export async function POST(req: NextRequest) {
             const { subject, html } = buildShippingEmail({
               name: customerName,
               albumTitle,
-              carrier: shipment?.shipmentMethodUid ?? undefined,
+              carrier: shipment?.shipmentMethodName ?? shipment?.shipmentMethodUid ?? undefined,
               trackingId: trackingCode ?? undefined,
               trackingUrl: trackingUrl ?? undefined,
             });
@@ -125,8 +142,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── FAILED / CANCELED ─────────────────────────────────────────────────
-    if (status === "failed" || status === "canceled") {
+    // ── ÉCHEC / ACTION REQUISE ────────────────────────────────────────────
+    // failed/canceled : rien ne partira. on_hold / pending_approval : Gelato
+    // attend une action dans son tableau de bord (sinon la commande reste
+    // bloquée). returned : le colis est revenu à l'expéditeur.
+    if (["failed", "canceled", "on_hold", "pending_approval", "returned"].includes(status)) {
       console.error(`[Gelato] Order ${externalId} → ${status}`);
 
       try {
