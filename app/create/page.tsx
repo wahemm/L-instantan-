@@ -273,7 +273,6 @@ function TextElComponent({ el, isSelected, containerRef, onSelect, onUpdate, onD
   const [localText, setLocalText] = useState(el.text);
   const elRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const lastClickRef = useRef<number>(0);
   const draggedRef = useRef(false);
 
   const fontFamily = el.font === "playfair" ? "var(--font-playfair)" : "var(--font-inter)";
@@ -797,7 +796,6 @@ export default function CreatePage() {
   const [previewIdx, setPreviewIdx] = useState(0);
   const [previewMode, setPreviewMode] = useState<"single"|"all">("single");
   const [openPanel, setOpenPanel] = useState<PanelId|null>("photos");
-  const [editingTitle, setEditingTitle] = useState(false);
   const undoStackRef = useRef<EditorPage[][]>([]);
   // Copie toujours à jour des pages : snapshot() est aussi appelée depuis un
   // useCallback mémorisé (import de photos) qui verrait sinon une vieille
@@ -822,7 +820,6 @@ export default function CreatePage() {
         if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
       } catch { /* ignore */ }
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn]);
 
   // Auto-save when pages or library change (debounced 2s)
@@ -946,14 +943,17 @@ export default function CreatePage() {
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (mode !== "manual") return;
-      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === "z") {
+      // Dans un champ de texte, ⌘Z annule la frappe (comportement natif),
+      // pas la dernière action sur les pages.
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === "z") {
         e.preventDefault();
         undo();
       }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   const currentPage = pages[currentPageIdx];
@@ -1046,64 +1046,6 @@ export default function CreatePage() {
     setCurrentPageIdx(1);
     // (snapshot() lit pagesRef, toujours à jour, d'où l'absence en dépendance)
   }, [selectedCover]);
-
-  const [bulkImporting, setBulkImporting] = useState(false);
-
-  function triggerBulkImport() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/jpeg,image/png";
-    input.multiple = true;
-    input.onchange = () => { handleBulkImport(input.files); };
-    input.click();
-  }
-
-  async function handleBulkImport(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    setBulkImporting(true);
-    // Use allSettled so one bad image doesn't reject the whole batch
-    const results = await Promise.allSettled(Array.from(files).map(f => resizeImage(f)));
-    const resized: string[] = [];
-    const failures: string[] = [];
-    results.forEach((r, idx) => {
-      if (r.status === "fulfilled") resized.push(r.value);
-      else failures.push(`• ${files[idx].name}: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`);
-    });
-    if (failures.length > 0) {
-      alert(`${failures.length} image(s) n'ont pas pu être chargées:\n\n${failures.join("\n")}`);
-    }
-    if (resized.length === 0) {
-      setBulkImporting(false);
-      return;
-    }
-
-    // Also add to library for manual repositioning later
-    setLibrary(p => [...p, ...resized]);
-
-    // Auto-distribute photos across new pages, appended after existing ones
-    snapshot();
-    const newPages: EditorPage[] = [...pages];
-    let i = 0;
-    while (i < resized.length) {
-      const remaining = resized.length - i;
-      let layoutId: LayoutId;
-      let count: number;
-      if (remaining === 1) { layoutId = "full"; count = 1; }
-      else if (remaining === 2) { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
-      else if (remaining === 3) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
-      else {
-        const r = Math.random();
-        if (r < 0.25) { layoutId = "grid4"; count = 4; }
-        else if (r < 0.55) { layoutId = Math.random() > 0.5 ? "three-top" : "three-left"; count = 3; }
-        else { layoutId = Math.random() > 0.5 ? "two-h" : "two-v"; count = 2; }
-      }
-      newPages.push(makePage(layoutId, { photos: resized.slice(i, i + count) }));
-      i += count;
-    }
-    setPages(newPages);
-    setCurrentPageIdx(1);
-    setBulkImporting(false);
-  }
 
   function updatePage(idx: number, u: Partial<EditorPage>) { setPages(p=>p.map((pg,i)=>i===idx?{...pg,...u}:pg)); }
   function updateCurrent(u: Partial<EditorPage>) { updatePage(currentPageIdx,u); }
