@@ -16,6 +16,10 @@ const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
 // otherwise the amount charged here diverges from the price shown on /result.
 const INCLUDED_PAGES = 32;
 
+// Pays livrables (= sélecteur de /result)
+const SHIP_COUNTRIES = ["FR", "BE", "CH", "LU", "MC"] as const;
+type ShipCountry = (typeof SHIP_COUNTRIES)[number];
+
 function calculatePrice(pageCount: number): number {
   const extraPages = Math.max(0, pageCount - INCLUDED_PAGES);
   return BASE_PRICE_CENTS + extraPages * EXTRA_PER_PAGE_CENTS;
@@ -56,7 +60,13 @@ export async function POST(req: NextRequest) {
     const albumTitle = (body.albumTitle as string)?.slice(0, 200) || "Mon Album";
     const interiorUrl = (body.interiorUrl as string) || "";
     const coverUrl = (body.coverUrl as string) || "";
-    const shippingCountry = (body.shippingCountry as string)?.slice(0, 2).toUpperCase() || "FR";
+    // Pays chiffré sur /result. Stripe n'acceptera qu'une adresse dans CE pays :
+    // sinon un client pourrait payer la livraison France et se faire livrer en
+    // Suisse (prix faux + méthode Gelato épinglée inadaptée).
+    const requestedCountry = (body.shippingCountry as string)?.slice(0, 2).toUpperCase();
+    const shippingCountry: ShipCountry = SHIP_COUNTRIES.includes(requestedCountry as ShipCountry)
+      ? (requestedCountry as ShipCountry)
+      : "FR";
 
     // Recompute shipping cost server-side. Never trust the client value: a
     // tampered request could send shippingCents=0 for an expensive country.
@@ -107,8 +117,11 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       customer_creation: "always",
       shipping_address_collection: {
-        allowed_countries: ["FR", "BE", "CH", "LU", "MC"],
+        allowed_countries: [shippingCountry],
       },
+      // Téléphone : utilisé par le transporteur (avis de passage, souci de
+      // livraison). Sans lui, Gelato reçoit un numéro factice.
+      phone_number_collection: { enabled: true },
       line_items: lineItems,
       metadata: {
         pack: "physique",

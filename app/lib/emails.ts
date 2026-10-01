@@ -135,7 +135,11 @@ export function buildConfirmationEmail(args: {
     <p style="margin:0 0 28px;font-size:14px;color:#475569;font-family:Arial,sans-serif;line-height:1.7;">
       Album imprimé hardcover · Papier satiné premium 170 g/m² · Livraison sous 7–12 jours ouvrés. Tu recevras un email avec ton numéro de suivi dès l'expédition.
     </p>
-    ${ctaButton("Créer un nouvel album →", "https://linstantane.fr/create")}
+    ${ctaButton("Suivre ma commande →", "https://linstantane.fr/inscription?redirect_url=%2Fcommandes")}
+    <p style="margin:14px 0 0;font-size:12px;color:#64748b;font-family:Arial,sans-serif;line-height:1.6;text-align:center;">
+      Crée ton compte avec <strong>cette adresse email</strong> : ta commande et son suivi y apparaissent automatiquement.<br />
+      Déjà un compte ? <a href="https://linstantane.fr/connexion?redirect_url=%2Fcommandes" style="color:#0f172a;">Connecte-toi</a> · <a href="https://linstantane.fr/create" style="color:#0f172a;">Créer un nouvel album</a>
+    </p>
   `;
 
   return {
