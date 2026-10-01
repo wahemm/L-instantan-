@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
 import { INCLUDED_PAGES } from "@/app/lib/pricing";
@@ -298,6 +299,9 @@ function ResultContent() {
   const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added">("idle");
   const searchParams = useSearchParams();
   const success = searchParams.get("success") === "true";
+  // Paiement sans compte : après l'achat, on invite l'invité à créer un compte
+  // (même email que le paiement) pour retrouver sa commande dans /commandes.
+  const { isSignedIn, isLoaded: authLoaded } = useUser();
 
   async function handleAddToCart() {
     if (!album) return;
@@ -562,6 +566,28 @@ function ResultContent() {
                 </div>
               ))}
             </div>
+            {authLoaded && !isSignedIn && (
+              <div className="mx-auto mt-8 max-w-md rounded-2xl border border-[#E0512E]/20 bg-[#E0512E]/5 p-6 text-left">
+                <p className="text-sm font-semibold text-slate-900">📦 Suis ta commande en 1 clic</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                  Crée ton compte avec <strong>l&apos;email utilisé pour le paiement</strong> : ta commande et son suivi y apparaîtront automatiquement.
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-4">
+                  <Link href="/inscription?redirect_url=%2Fcommandes" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700">
+                    Créer mon compte
+                  </Link>
+                  <Link href="/connexion?redirect_url=%2Fcommandes" className="text-xs font-medium text-slate-600 underline-offset-4 hover:underline">
+                    J&apos;ai déjà un compte
+                  </Link>
+                </div>
+              </div>
+            )}
+            {isSignedIn && (
+              <p className="mt-8 text-sm text-slate-600">
+                Ta commande apparaît dans{" "}
+                <Link href="/commandes" className="font-medium text-slate-900 underline underline-offset-4">Mes commandes</Link>.
+              </p>
+            )}
             <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link href="/create" className="inline-flex items-center justify-center rounded-full bg-slate-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-slate-700">
                 Créer un nouvel album
