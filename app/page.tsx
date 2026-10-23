@@ -4,6 +4,7 @@ import Link from "next/link";
 import Nav from "@/app/components/Nav";
 import Footer from "@/app/components/Footer";
 import Coverflow from "@/app/components/Coverflow";
+import InsideSpreads from "@/app/components/InsideSpreads";
 import { ALL_COVERS } from "@/app/lib/covers";
 
 export const metadata: Metadata = {
@@ -199,6 +200,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── À l'intérieur (doubles pages d'exemple) ─────────────────────── */}
+      <section className="relative overflow-hidden py-20 sm:py-28" style={{ background: "linear-gradient(180deg, #f6e7da 0%, #efd6c3 100%)" }}>
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-12 text-center sm:mb-16">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#E0512E]">À l&apos;intérieur</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-5xl">Tes photos, <em>en grand</em>.</h2>
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base">
+              Pleine page, duo, grille… Tu choisis la mise en page de chaque double page, on l&apos;imprime sur papier photo 170 g.
+            </p>
+          </div>
+          <InsideSpreads />
+        </div>
+      </section>
+
       {/* ── Cover templates ───────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[#f8f7f4] py-20 sm:py-24">
         <div className="pointer-events-none absolute -left-24 top-16 h-80 w-80 rounded-full opacity-50 blur-3xl" style={{ background:"radial-gradient(circle, rgba(224,81,46,0.18), transparent 70%)" }}/>
@@ -340,17 +355,50 @@ export default function Home() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#E0512E]">Simple et rapide</p>
             <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Comment ça marche</h2>
           </div>
-          <ol className="grid gap-5 md:grid-cols-4">
+          <ol className="grid gap-5 sm:grid-cols-2 md:grid-cols-4">
             {[
-              { num: "01", color: "#E0512E", title: "Choisis ta couverture", desc: "Sélectionne un style parmi nos designs illustrés par destination." },
-              { num: "02", color: "#F59E0B", title: "Crée ton album",        desc: "Glisse tes photos, choisis les mises en page, ajoute tes textes." },
-              { num: "03", color: "#0D9488", title: "Aperçu & commande",     desc: "Prévisualise chaque page dans le détail avant de valider." },
-              { num: "04", color: "#DB2777", title: "Reçois ton livre",      desc: "Imprimé à la main et livré chez toi en 7 à 12 jours ouvrés." },
+              { num: "01", color: "#E0512E", title: "Choisis ta couverture", desc: "Un style parmi nos designs illustrés par destination.",
+                visual: (
+                  <div className="flex h-full items-center justify-center bg-[#fde3dc]">
+                    {["/covers/Italie.png", "/covers/Espagne.png", "/covers/Provence.png"].map((src, i) => (
+                      <div key={src} className={`relative aspect-[210/280] shrink-0 overflow-hidden rounded-[3px] shadow-lg ${i === 1 ? "z-10 h-[76%]" : "-mx-2 h-[56%]"}`}>
+                        <Image src={src} alt="" fill sizes="110px" className="object-cover object-right" />
+                      </div>
+                    ))}
+                  </div>
+                ) },
+              { num: "02", color: "#F59E0B", title: "Crée ton album",        desc: "Glisse tes photos, choisis les mises en page, ajoute tes textes.",
+                visual: (
+                  <div className="grid h-full grid-cols-2 grid-rows-2 gap-1.5 bg-white p-3">
+                    {["/inside/miami-d.jpg", "/inside/miami-c.jpg", "/inside/miami-a.jpg"].map((src, i) => (
+                      <div key={src} className={`relative overflow-hidden rounded-sm ${i === 0 ? "row-span-2" : ""}`}>
+                        <Image src={src} alt="" fill sizes="130px" className="object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                ) },
+              { num: "03", color: "#0D9488", title: "Aperçu & commande",     desc: "Prévisualise chaque page dans le détail avant de valider.",
+                visual: (
+                  <div className="grid h-full grid-cols-2 bg-white">
+                    <div className="relative"><Image src="/inside/italie-b.jpg" alt="" fill sizes="130px" className="object-cover" /></div>
+                    <div className="grid grid-rows-2 gap-0.5 pl-0.5">
+                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-a.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
+                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-d.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
+                    </div>
+                  </div>
+                ) },
+              { num: "04", color: "#DB2777", title: "Reçois ton livre",      desc: "Imprimé à la demande et livré chez toi en 7 à 12 jours ouvrés.",
+                visual: <Image src="/lifestyle/mexico.jpg" alt="Album reçu" fill sizes="260px" className="object-cover" /> },
             ].map((step) => (
-              <li key={step.num} className="flex flex-col gap-4 rounded-2xl bg-[#f8f7f4] p-7">
-                <span className="font-[family-name:var(--font-playfair)] text-5xl font-bold leading-none" style={{ color: step.color }}>{step.num}</span>
-                <h3 className="font-[family-name:var(--font-playfair)] text-lg text-slate-900 leading-snug">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-500">{step.desc}</p>
+              <li key={step.num} className="flex flex-col overflow-hidden rounded-2xl bg-[#f8f7f4]">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  {step.visual}
+                </div>
+                <div className="flex flex-col gap-3 p-6">
+                  <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold leading-none" style={{ color: step.color }}>{step.num}</span>
+                  <h3 className="font-[family-name:var(--font-playfair)] text-lg text-slate-900 leading-snug">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-500">{step.desc}</p>
+                </div>
               </li>
             ))}
           </ol>
