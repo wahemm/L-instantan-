@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 // Doubles pages d'exemple, montées avec les VRAIES mises en page de l'éditeur
 // (/create : photos bord à bord, filet de 2 px, légende seulement en
-// « Photo + texte »). Photos : public/inside (issues des démos de couvertures).
+// « Photo + texte »). Photos : public/inside (Unsplash, licence libre usage commercial).
 type Spread = { id: string; name: string; accent: string; left: React.ReactNode; right: React.ReactNode };
 
 function P({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
@@ -34,23 +34,23 @@ const photoText = (src: string, alt: string, caption: string) => (
 const SPREADS: Spread[] = [
   {
     id: "marrakech", name: "Marrakech", accent: "#B4622D",
-    left: full("/inside/marrakech-d.jpg", "Dunes du désert marocain"),
-    right: twoH(["/inside/marrakech-a.jpg", "Dromadaires au coucher du soleil"], ["/inside/marrakech-b.jpg", "Cour d'une médersa"]),
+    left: full("/inside/marrakech-dunes.jpg", "Dunes du Sahara marocain"),
+    right: twoH(["/inside/marrakech-dromadaires.jpg", "Dromadaires au coucher du soleil"], ["/inside/marrakech-koutoubia.jpg", "La Koutoubia devant l'Atlas enneigé"]),
   },
   {
     id: "italie", name: "Italie", accent: "#2F7D3A",
-    left: threeLeft(["/inside/italie-a.jpg", "Fontaine de Trevi, Rome"], ["/inside/italie-c.jpg", "Coupole baroque"], ["/inside/italie-d.jpg", "Canal à Venise"]),
-    right: photoText("/inside/italie-b.jpg", "Le Grand Canal à Venise", "Dolce vita, de Rome à Venise"),
+    left: threeLeft(["/inside/italie-trevi.jpg", "Fontaine de Trevi, Rome"], ["/inside/italie-rialto.jpg", "Pont du Rialto et gondole, Venise"], ["/inside/italie-gondole.jpg", "Gondoles dans un canal de Venise"]),
+    right: photoText("/inside/italie-grand-canal.jpg", "Le Grand Canal à Venise", "Dolce vita, de Rome à Venise"),
   },
   {
     id: "miami", name: "Miami", accent: "#E0512E",
-    left: twoH(["/inside/miami-c.jpg", "Palmiers et parasols"], ["/inside/miami-a.jpg", "Cadillac décapotable"]),
-    right: full("/inside/miami-d.jpg", "Hamac entre les palmiers"),
+    left: twoH(["/inside/miami-plage.jpg", "Miami Beach vue du ciel"], ["/inside/miami-art-deco.jpg", "Façades Art déco d'Ocean Drive"]),
+    right: full("/inside/miami-ocean-drive.jpg", "Voiture vintage devant un hôtel d'Ocean Drive"),
   },
   {
     id: "provence", name: "Provence", accent: "#4B2BD6",
-    left: full("/inside/provence-c.jpg", "Champ de lavande"),
-    right: threeLeft(["/inside/provence-a.jpg", "Ruelle de village provençal"], ["/inside/provence-b.jpg", "Lavande séchée"], ["/inside/provence-d.jpg", "Fromage et baguette"]),
+    left: full("/inside/provence-lavande.jpg", "Champ de lavande en Provence"),
+    right: threeLeft(["/inside/provence-cypres.jpg", "Cyprès et vieilles pierres"], ["/inside/provence-roussillon.jpg", "Le village de Roussillon"], ["/inside/provence-coucher.jpg", "Coucher de soleil sur la lavande"]),
   },
 ];
 

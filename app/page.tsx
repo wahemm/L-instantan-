@@ -370,7 +370,7 @@ export default function Home() {
               { num: "02", color: "#F59E0B", title: "Crée ton album",        desc: "Glisse tes photos, choisis les mises en page, ajoute tes textes.",
                 visual: (
                   <div className="grid h-full grid-cols-2 grid-rows-2 gap-1.5 bg-white p-3">
-                    {["/inside/miami-d.jpg", "/inside/miami-c.jpg", "/inside/miami-a.jpg"].map((src, i) => (
+                    {["/inside/miami-palmiers.jpg", "/inside/miami-sunset.jpg", "/inside/miami-panneau.jpg"].map((src, i) => (
                       <div key={src} className={`relative overflow-hidden rounded-sm ${i === 0 ? "row-span-2" : ""}`}>
                         <Image src={src} alt="" fill sizes="130px" className="object-cover" />
                       </div>
@@ -380,10 +380,10 @@ export default function Home() {
               { num: "03", color: "#0D9488", title: "Aperçu & commande",     desc: "Prévisualise chaque page dans le détail avant de valider.",
                 visual: (
                   <div className="grid h-full grid-cols-2 bg-white">
-                    <div className="relative"><Image src="/inside/italie-b.jpg" alt="" fill sizes="130px" className="object-cover" /></div>
+                    <div className="relative"><Image src="/inside/italie-canal.jpg" alt="" fill sizes="130px" className="object-cover" /></div>
                     <div className="grid grid-rows-2 gap-0.5 pl-0.5">
-                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-a.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
-                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-d.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
+                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-venise.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
+                      <div className="relative overflow-hidden rounded-sm"><Image src="/inside/italie-neptune.jpg" alt="" fill sizes="110px" className="object-cover" /></div>
                     </div>
                   </div>
                 ) },
