@@ -4,6 +4,9 @@ import { Resend } from "resend";
 import { createGelatoOrder, findGelatoOrderByRef } from "@/app/lib/gelato";
 import { buildConfirmationEmail, buildAdminLuluFailureEmail } from "@/app/lib/emails";
 
+// Texte saisi par le client → échappé avant d'entrer dans un email HTML
+const esc = (t: string) => t.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
   httpClient: Stripe.createNodeHttpClient(),
 });
@@ -112,7 +115,14 @@ async function createPrintOrder(session: Stripe.Checkout.Session) {
         }
       }
     } else {
-      console.error("No shipping address found in Stripe session");
+      // Payé mais sans adresse : rien ne partira → prévenir l'admin
+      console.error("No shipping address found in Stripe session", session.id);
+      await sendAdminEmail(
+        `[URGENT] Paiement reçu sans adresse de livraison — ${session.id}`,
+        `<p>Le client a payé mais Stripe n'a transmis aucune adresse : la commande Gelato n'a PAS été créée.</p>
+<p>Session Stripe : <strong>${session.id}</strong><br>Email client : ${esc(email ?? "N/A")}<br>Album : ${esc(albumTitle)}</p>
+<p>Contacter le client pour obtenir son adresse, puis relancer via /admin/rescue.</p>`
+      );
     }
   } else {
     console.error("⚠️ PAID SESSION WITHOUT PDFs — Gelato order NOT created, manual rescue required:", session.id);

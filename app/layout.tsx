@@ -53,7 +53,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider localization={frFR}>
+    <ClerkProvider localization={frFR} signInUrl="/connexion" signUpUrl="/inscription">
       <html lang="fr" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
         <body className="min-h-full flex flex-col font-[family-name:var(--font-inter)]">
           <script

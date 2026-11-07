@@ -5,7 +5,13 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtected = createRouteMatcher(["/mon-compte(.*)", "/commandes(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtected(req)) await auth.protect();
+  // Non connecté → NOTRE page /connexion (pas la page hébergée par Clerk),
+  // puis retour sur la page demandée.
+  if (isProtected(req)) {
+    const signIn = new URL("/connexion", req.url);
+    signIn.searchParams.set("redirect_url", req.nextUrl.pathname + req.nextUrl.search);
+    await auth.protect({ unauthenticatedUrl: signIn.toString() });
+  }
 });
 
 export const config = {
