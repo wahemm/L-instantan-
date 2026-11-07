@@ -4,7 +4,10 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 // Alias : `Image` reste le constructeur natif du navigateur (utilisé plus bas)
 import NextImage from "next/image";
+import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
+import { newAlbumId, type DraftSummary } from "@/app/lib/albumStore";
 import { calculatePrice, formatPrice } from "@/app/lib/pricing";
 import { COVER_TEMPLATES as COLOR_TEMPLATES } from "@/app/lib/templates";
 
@@ -749,13 +752,17 @@ function SidebarIcon({ active, onClick, icon, label }: { active:boolean; onClick
 }
 
 // ── Main ───────────────────────────────────────────────────────────────
-// Le brouillon est sauvegardé dans le navigateur (IndexedDB, albumStore).
-// L'ancienne copie serveur (/api/album/save) n'a jamais fonctionné (stockage
-// Blob public, route en accès privé) et renvoyait tout l'album, photos
-// comprises, toutes les 2 s : retirée.
+// Chaque album a son id et son emplacement (albumStore « drafts ») : en
+// commencer un autre ne mélange plus les photos ni n'écrase le précédent.
+// Client connecté : copie dans le compte (draftCloud → /api/drafts), à
+// « Enregistrer », en sortant de l'éditeur et toutes les 90 s si modifié.
+
+type EditorAlbum = { type: "manual"; id?: string; title: string; pages: EditorPage[]; library?: string[] };
+type DraftRow = DraftSummary & { dataUrl?: string; local: boolean };
 
 export default function CreatePage() {
   const router = useRouter();
+  const { isSignedIn, isLoaded: authLoaded, user } = useUser();
   const editorInputRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(null);
@@ -770,6 +777,12 @@ export default function CreatePage() {
 
   function enterManualMode(title?: string, cover?: string) {
     const usedCover = cover ?? selectedCover;
+    // Nouvel album : nouvel emplacement, bibliothèque vide, historique vidé
+    setAlbumId(newAlbumId());
+    setLibrary([]);
+    undoStackRef.current = [];
+    setCanUndo(false);
+    setCurrentPageIdx(0);
     setPages(DEFAULT_PAGES.map((p, i) => ({
       ...p,
       texts: [...p.texts],
@@ -798,30 +811,123 @@ export default function CreatePage() {
   useEffect(() => { pagesRef.current = pages; }, [pages]);
   const [canUndo, setCanUndo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [hasSavedAlbum, setHasSavedAlbum] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [albumId, setAlbumId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<DraftRow[] | null>(null);
+  const [openingDraft, setOpeningDraft] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "saved-cloud" | "error">("idle");
+  const cloudDirtyRef = useRef(false);
 
-  // Check if there's a saved album on mount (for the "Reprendre" button)
+  function summaryOf(album: EditorAlbum & { id: string }): DraftSummary {
+    return {
+      id: album.id,
+      title: album.title || "Mon Album",
+      pageCount: Math.max(0, album.pages.length - 1),
+      photoCount: album.library?.length ?? 0,
+      cover: album.pages[0]?.photos?.[0] ?? null,
+      updatedAt: Date.now(),
+      owner: isSignedIn && user ? user.id : "guest",
+    };
+  }
+  function currentAlbum(): (EditorAlbum & { id: string }) | null {
+    if (!albumId) return null;
+    return { type: "manual", id: albumId, title: albumTitle, pages, library };
+  }
+  async function persistLocal(album: EditorAlbum & { id: string }) {
+    const { saveAlbum, saveDraft } = await import("@/app/lib/albumStore");
+    await saveAlbum(album);
+    await saveDraft(summaryOf(album), album);
+  }
+  async function persistCloud(album: EditorAlbum & { id: string }) {
+    if (!isSignedIn || !user) return false;
+    const { cloudSaveDraft } = await import("@/app/lib/draftCloud");
+    await cloudSaveDraft(user.id, summaryOf(album), album);
+    cloudDirtyRef.current = false;
+    return true;
+  }
+  function loadIntoEditor(album: EditorAlbum) {
+    setPages(album.pages);
+    setLibrary(Array.isArray(album.library) ? album.library : []);
+    setAlbumId(album.id ?? newAlbumId());
+    undoStackRef.current = [];
+    setCanUndo(false);
+    setCurrentPageIdx(0);
+    setMode("manual");
+  }
+  async function refreshDrafts() {
+    try {
+      // Ancien emplacement unique sans id → on le range dans « Mes albums »
+      const { loadAlbum, getDraft, saveAlbum, saveDraft } = await import("@/app/lib/albumStore");
+      const cur = await loadAlbum<EditorAlbum>();
+      if (cur?.type === "manual" && Array.isArray(cur.pages) && !cur.id) {
+        const migrated = { ...cur, id: newAlbumId() };
+        await saveAlbum(migrated);
+        if (!(await getDraft(migrated.id))) await saveDraft(summaryOf(migrated), migrated);
+      }
+      const { listAllDrafts } = await import("@/app/lib/draftCloud");
+      setDrafts(await listAllDrafts(isSignedIn && user ? user.id : null));
+    } catch {
+      setDrafts([]);
+    }
+  }
+  async function openSavedAlbum(id: string) {
+    setOpeningDraft(id);
+    try {
+      const { openDraft } = await import("@/app/lib/draftCloud");
+      const album = await openDraft<EditorAlbum>(id, isSignedIn && user ? user.id : null);
+      if (album) loadIntoEditor({ ...album, id });
+      else alert("Impossible d'ouvrir cet album.");
+    } catch (err) {
+      alert("Impossible d'ouvrir cet album : " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setOpeningDraft(null);
+    }
+  }
+  async function removeSavedAlbum(row: DraftRow) {
+    if (!confirm(`Supprimer définitivement l'album « ${row.title} » ?`)) return;
+    const { deleteDraft } = await import("@/app/lib/albumStore");
+    await deleteDraft(row.id).catch(() => {});
+    if (isSignedIn) {
+      const { cloudDeleteDraft } = await import("@/app/lib/draftCloud");
+      await cloudDeleteDraft(row.id).catch(() => {});
+    }
+    refreshDrafts();
+  }
+  function backToPicker() {
+    const album = currentAlbum();
+    if (album) {
+      persistLocal(album).catch(() => {});
+      if (cloudDirtyRef.current) persistCloud(album).catch(() => {});
+    }
+    setMode(null);
+  }
+
+  // « Mes albums » sur l'écran de choix de couverture
   useEffect(() => {
-    (async () => {
-      try {
-        const { loadAlbum } = await import("@/app/lib/albumStore");
-        const saved = await loadAlbum<{ type: string; pages: EditorPage[]; library?: string[] }>();
-        if (saved?.type === "manual" && saved.pages?.length > 0) setHasSavedAlbum(true);
-      } catch { /* ignore */ }
-    })();
-  }, []);
+    if (mode !== null || !authLoaded) return;
+    refreshDrafts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, authLoaded, isSignedIn]);
+
+  // Copie dans le compte toutes les 90 s si l'album a changé
+  useEffect(() => {
+    if (mode !== "manual" || !isSignedIn) return;
+    const t = setInterval(() => {
+      const album = currentAlbum();
+      if (album && cloudDirtyRef.current) persistCloud(album).catch(err => console.error("[cloud] save failed:", err));
+    }, 90_000);
+    return () => clearInterval(t);
+  });
 
   // Auto-save when pages or library change (debounced 2s)
   // ALWAYS save to IndexedDB (no size limit, never fails).
   useEffect(() => {
     if (mode !== "manual") return;
+    const album = currentAlbum();
+    if (!album) return;
+    cloudDirtyRef.current = true;
     const t = setTimeout(async () => {
-      const album = { type: "manual", title: albumTitle, pages, library };
-      try {
-        const { saveAlbum } = await import("@/app/lib/albumStore");
-        await saveAlbum(album);
-      } catch (err) { console.error("[autosave] IndexedDB failed:", err); }
+      try { await persistLocal(album); }
+      catch (err) { console.error("[autosave] IndexedDB failed:", err); }
     }, 2000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -831,10 +937,9 @@ export default function CreatePage() {
   useEffect(() => {
     if (mode !== "manual") return;
     const flush = async () => {
-      try {
-        const { saveAlbum } = await import("@/app/lib/albumStore");
-        await saveAlbum({ type: "manual", title: albumTitle, pages, library });
-      } catch { /* ignore */ }
+      const album = currentAlbum();
+      if (!album) return;
+      try { await persistLocal(album); } catch { /* ignore */ }
     };
     const onHide = () => { flush(); };
     window.addEventListener("pagehide", onHide);
@@ -845,6 +950,13 @@ export default function CreatePage() {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages, library, mode]);
+
+  useEffect(() => {
+    if (!authLoaded) return;
+    const id = new URLSearchParams(window.location.search).get("album");
+    if (id) openSavedAlbum(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoaded]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -861,39 +973,24 @@ export default function CreatePage() {
       (async () => {
         try {
           const { loadAlbum } = await import("@/app/lib/albumStore");
-          const album = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
+          const album = await loadAlbum<EditorAlbum>();
           if (album?.type === "manual" && Array.isArray(album.pages)) {
-            setPages(album.pages);
-            if (Array.isArray(album.library)) setLibrary(album.library);
-            setMode("manual");
+            loadIntoEditor(album);
             return;
           }
         } catch { /* ignore */ }
         // Fallback: window object
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const winAlbum = (window as any).__linstantane_album;
-        if (winAlbum?.type === "manual" && Array.isArray(winAlbum.pages)) {
-          setPages(winAlbum.pages);
-          if (Array.isArray(winAlbum.library)) setLibrary(winAlbum.library);
-          setMode("manual");
-        }
+        if (winAlbum?.type === "manual" && Array.isArray(winAlbum.pages)) loadIntoEditor(winAlbum);
       })();
       return;
     }
     if (params.get("mode") === "manual") {
-      // If there's a saved album, restore it instead of resetting to DEFAULT_PAGES
+      // Nouvel album (les précédents restent dans « Mes albums »)
       (async () => {
-        try {
-          const { loadAlbum } = await import("@/app/lib/albumStore");
-          const local = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
-          if (local?.type === "manual" && Array.isArray(local.pages) && local.pages.length > 0) {
-            setPages(local.pages);
-            if (Array.isArray(local.library)) setLibrary(local.library);
-            setMode("manual");
-            return;
-          }
-        } catch { /* ignore */ }
-        // No saved album: start fresh with optional template
+        setAlbumId(newAlbumId());
+        setLibrary([]);
         const templateId = sessionStorage.getItem("linstantane:template");
         sessionStorage.removeItem("linstantane:template");
         const tpl = templateId ? COLOR_TEMPLATES.find(t => t.id === templateId) : null;
@@ -1165,11 +1262,10 @@ export default function CreatePage() {
   }
 
   async function handleSubmit() {
-    const album = {type:"manual",title:albumTitle,pages,library};
+    const album = currentAlbum() ?? { type: "manual" as const, id: newAlbumId(), title: albumTitle, pages, library };
     // Save to IndexedDB (local) — primary, reliable.
     try {
-      const { saveAlbum } = await import("@/app/lib/albumStore");
-      await saveAlbum(album);
+      await persistLocal(album);
     } catch {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__linstantane_album = album;
@@ -1215,29 +1311,41 @@ export default function CreatePage() {
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">Choisis un design illustré ou continue sans — tu pourras toujours personnaliser ta couverture après.</p>
           </div>
 
-          {/* Resume saved album */}
-          {hasSavedAlbum && (
-            <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 px-5 py-4">
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Album en cours</p>
-                <p className="text-xs text-slate-500">Tu as un album non terminé — reprends là où tu t&apos;es arrêté.</p>
+          {/* Mes albums (un emplacement par album, par compte) */}
+          {drafts && drafts.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-3 flex items-baseline justify-between">
+                <h2 className="text-sm font-semibold text-slate-800">Mes albums</h2>
+                {!isSignedIn && (
+                  <Link href="/connexion?redirect_url=%2Fcreate" className="text-xs text-slate-500 underline underline-offset-2 hover:text-slate-800">
+                    Connecte-toi pour les retrouver sur tous tes appareils
+                  </Link>
+                )}
               </div>
-              <button
-                onClick={async () => {
-                  try {
-                    const { loadAlbum } = await import("@/app/lib/albumStore");
-                    const saved = await loadAlbum<{ type: string; title: string; pages: EditorPage[]; library?: string[] }>();
-                    if (saved?.type === "manual" && Array.isArray(saved.pages)) {
-                      setPages(saved.pages);
-                      if (Array.isArray(saved.library)) setLibrary(saved.library);
-                      setMode("manual");
-                    }
-                  } catch { /* ignore */ }
-                }}
-                className="shrink-0 rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition"
-              >
-                Reprendre →
-              </button>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {drafts.map(d => (
+                  <div key={d.id} className="w-36 shrink-0 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+                    <button onClick={() => openSavedAlbum(d.id)} disabled={openingDraft !== null} className="block w-full text-left disabled:opacity-60">
+                      <div className="relative mb-2 aspect-[3/4] overflow-hidden rounded-lg bg-slate-100">
+                        {d.cover ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={d.cover} alt="" className="h-full w-full object-cover object-right" />
+                        ) : (
+                          <span className="flex h-full items-center justify-center text-2xl">📷</span>
+                        )}
+                        {openingDraft === d.id && (
+                          <span className="absolute inset-0 flex items-center justify-center bg-white/70 text-xs font-semibold text-slate-700">Ouverture…</span>
+                        )}
+                      </div>
+                      <p className="truncate font-[family-name:var(--font-playfair)] text-sm text-slate-900">{d.title}</p>
+                      <p className="text-[11px] text-slate-400">
+                        {d.photoCount} photo{d.photoCount > 1 ? "s" : ""} · {new Date(d.updatedAt).toLocaleDateString("fr-FR")}
+                      </p>
+                    </button>
+                    <button onClick={() => removeSavedAlbum(d)} className="mt-1 text-[11px] text-slate-400 hover:text-red-600">Supprimer</button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -1398,7 +1506,7 @@ export default function CreatePage() {
 
         {/* Top bar */}
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
-          <button onClick={()=>setMode(null)} className="text-sm text-slate-400">← Retour</button>
+          <button onClick={backToPicker} className="text-sm text-slate-400">← Retour</button>
           <button onClick={handleSubmit} className="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white">Commander →</button>
         </div>
 
@@ -1735,7 +1843,7 @@ export default function CreatePage() {
       {/* Top bar */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-10">
         <div className="flex items-center gap-3">
-          <button onClick={()=>setMode(null)} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
+          <button onClick={backToPicker} className="text-sm text-slate-400 hover:text-slate-700 transition">← Retour</button>
           <span className="text-gray-200">|</span>
           <input
             value={albumTitle}
@@ -1753,24 +1861,30 @@ export default function CreatePage() {
             {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : "⬇ PDF"}
           </button>
           <button onClick={async () => {
+            const album = currentAlbum();
+            if (!album) return;
             setSaveStatus("saving");
-            const album = { type: "manual", title: albumTitle, pages, library };
-            // Primary: IndexedDB. This must succeed for "saved" feedback.
+            // 1) cet appareil (doit réussir), 2) le compte si connecté
             try {
-              const { saveAlbum } = await import("@/app/lib/albumStore");
-              await saveAlbum(album);
-              setHasSavedAlbum(true);
-              setSaveStatus("saved");
-              setTimeout(() => setSaveStatus("idle"), 2500);
+              await persistLocal(album);
             } catch (err) {
               console.error("Save failed (IndexedDB):", err);
               setSaveStatus("error");
               setTimeout(() => setSaveStatus("idle"), 4000);
               return;
             }
-          }} disabled={saveStatus === "saving"} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-60" title="Enregistrer pour reprendre plus tard">
+            try {
+              const cloud = await persistCloud(album);
+              setSaveStatus(cloud ? "saved-cloud" : "saved");
+            } catch (err) {
+              console.error("Save failed (compte):", err);
+              setSaveStatus("saved"); // au moins sur cet appareil
+            }
+            setTimeout(() => setSaveStatus("idle"), 3000);
+          }} disabled={saveStatus === "saving"} className="flex items-center gap-1.5 rounded-full border border-gray-200 px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 transition disabled:opacity-60" title={isSignedIn ? "Enregistrer dans ton compte" : "Enregistrer sur cet appareil (connecte-toi pour le retrouver partout)"}>
             {saveStatus === "saving" && "⏳ Enregistrement…"}
-            {saveStatus === "saved"   && "✓ Enregistré"}
+            {saveStatus === "saved"   && (isSignedIn ? "✓ Enregistré (appareil)" : "✓ Enregistré sur cet appareil")}
+            {saveStatus === "saved-cloud" && "✓ Enregistré dans ton compte"}
             {saveStatus === "error"   && "⚠️ Erreur"}
             {saveStatus === "idle"    && "💾 Enregistrer"}
           </button>

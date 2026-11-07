@@ -5,12 +5,10 @@ import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  listCart,
-  removeFromCart,
-  loadCartItemAsCurrent,
-  type CartItemSummary,
-} from "@/app/lib/cartStore";
+import type { DraftSummary } from "@/app/lib/albumStore";
+
+// Albums du compte : ceux de cet appareil + ceux sauvegardés en ligne
+type AlbumRow = DraftSummary & { dataUrl?: string; local: boolean };
 
 interface Order {
   id: string;
@@ -22,50 +20,63 @@ interface Order {
 }
 
 export default function MonComptePage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
-  const [albums, setAlbums] = useState<CartItemSummary[] | null>(null);
+  const [albums, setAlbums] = useState<AlbumRow[] | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
 
   async function refresh() {
-    try { setAlbums(await listCart()); }
-    catch { setAlbums([]); }
+    try {
+      const { listAllDrafts } = await import("@/app/lib/draftCloud");
+      setAlbums(await listAllDrafts(user?.id ?? null));
+    } catch { setAlbums([]); }
   }
 
   useEffect(() => {
+    if (!isLoaded) return;
     refresh();
     const onChange = () => refresh();
-    window.addEventListener("linstantane:cart-changed", onChange);
+    window.addEventListener("linstantane:drafts-changed", onChange);
+    return () => window.removeEventListener("linstantane:drafts-changed", onChange);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, user?.id]);
+
+  useEffect(() => {
     fetch("/api/orders")
       .then(r => r.json())
       .then(d => setOrders(d.orders ?? []))
       .catch(() => { /* liste vide si le réseau ou l'API échoue */ })
       .finally(() => setLoadingOrders(false));
-    return () => window.removeEventListener("linstantane:cart-changed", onChange);
   }, []);
 
   async function deleteAlbum(id: string) {
-    setBusy(id);
-    try { await removeFromCart(id); } finally { setBusy(null); }
-  }
-
-  async function openAlbum(id: string) {
+    const row = albums?.find(a => a.id === id);
+    if (!confirm(`Supprimer définitivement l'album « ${row?.title ?? "Mon Album"} » ?`)) return;
     setBusy(id);
     try {
-      const ok = await loadCartItemAsCurrent(id);
-      if (ok) router.push("/create?restore=true");
-    } finally {
-      setBusy(null);
-    }
+      const { deleteDraft } = await import("@/app/lib/albumStore");
+      const { cloudDeleteDraft } = await import("@/app/lib/draftCloud");
+      await deleteDraft(id).catch(() => {});
+      if (user) await cloudDeleteDraft(id).catch(() => {});
+      await refresh();
+    } finally { setBusy(null); }
+  }
+
+  function openAlbum(id: string) {
+    router.push(`/create?album=${encodeURIComponent(id)}`);
   }
 
   async function orderAlbum(id: string) {
     setBusy(id);
     try {
-      const ok = await loadCartItemAsCurrent(id);
-      if (ok) router.push("/result");
+      const { openDraft } = await import("@/app/lib/draftCloud");
+      const album = await openDraft(id, user?.id ?? null);
+      if (album) router.push("/result");
+      else alert("Impossible d'ouvrir cet album.");
+    } catch (err) {
+      alert("Impossible d'ouvrir cet album : " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setBusy(null);
     }
@@ -88,7 +99,7 @@ export default function MonComptePage() {
         {/* Albums sauvegardés */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-slate-900">Mes albums sauvegardés</h2>
+            <h2 className="font-semibold text-slate-900">Mes albums</h2>
             <Link href="/create" className="text-xs text-slate-500 hover:text-slate-900 transition">
               + Créer un album
             </Link>
@@ -115,7 +126,7 @@ export default function MonComptePage() {
                   <div className="mb-3 aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-100">
                     {album.cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={album.cover} alt={album.title} className="h-full w-full object-cover" />
+                      <img src={album.cover} alt={album.title} className="h-full w-full object-cover object-right" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <span className="text-3xl">📷</span>
@@ -124,7 +135,7 @@ export default function MonComptePage() {
                   </div>
                   <p className="font-[family-name:var(--font-playfair)] font-semibold text-slate-900 truncate">{album.title}</p>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {album.pageCount} pages · {new Date(album.addedAt).toLocaleDateString("fr-FR")}
+                    {album.photoCount} photo{album.photoCount > 1 ? "s" : ""} · modifié le {new Date(album.updatedAt).toLocaleDateString("fr-FR")}
                   </p>
                   <div className="mt-3 flex gap-2">
                     <button

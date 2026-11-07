@@ -7,10 +7,10 @@
  * a few photos already busts that limit.
  */
 
-const DB_NAME = "linstantane";
-const DB_VERSION = 2;
-const ALBUMS_STORE = "albums"; // existing — single in-progress album under key "current"
-const CART_STORE = "cart";     // new — multiple cart items keyed by id
+import { openDB } from "@/app/lib/albumStore";
+
+const ALBUMS_STORE = "albums"; // single in-progress album under key "current"
+const CART_STORE = "cart";     // multiple cart items keyed by id
 
 export interface CartItemSummary {
   id: string;
@@ -23,20 +23,6 @@ export interface CartItemSummary {
 // Internal: an entry stored in IndexedDB. `album` is the full payload.
 interface CartItemFull extends CartItemSummary {
   album: unknown;
-}
-
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains(ALBUMS_STORE)) db.createObjectStore(ALBUMS_STORE);
-      if (!db.objectStoreNames.contains(CART_STORE))   db.createObjectStore(CART_STORE, { keyPath: "id" });
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror   = () => reject(req.error);
-    req.onblocked = () => reject(new Error("IndexedDB upgrade blocked — close other tabs."));
-  });
 }
 
 /** Add an album to the cart. Returns the generated cart item id. */
