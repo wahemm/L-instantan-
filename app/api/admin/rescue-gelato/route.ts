@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { currentAdminEmail } from "@/app/lib/auth";
-import { createGelatoOrder, GELATO_MIN_PAGES } from "@/app/lib/gelato";
+import { createGelatoOrder, findGelatoOrderByRef, GELATO_MIN_PAGES } from "@/app/lib/gelato";
 
 const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ?? "").trim(), {
   httpClient: Stripe.createNodeHttpClient(),
@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
   const firstName = nameParts[0] ?? "Client";
   const lastName = nameParts.slice(1).join(" ") || firstName;
 
+  // ── Pas de double impression : une commande active existe déjà ? ──
+  const existing = await findGelatoOrderByRef(session.id);
+  if (existing && !["failed", "canceled"].includes(existing.fulfillmentStatus ?? "")) {
+    return NextResponse.json(
+      { error: `Déjà envoyée à Gelato (${existing.id}, ${existing.fulfillmentStatus})` },
+      { status: 409 }
+    );
+  }
+
   // ── Submit to Gelato ──
   try {
     const order = await createGelatoOrder({
@@ -94,7 +103,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       gelatoOrderId: order.id,
-      status: order.status,
+      status: order.fulfillmentStatus ?? order.status,
       albumTitle,
       customerEmail,
       shippingTo: `${address.city}, ${address.country}`,

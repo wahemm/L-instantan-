@@ -430,6 +430,11 @@ export async function generateGelatoInteriorPDF(
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [W_MM, H_MM] });
 
   const totalPages = targetCount;
+  // Gelato attend, en plus des pages commandées (pageCount), les 2 pages de
+  // garde collées à l'intérieur de la couverture : fichier = garde + pages +
+  // garde. Sinon : « Product requires exactly N+3 page(s), while file(s)
+  // contain N+1 » (couverture comprise). La 1ʳᵉ page du PDF (créée par jsPDF)
+  // est la garde avant, laissée blanche.
 
   // Render user content pages
   for (let i = 0; i < interiorPages.length; i++) {
@@ -440,7 +445,7 @@ export async function generateGelatoInteriorPDF(
     addBleed(canvas, bleedCtx, W, H, B);
 
     const imgData = bleedCanvas.toDataURL("image/jpeg", 0.95);
-    if (i > 0) pdf.addPage();
+    pdf.addPage();
     pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
   }
 
@@ -449,6 +454,9 @@ export async function generateGelatoInteriorPDF(
     pdf.addPage();
     // blank page — white by default
   }
+
+  // Page de garde arrière (intérieur du 4ᵉ de couverture), blanche
+  pdf.addPage();
 
   return pdf.output("blob");
 }
