@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       shippingCost: quote?.price ?? 8.6,
       minDeliveryDays: quote?.minDeliveryDays,
       maxDeliveryDays: quote?.maxDeliveryDays,
+      productCost: quote?.productPrice,
       currency: "EUR",
     });
   } catch (err) {

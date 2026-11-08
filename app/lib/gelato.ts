@@ -112,6 +112,8 @@ export interface GelatoShippingQuote {
   shipmentMethodUid: string;
   minDeliveryDays: number;
   maxDeliveryDays: number;
+  /** Prix HT de l'album seul chez Gelato (hors livraison), si fourni */
+  productPrice?: number;
 }
 
 interface GelatoShipmentMethod {
@@ -204,6 +206,7 @@ export async function getGelatoShippingQuote(
       shipmentMethodUid: chosen.shipmentMethodUid,
       minDeliveryDays: chosen.minDeliveryDays ?? 0,
       maxDeliveryDays: chosen.maxDeliveryDays ?? 0,
+      productPrice: typeof data.quotes?.[0]?.products?.[0]?.price === "number" ? data.quotes[0].products[0].price : undefined,
     };
   } catch (err) {
     console.warn("[Gelato] shipping quote failed:", err);
