@@ -46,6 +46,7 @@ export async function getGelatoCoverDimensions(pageCount: number): Promise<{
   widthMm: number;
   heightMm: number;
   spineWidthMm: number;
+  raw?: unknown;
 }> {
   const safeCount = Math.max(
     GELATO_MIN_PAGES,
@@ -69,7 +70,7 @@ export async function getGelatoCoverDimensions(pageCount: number): Promise<{
       const widthMm = data.wraparoundInsideSize?.width ?? GELATO_DEFAULT_COVER_WIDTH_MM;
       const heightMm = data.wraparoundInsideSize?.height ?? GELATO_DEFAULT_COVER_HEIGHT_MM;
       const spineWidthMm = data.spineSize?.width ?? 6;
-      return { widthMm, heightMm, spineWidthMm };
+      return { widthMm, heightMm, spineWidthMm, raw: data };
     }
     console.warn(`[Gelato] cover-dimensions API returned ${res.status}, using fallback`);
   } catch (err) {

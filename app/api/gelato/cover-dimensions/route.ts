@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       heightMm: dims.heightMm,
       spineWidthMm: dims.spineWidthMm,
       pageCount: safeCount,
+      gelato: dims.raw ?? null, // réponse brute Gelato (infos produit publiques)
     });
   } catch (err) {
     console.error("Gelato cover-dimensions error:", err);
