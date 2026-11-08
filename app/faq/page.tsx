@@ -62,7 +62,7 @@ const FAQS = [
       },
       {
         q: "Mes photos sont-elles stockées quelque part ?",
-        a: "Pendant que tu crées ton album, tes photos restent dans ton navigateur. Si tu es connecté et que tu enregistres, l'album est sauvegardé dans ton compte pour le retrouver sur un autre appareil ; tu peux le supprimer à tout moment depuis « Mon compte ». À la commande, seuls les fichiers d'impression sont envoyés à notre imprimeur, puis effacés de nos serveurs après 6 mois. Tes photos ne sont jamais revendues ni réutilisées.",
+        a: "Pendant que tu crées ton album, tes photos restent dans ton navigateur. Si tu es connecté et que tu enregistres, l'album est sauvegardé dans ton compte pour le retrouver sur un autre appareil ; tu peux le supprimer à tout moment depuis « Mon compte ». À la commande, seuls les fichiers d'impression sont envoyés à notre imprimeur, puis effacés de nos serveurs après 60 jours. Tes photos ne sont jamais revendues ni réutilisées.",
       },
       {
         q: "Puis-je offrir un album en cadeau ?",

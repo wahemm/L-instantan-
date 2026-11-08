@@ -70,7 +70,7 @@ export default function PolitiqueConfidentialitePage() {
             <p><strong>Donn&eacute;es de compte</strong> &mdash; Conserv&eacute;es tant que votre compte est actif, puis supprim&eacute;es dans un d&eacute;lai de 30 jours apr&egrave;s la cl&ocirc;ture du compte.</p>
             <p><strong>Donn&eacute;es de commande et facturation</strong> &mdash; Conserv&eacute;es 10 ans conform&eacute;ment aux obligations comptables l&eacute;gales.</p>
             <p><strong>Albums enregistr&eacute;s dans le compte</strong> &mdash; Conserv&eacute;s jusqu&apos;&agrave; ce que vous les supprimiez (depuis &laquo;&nbsp;Mon compte&nbsp;&raquo;) ou jusqu&apos;&agrave; la cl&ocirc;ture du compte.</p>
-            <p><strong>Fichiers d&apos;impression</strong> &mdash; Conserv&eacute;s 6 mois apr&egrave;s la commande (pour permettre une r&eacute;impression au titre de la garantie), puis supprim&eacute;s automatiquement.</p>
+            <p><strong>Fichiers d&apos;impression</strong> &mdash; Conserv&eacute;s 60 jours apr&egrave;s la commande (le temps de la garantie), puis supprim&eacute;s automatiquement ; supprim&eacute;s sous 3 jours si le paiement n&apos;est pas finalis&eacute;.</p>
             <p><strong>Donn&eacute;es techniques (logs)</strong> &mdash; Conserv&eacute;es 12 mois maximum.</p>
           </div>
         </section>

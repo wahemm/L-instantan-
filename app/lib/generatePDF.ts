@@ -444,7 +444,7 @@ export async function generateGelatoInteriorPDF(
     await renderPage(ctx, interiorPages[i], W, H, albumTitle);
     addBleed(canvas, bleedCtx, W, H, B);
 
-    const imgData = bleedCanvas.toDataURL("image/jpeg", 0.95);
+    const imgData = bleedCanvas.toDataURL("image/jpeg", 0.92);
     pdf.addPage();
     pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
   }
