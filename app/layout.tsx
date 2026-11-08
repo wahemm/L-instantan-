@@ -75,43 +75,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               }),
             }}
           />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Product",
-                name: "Album Photo Premium — L'Instantané",
-                description: "Album photo personnalisé imprimé sur papier satiné 170g/m², format A4, couverture rigide. Livré en 7–12 jours.",
-                image: [`${BASE_URL}/covers/Espagne.png`, `${BASE_URL}/covers/paris.png`, `${BASE_URL}/covers/Italie.png`],
-                brand: { "@type": "Brand", name: "L'Instantané" },
-                offers: {
-                  "@type": "Offer",
-                  url: `${BASE_URL}/create`,
-                  priceCurrency: "EUR",
-                  price: "44.00",
-                  availability: "https://schema.org/InStock",
-                  hasMerchantReturnPolicy: {
-                    "@type": "MerchantReturnPolicy",
-                    applicableCountry: ["FR", "BE", "CH", "LU", "MC"],
-                    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-                    merchantReturnDays: 14,
-                    returnMethod: "https://schema.org/ReturnByMail",
-                    returnFees: "https://schema.org/FreeReturn",
-                  },
-                  shippingDetails: {
-                    "@type": "OfferShippingDetails",
-                    deliveryTime: {
-                      "@type": "ShippingDeliveryTime",
-                      handlingTime: { "@type": "QuantitativeValue", minValue: 2, maxValue: 4, unitCode: "DAY" },
-                      transitTime: { "@type": "QuantitativeValue", minValue: 5, maxValue: 8, unitCode: "DAY" },
-                    },
-                    shippingDestination: { "@type": "DefinedRegion", addressCountry: ["FR", "BE", "CH", "LU", "MC"] },
-                  },
-                },
-              }),
-            }}
-          />
           {children}
           <AnalyticsGate />
           <CookieBanner />
