@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import Nav from "@/app/components/Nav";
 import Link from "next/link";
-import { INCLUDED_PAGES } from "@/app/lib/pricing";
+import { INCLUDED_PAGES, calculatePrice as calcPackPrice } from "@/app/lib/pricing";
 
 // ── Types ──────────────────────────────────────────────────────────────
 type LayoutId = string;
@@ -22,13 +22,9 @@ const GELATO_MIN_PAGES = 32;
 const DEFAULT_COVER_WIDTH_MM = 478;
 const DEFAULT_COVER_HEIGHT_MM = 326;
 
-// ── Price calculation (single product) ────────────────────────────────
-const BASE_PRICE = 29;
-const EXTRA_PER_PAGE = 0.5;
-
+// ── Price calculation (single product) — règles communes : app/lib/pricing.ts
 function calculatePrice(pageCount: number): number {
-  const extra = Math.max(0, pageCount - INCLUDED_PAGES);
-  return Math.round((BASE_PRICE + extra * EXTRA_PER_PAGE) * 100) / 100;
+  return calcPackPrice("physique", pageCount);
 }
 
 function formatPrice(price: number): string {
@@ -644,9 +640,11 @@ function ResultContent() {
                     </select>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Frais de livraison</span>
+                    <span className="text-slate-500">{shippingCost ? "Supplément livraison" : "Livraison"}</span>
                     {shippingLoading ? (
                       <span className="text-slate-400 text-xs">Calcul…</span>
+                    ) : shippingCost === 0 ? (
+                      <span className="font-semibold text-emerald-600">Offerte</span>
                     ) : shippingCost !== null ? (
                       <span className="font-semibold text-slate-900">{formatPrice(shippingCost)}</span>
                     ) : (
@@ -660,7 +658,7 @@ function ResultContent() {
                   <div className="space-y-1 text-xs text-slate-400">
                     <div className="flex justify-between">
                       <span>Album {INCLUDED_PAGES} pages incluses</span>
-                      <span>29 €</span>
+                      <span>{formatPrice(calculatePrice(INCLUDED_PAGES))}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>{pageCount - INCLUDED_PAGES} page{pageCount - INCLUDED_PAGES > 1 ? "s" : ""} supplémentaire{pageCount - INCLUDED_PAGES > 1 ? "s" : ""}</span>

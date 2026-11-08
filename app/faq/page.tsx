@@ -32,7 +32,7 @@ const FAQS = [
     items: [
       {
         q: "Quel est le délai de livraison ?",
-        a: "Ton album est imprimé et livré sous 7 à 12 jours ouvrés après confirmation de ta commande. Les frais de port sont calculés au moment du paiement selon la destination.",
+        a: "Ton album est imprimé et livré sous 7 à 12 jours ouvrés après confirmation de ta commande. La livraison est offerte en France, Belgique, Suisse et Luxembourg.",
       },
       {
         q: "Livraison en dehors de France ?",
@@ -45,7 +45,7 @@ const FAQS = [
     items: [
       {
         q: "Combien coûte un album ?",
-        a: "À partir de 29 € pour un album de 32 pages. Chaque page supplémentaire est à 0,50 €. Livraison suivie en plus : environ 9 € en France, le montant exact s'affiche avant le paiement. Pas de frais cachés, pas d'abonnement.",
+        a: "44 € pour un album de 32 pages, livraison suivie offerte en France, Belgique, Suisse et Luxembourg. Chaque page supplémentaire est à 0,50 €. Pour Monaco, un supplément de livraison s'affiche avant le paiement. Pas de frais cachés, pas d'abonnement.",
       },
       {
         q: "Comment fonctionne le paiement ?",

@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Album photo voyage personnalisé",
-  description: "Crée ton album photo voyage sur-mesure. Couvertures Italie, Japon, Mexique, Grèce, Maroc… Imprimé en France, livré en 7-12 jours. À partir de 29€.",
+  description: "Crée ton album photo voyage sur-mesure. Couvertures Italie, Japon, Mexique, Grèce, Maroc… Imprimé en France, livré en 7-12 jours. 44 €, livraison offerte.",
   alternates: { canonical: "/album-photo-voyage" },
   openGraph: {
     title: "Album photo voyage personnalisé",
@@ -66,7 +66,7 @@ export default function AlbumPhotoVoyagePage() {
           <Link href="/create" className="rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white hover:bg-slate-700 transition">Créer mon album de voyage →</Link>
           <Link href="/shop" className="rounded-full border border-slate-300 px-8 py-4 text-sm font-semibold text-slate-900 hover:border-slate-900 transition">Voir les couvertures</Link>
         </div>
-        <p className="mt-4 text-xs text-slate-400">À partir de 29€ · Livraison 7–12j · Réimprimé ou remboursé 30 j</p>
+        <p className="mt-4 text-xs text-slate-400">44 € livraison offerte · 7–12j · Réimprimé ou remboursé 30 j</p>
       </section>
 
       {/* Destinations grid */}

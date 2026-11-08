@@ -64,7 +64,7 @@ export default function AlbumPhotoNaissancePage() {
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
-              <span className="flex items-center gap-1.5"><Dot /> À partir de 29 €</span>
+              <span className="flex items-center gap-1.5"><Dot /> 44 € livraison offerte</span>
               <span className="flex items-center gap-1.5"><Dot /> Livraison 7–12 j</span>
               <span className="flex items-center gap-1.5"><Dot /> Réimprimé ou remboursé 30 j</span>
             </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getGelatoShippingQuote } from "@/app/lib/gelato";
+import { calculatePrice as albumPrice, INCLUDED_PAGES, shippingCharge } from "@/app/lib/pricing";
 
 const stripeKey = (process.env.STRIPE_SECRET_KEY ?? "").trim();
 const stripe = new Stripe(stripeKey, {
@@ -9,12 +10,9 @@ const stripe = new Stripe(stripeKey, {
   httpClient: Stripe.createNodeHttpClient(),
 });
 
-const BASE_PRICE_CENTS = 2900; // 29 €
-const EXTRA_PER_PAGE_CENTS = 50; // 0.50 € per extra page
-// Gelato prints a minimum of 32 interior pages; the base price covers this
-// count. MUST match INCLUDED_PAGES in pricing.ts and the "32 pages" site copy,
-// otherwise the amount charged here diverges from the price shown on /result.
-const INCLUDED_PAGES = 32;
+// Prix et livraison : mêmes règles que /result (app/lib/pricing.ts).
+// Tarif Gelato de secours par pays si le devis est indisponible.
+const FALLBACK_GELATO_SHIPPING: Record<string, number> = { FR: 9.27, BE: 7.38, LU: 9.15, CH: 10.09, MC: 25.12 };
 
 /** PDF d'album déposé sur notre Vercel Blob (cf. /api/upload-pdf). */
 function isStoredAlbumPdf(url: string): boolean {
@@ -34,8 +32,7 @@ const SHIP_COUNTRIES = ["FR", "BE", "CH", "LU", "MC"] as const;
 type ShipCountry = (typeof SHIP_COUNTRIES)[number];
 
 function calculatePrice(pageCount: number): number {
-  const extraPages = Math.max(0, pageCount - INCLUDED_PAGES);
-  return BASE_PRICE_CENTS + extraPages * EXTRA_PER_PAGE_CENTS;
+  return Math.round(albumPrice("physique", pageCount) * 100);
 }
 
 /** Recompute shipping server-side instead of trusting the client. Returns both
@@ -50,12 +47,13 @@ async function calculateShipping(
   try {
     const quote = await getGelatoShippingQuote(pageCount, countryCode);
     if (quote && quote.price > 0 && quote.price < 100) {
-      return { cents: Math.round(quote.price * 100), methodUid: quote.shipmentMethodUid };
+      return { cents: Math.round(shippingCharge(quote.price) * 100), methodUid: quote.shipmentMethodUid };
     }
   } catch (err) {
     console.error("[Checkout] Shipping recalc failed, using fallback:", err);
   }
-  return { cents: 860, methodUid: null }; // 8.60 € fallback (tracked standard)
+  const fallback = FALLBACK_GELATO_SHIPPING[countryCode] ?? FALLBACK_GELATO_SHIPPING.FR;
+  return { cents: Math.round(shippingCharge(fallback) * 100), methodUid: null };
 }
 
 export async function POST(req: NextRequest) {
@@ -117,8 +115,8 @@ export async function POST(req: NextRequest) {
           currency: "eur",
           unit_amount: shippingCents,
           product_data: {
-            name: "Frais de livraison",
-            description: `Livraison standard vers ${shippingCountry}`,
+            name: "Supplément livraison",
+            description: `Livraison suivie vers ${shippingCountry} (au-delà de la livraison offerte)`,
           },
         },
       });

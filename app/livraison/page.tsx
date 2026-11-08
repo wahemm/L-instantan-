@@ -63,9 +63,9 @@ export default function LivraisonPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Frais de port</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Frais de livraison</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
-            <p>Les frais de port dépendent du pays de livraison et du poids du colis — à titre indicatif, environ 9 € en France et 7 € en Belgique. Le montant exact s&apos;affiche avant le paiement. Aucun frais caché.</p>
+            <p><strong>La livraison suivie est offerte</strong> en France métropolitaine, Belgique, Suisse et Luxembourg. Pour Monaco, un supplément (environ 14 €) s&apos;affiche avant le paiement. Aucun frais caché.</p>
           </div>
         </section>
 

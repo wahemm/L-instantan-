@@ -36,7 +36,7 @@ export default function CgvPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">3. Prix</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
             <p>Les prix sont indiqués en euros TTC. L&apos;Instantané se réserve le droit de modifier ses tarifs à tout moment, sans que cela affecte les commandes en cours.</p>
-            <p>Tarif indicatif : 29 € pour un album de 32 pages, 0,50 € par page supplémentaire. Frais de port calculés au moment du paiement selon la destination.</p>
+            <p>Tarif : 44 € pour un album de 32 pages, 0,50 € par page supplémentaire. Livraison offerte en France métropolitaine, Belgique, Suisse et Luxembourg ; pour Monaco, un supplément de livraison est indiqué avant le paiement.</p>
           </div>
         </section>
 
@@ -52,7 +52,7 @@ export default function CgvPage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">5. Livraison</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
             <p>Les commandes sont expédiées en France métropolitaine, en Belgique, en Suisse, au Luxembourg et à Monaco. L&apos;adresse de livraison doit se trouver dans le pays choisi au moment de la commande. Délai de fabrication et livraison : 7 à 12 jours ouvrés à compter de la confirmation du paiement.</p>
-            <p>Les frais de port sont indiqués au moment du paiement en fonction de la destination.</p>
+            <p>La livraison est offerte en France métropolitaine, Belgique, Suisse et Luxembourg. Pour Monaco, le supplément de livraison est indiqué avant le paiement.</p>
           </div>
         </section>
 

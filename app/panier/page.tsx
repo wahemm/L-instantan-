@@ -118,7 +118,7 @@ export default function PanierPage() {
                 </h2>
                 <div className="mt-5 space-y-3 text-sm">
                   <Row label={`${items.length} album${items.length > 1 ? "s" : ""}`} value={formatPrice(subtotal)} />
-                  <Row label="Livraison" value="Calculée à l’étape suivante" muted />
+                  <Row label="Livraison" value="Offerte (supplément Monaco)" muted />
                 </div>
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <div className="flex items-baseline justify-between">

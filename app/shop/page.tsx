@@ -136,8 +136,8 @@ export default function ShopPage() {
             {/* Price */}
             <div className="rounded-2xl border border-gray-200 bg-[#f8f7f4] p-6">
               <div className="flex items-baseline gap-2">
-                <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">29 €</span>
-                <span className="text-sm text-slate-400">+ livraison (≈ 9 € en France)</span>
+                <span className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-slate-900">44 €</span>
+                <span className="text-sm font-medium text-emerald-600">livraison offerte</span>
               </div>
               <p className="mt-2 text-xs text-slate-500">32 pages incluses · 0,50 € par page supplémentaire</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
@@ -173,7 +173,7 @@ export default function ShopPage() {
               href="/create"
               className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 py-4 text-sm font-semibold text-white transition hover:bg-slate-700"
             >
-              Créer mon album — 29 € →
+              Créer mon album — 44 € →
             </Link>
 
             {/* Trust */}
@@ -194,7 +194,7 @@ export default function ShopPage() {
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 7 à 12 jours ouvrés. Garantie Album Parfait : défaut, colis abîmé ou rendu différent de l'aperçu → réimprimé ou remboursé, au choix, pendant 30 jours. Une photo suffit, rien à renvoyer.",
+                  content: "Livraison suivie offerte en France, Belgique, Suisse et Luxembourg (supplément pour Monaco), sous 7 à 12 jours ouvrés. Garantie Album Parfait : défaut, colis abîmé ou rendu différent de l'aperçu → réimprimé ou remboursé, au choix, pendant 30 jours. Une photo suffit, rien à renvoyer.",
                 },
               ].map(item => (
                 <div key={item.key}>

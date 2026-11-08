@@ -89,7 +89,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   "@type": "Offer",
                   url: `${BASE_URL}/create`,
                   priceCurrency: "EUR",
-                  price: "29.00",
+                  price: "44.00",
                   availability: "https://schema.org/InStock",
                   hasMerchantReturnPolicy: {
                     "@type": "MerchantReturnPolicy",

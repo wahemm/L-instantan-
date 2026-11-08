@@ -157,7 +157,7 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/75">
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Imprimé en France & Europe</span>
               <span className="hidden text-white/30 sm:inline">·</span>
-              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> À partir de 29 €</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> 44 € livraison offerte</span>
               <span className="hidden text-white/30 sm:inline">·</span>
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Réimprimé ou remboursé · 30 j</span>
             </div>
@@ -411,7 +411,7 @@ export default function Home() {
           <div className="mb-14 text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#E0512E]">Tarif</p>
             <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Simple et transparent</h2>
-            <p className="mx-auto mt-4 max-w-lg text-slate-500">Un prix simple, sans abonnement. La livraison (≈ 9 € en France) s&apos;affiche avant le paiement.</p>
+            <p className="mx-auto mt-4 max-w-lg text-slate-500">Un prix simple, sans abonnement. Et la livraison est offerte.</p>
           </div>
           <div className="mx-auto max-w-sm">
             <article className="relative flex flex-col rounded-3xl bg-slate-900 p-10 text-white text-center shadow-xl">
@@ -420,15 +420,15 @@ export default function Home() {
               </div>
               <h3 className="font-[family-name:var(--font-playfair)] text-xl text-slate-300 mt-3">À partir de</h3>
               <div className="my-4 flex items-end justify-center gap-1">
-                <span className="font-[family-name:var(--font-playfair)] text-6xl font-bold text-white">29 €</span>
-                <span className="mb-2.5 text-xs text-slate-400">+ livraison</span>
+                <span className="font-[family-name:var(--font-playfair)] text-6xl font-bold text-white">44 €</span>
+                <span className="mb-2.5 text-xs text-emerald-300">livraison offerte</span>
               </div>
-              <p className="-mt-2 mb-6 text-xs text-slate-400">32 pages incluses · livraison ≈ 9 € en France</p>
+              <p className="-mt-2 mb-6 text-xs text-slate-400">32 pages incluses · 0,50 € par page en plus</p>
               <ul className="mb-8 flex flex-col gap-3 text-left">
                 {[
                   "Livre imprimé finition premium",
                   "Format 21×28 cm · Papier satiné 170 g/m²",
-                  "Livraison sous 7–12 jours ouvrés",
+                  "Livraison suivie offerte, 7–12 jours ouvrés",
                   "Pour offrir ou garder",
                 ].map(p => (
                   <li key={p} className="flex items-center gap-2.5 text-sm text-slate-300">
@@ -526,7 +526,7 @@ export default function Home() {
               { q: "Puis-je voir mon album avant de payer ?",      a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu." },
               { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché satiné 170 g/m². Impression haute résolution, finition premium Gelato." },
               { q: "Et si l'album ne me plaît pas ?",              a: "Tu vois chaque page avant de payer, donc le livre reçu est celui que tu as validé. S'il a un défaut, arrive abîmé ou ne correspond pas à l'aperçu, tu as 30 jours : on le réimprime gratuitement ou on te rembourse, au choix. Une photo suffit, rien à renvoyer." },
-              { q: "Combien ça coûte vraiment ?",                  a: "29 € pour un album de 32 pages, puis 0,50 € par page supplémentaire. Livraison suivie en plus : environ 9 € en France (7 € en Belgique), le montant exact s'affiche avant le paiement. Aucun abonnement." },
+              { q: "Combien ça coûte vraiment ?",                  a: "44 € pour un album de 32 pages, livraison suivie offerte en France, Belgique, Suisse et Luxembourg. Ensuite 0,50 € par page supplémentaire. Aucun abonnement, aucun frais caché." },
             ].map((item, idx) => (
               <details key={idx} className="group px-7 py-5 transition hover:bg-slate-50/60 [&[open]]:bg-slate-50/80">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
@@ -584,7 +584,7 @@ export default function Home() {
       >
         <div className="flex flex-col leading-tight">
           <span className="text-[11px] uppercase tracking-widest text-slate-400">À partir de</span>
-          <span className="text-base font-bold text-slate-900">29 €</span>
+          <span className="text-base font-bold text-slate-900">44 € <span className="text-xs font-medium text-emerald-600">livraison offerte</span></span>
         </div>
         <Link href="/create" className="inline-flex shrink-0 items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">
           Créer mon album →
