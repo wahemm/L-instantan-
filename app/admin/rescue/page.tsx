@@ -39,6 +39,7 @@ export default function RescuePage() {
   const [logs, setLogs] = useState<LogLine[]>([]);
   const [running, setRunning] = useState(false);
   const [gelatoOrderId, setGelatoOrderId] = useState<string | null>(null);
+  const [accountDrafts, setAccountDrafts] = useState<{ id: string; title: string; pageCount: number; updatedAt: number }[]>([]);
 
   const email = user?.primaryEmailAddress?.emailAddress?.toLowerCase();
   const isAdmin = email === "hbbhugo.thomas@gmail.com" || email === "linstantane.officiel@gmail.com";
@@ -58,11 +59,29 @@ export default function RescuePage() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { listAllDrafts } = await import("@/app/lib/draftCloud");
+        const list = await listAllDrafts(user.id);
+        setAccountDrafts(list.map((d) => ({ id: d.id, title: d.title, pageCount: d.pageCount, updatedAt: d.updatedAt })));
+        if (list.length && !hasCurrent) setAlbumSource(`draft:${list[0].id}`);
+      } catch { /* ignore */ }
+    })();
+  }, [user?.id, hasCurrent]);
+
   function log(level: LogLine["level"], msg: string) {
     setLogs((prev) => [...prev, { level, msg }]);
   }
 
   async function loadAlbumPayload(): Promise<unknown> {
+    if (albumSource.startsWith("draft:")) {
+      const { openDraft } = await import("@/app/lib/draftCloud");
+      const a = await openDraft(albumSource.slice(6), user?.id ?? null);
+      if (!a) throw new Error("Album du compte introuvable");
+      return a;
+    }
     if (albumSource === "current") {
       const { loadAlbum } = await import("@/app/lib/albumStore");
       const a = await loadAlbum();
@@ -85,7 +104,7 @@ export default function RescuePage() {
     setGelatoOrderId(null);
 
     try {
-      log("info", "Lecture de l'album depuis IndexedDB…");
+      log("info", "Lecture de l'album…");
       const album = (await loadAlbumPayload()) as {
         type: "manual" | "auto";
         title: string;
@@ -219,6 +238,11 @@ export default function RescuePage() {
               <option value="current" disabled={!hasCurrent}>
                 Album courant {hasCurrent ? "(IndexedDB)" : "(aucun)"}
               </option>
+              {accountDrafts.map((d) => (
+                <option key={d.id} value={`draft:${d.id}`}>
+                  Mes albums : {d.title} · {d.pageCount} p · {new Date(d.updatedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+                </option>
+              ))}
               {cartItems.map((c) => (
                 <option key={c.id} value={c.id}>Cart: {c.title} · {c.pageCount}p</option>
               ))}
