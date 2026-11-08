@@ -77,8 +77,8 @@ export default function RescuePage() {
 
   async function loadAlbumPayload(): Promise<unknown> {
     if (albumSource.startsWith("draft:")) {
-      const { openDraft } = await import("@/app/lib/draftCloud");
-      const a = await openDraft(albumSource.slice(6), user?.id ?? null);
+      const { readDraft } = await import("@/app/lib/draftCloud");
+      const a = await readDraft(albumSource.slice(6), user?.id ?? null);
       if (!a) throw new Error("Album du compte introuvable");
       return a;
     }

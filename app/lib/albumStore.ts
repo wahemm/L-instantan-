@@ -38,6 +38,7 @@ export async function saveAlbum(data: unknown): Promise<void> {
     tx.objectStore(STORE_NAME).put(data, KEY);
     tx.oncomplete = () => { db.close(); resolve(); };
     tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.onabort = () => { db.close(); reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)")); };
   });
 }
 
@@ -90,6 +91,7 @@ export async function saveDraft(summary: DraftSummary, album: unknown): Promise<
     tx.objectStore(DRAFTS_STORE).put({ ...summary, album } satisfies DraftEntry);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)"));
   });
   db.close();
   notifyDraftsChanged();
@@ -137,6 +139,7 @@ export async function deleteDraft(id: string): Promise<void> {
     tx.objectStore(DRAFTS_STORE).delete(id);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)"));
   });
   db.close();
   notifyDraftsChanged();

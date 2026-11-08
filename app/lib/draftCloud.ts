@@ -137,10 +137,21 @@ export async function openDraft<T extends object = Record<string, unknown>>(id: 
   if (entry && !entry.local && entry.dataUrl) {
     album = await cloudLoadDraft<T>(entry.dataUrl);
     const summary: DraftSummary = { id: entry.id, title: entry.title, pageCount: entry.pageCount, photoCount: entry.photoCount, cover: entry.cover, updatedAt: entry.updatedAt };
-    await saveDraft({ ...summary, owner: userId ?? "guest" }, album); // copie locale pour la suite
+    // Copie locale pour la suite (sans bloquer si l'appareil est plein)
+    await saveDraft({ ...summary, owner: userId ?? "guest" }, album).catch((e) => console.warn("[drafts] copie locale impossible", e));
   } else if (entry) {
     album = (await getDraft<T>(id))?.album ?? null;
   }
-  if (album) await saveAlbum({ ...album, id });
+  if (album) await saveAlbum({ ...album, id }).catch((e) => console.warn("[drafts] album courant non enregistré", e));
   return album;
+}
+
+/** Charge un album (compte ou appareil) SANS l'écrire sur l'appareil. */
+export async function readDraft<T = unknown>(id: string, userId: string | null): Promise<T | null> {
+  const { getDraft } = await import("@/app/lib/albumStore");
+  const all = await listAllDrafts(userId);
+  const entry = all.find((d) => d.id === id);
+  if (!entry) return null;
+  if (!entry.local && entry.dataUrl) return cloudLoadDraft<T>(entry.dataUrl);
+  return (await getDraft<T>(id))?.album ?? null;
 }

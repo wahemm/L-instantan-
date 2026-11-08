@@ -47,6 +47,7 @@ export async function addToCart(args: {
     tx.objectStore(CART_STORE).put(entry);
     tx.oncomplete = () => resolve();
     tx.onerror    = () => reject(tx.error);
+    tx.onabort    = () => reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)"));
   });
   db.close();
   // Notify any listening UI (e.g. the Nav cart badge) without forcing a reload.
@@ -113,6 +114,7 @@ export async function removeFromCart(id: string): Promise<void> {
     tx.objectStore(CART_STORE).delete(id);
     tx.oncomplete = () => resolve();
     tx.onerror    = () => reject(tx.error);
+    tx.onabort    = () => reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)"));
   });
   db.close();
   if (typeof window !== "undefined") {
@@ -130,6 +132,7 @@ export async function loadCartItemAsCurrent(id: string): Promise<boolean> {
     tx.objectStore(ALBUMS_STORE).put(item.album, "current");
     tx.oncomplete = () => resolve();
     tx.onerror    = () => reject(tx.error);
+    tx.onabort    = () => reject(tx.error ?? new Error("Écriture annulée (stockage plein ?)"));
   });
   db.close();
   return true;
