@@ -74,7 +74,7 @@ export default function AvisPage() {
         <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
           <h3 className="font-[family-name:var(--font-playfair)] text-lg text-slate-900 mb-3">Un souci avec ton album ?</h3>
           <p className="text-sm leading-relaxed text-slate-600 mb-4">
-            Défaut d&apos;impression, page abîmée, couverture qui ne correspond pas à ton aperçu validé ? On te rembourse intégralement sous 14 jours, sans conditions.
+            Défaut d&apos;impression, page abîmée, couverture qui ne correspond pas à ton aperçu validé ? Tu as 30 jours : on le réimprime gratuitement ou on te rembourse, au choix. Une photo suffit.
           </p>
           <Link
             href="/contact"

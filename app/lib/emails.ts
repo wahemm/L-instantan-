@@ -212,7 +212,7 @@ export function buildDeliveredEmail(args: {
     ${ctaButton("Laisser un avis (1 min)", reviewUrl)}
     ${divider()}
     <p style="margin:0 0 12px;font-size:13px;color:#64748b;font-family:Arial,sans-serif;line-height:1.7;">
-      Un défaut d'impression, une page abîmée, une couverture qui ne correspond pas à ton aperçu ? On te rembourse intégralement sous 14 jours, sans conditions.
+      Un défaut d'impression, une page abîmée, une couverture qui ne correspond pas à ton aperçu ? Tu as 30 jours : on le réimprime gratuitement ou on te rembourse, au choix. Envoie-nous simplement une photo, rien à renvoyer.
     </p>
     <p style="margin:0;font-size:13px;color:#64748b;font-family:Arial,sans-serif;line-height:1.7;">
       Réponds à cet email ou écris-nous à <a href="mailto:${CONTACT}" style="color:#0f172a;">${CONTACT}</a>.

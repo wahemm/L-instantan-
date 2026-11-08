@@ -49,7 +49,7 @@ export default function ContactPage() {
             </div>
             <div>
               <p className="font-semibold text-slate-900">Mon album a un défaut.</p>
-              <p>Envoie-nous une photo du défaut par email sous 14 jours après réception. On te propose un remplacement ou un remboursement — voir notre <Link href="/politique-de-retour" className="underline hover:text-slate-900">politique de retour</Link>.</p>
+              <p>Envoie-nous une photo du défaut par email dans les 30 jours après réception. On le réimprime gratuitement ou on te rembourse, au choix — voir notre <Link href="/politique-de-retour" className="underline hover:text-slate-900">politique de retour</Link>.</p>
             </div>
           </div>
         </section>

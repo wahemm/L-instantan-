@@ -159,7 +159,7 @@ export default function Home() {
               <span className="hidden text-white/30 sm:inline">·</span>
               <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> À partir de 29 €</span>
               <span className="hidden text-white/30 sm:inline">·</span>
-              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Satisfait ou remboursé 14 j</span>
+              <span className="inline-flex items-center gap-1.5"><span className="text-emerald-300">✓</span> Réimprimé ou remboursé · 30 j</span>
             </div>
           </div>
 
@@ -284,7 +284,7 @@ export default function Home() {
                     icon: (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
                     ),
-                    text: "Garantie qualité premium",
+                    text: "Garantie Album Parfait 30 jours",
                   },
                 ].map(f => (
                   <li key={f.text} className="flex items-center gap-3 text-slate-700">
@@ -442,7 +442,7 @@ export default function Home() {
               </Link>
             </article>
           </div>
-          <p className="mt-8 text-center text-sm text-slate-400">Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours</p>
+          <p className="mt-8 text-center text-sm text-slate-400">Paiement sécurisé Stripe · Garantie Album Parfait 30 jours</p>
         </div>
       </section>
 
@@ -454,7 +454,7 @@ export default function Home() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#E0512E]">Notre promesse</p>
             <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 sm:text-4xl">Pourquoi nous faire confiance</h2>
             <p className="mx-auto mt-4 max-w-xl text-slate-500">
-              Si l&apos;album n&apos;est pas parfait, on le réimprime ou on te rembourse — sans discuter. Et tu prévisualises chaque page avant de payer.
+              Si l&apos;album n&apos;est pas parfait, on le réimprime ou on te rembourse, au choix. Une photo suffit, rien à renvoyer. Et tu prévisualises chaque page avant de payer.
             </p>
           </div>
 
@@ -475,8 +475,8 @@ export default function Home() {
               {
                 icon: <IconReturn />,
                 accent: "bg-amber-50 text-amber-700",
-                title: "Satisfait ou remboursé",
-                desc: "Si ton album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement — sous 14 jours.",
+                title: "Garantie Album Parfait",
+                desc: "Défaut d'impression, colis abîmé ou perdu, rendu différent de l'aperçu validé : on réimprime gratuitement ou on rembourse tout, au choix. 30 jours, une simple photo suffit.",
               },
             ].map((g) => (
               <div key={g.title} className="flex flex-col gap-5 rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
@@ -495,7 +495,7 @@ export default function Home() {
             {[
               { v: "7–12j", l: "Livraison France" },
               { v: "100 %", l: "Aperçu avant achat" },
-              { v: "14 j",  l: "Remboursé sans condition" },
+              { v: "30 j",  l: "Réimprimé ou remboursé" },
               { v: "0 €",   l: "Frais cachés" },
             ].map(s => (
               <div key={s.l} className="rounded-2xl bg-[#f8f7f4] px-3 py-5 text-center">
@@ -525,7 +525,7 @@ export default function Home() {
               { q: "Combien de temps pour recevoir mon album ?",   a: "7 à 12 jours ouvrés en France métropolitaine. Fabrication en 2 à 4 jours, puis expédition suivie en 5 à 8 jours." },
               { q: "Puis-je voir mon album avant de payer ?",      a: "Oui, à 100 %. Tu prévisualises chaque page, la couverture, le 4ᵉ de couverture. Aucune commande n'est lancée tant que tu n'as pas validé l'aperçu." },
               { q: "Quelle est la qualité du livre ?",             a: "Format 21×28 cm, couverture rigide cartonnée, papier photo couché satiné 170 g/m². Impression haute résolution, finition premium Gelato." },
-              { q: "Et si l'album ne me plaît pas ?",              a: "Satisfait ou remboursé sous 14 jours. Si l'album présente un défaut ou ne correspond pas à l'aperçu validé, on te rembourse intégralement." },
+              { q: "Et si l'album ne me plaît pas ?",              a: "Tu vois chaque page avant de payer, donc le livre reçu est celui que tu as validé. S'il a un défaut, arrive abîmé ou ne correspond pas à l'aperçu, tu as 30 jours : on le réimprime gratuitement ou on te rembourse, au choix. Une photo suffit, rien à renvoyer." },
               { q: "Combien ça coûte vraiment ?",                  a: "29 € pour un album de 32 pages, puis 0,50 € par page supplémentaire. Livraison suivie en plus : environ 9 € en France (7 € en Belgique), le montant exact s'affiche avant le paiement. Aucun abonnement." },
             ].map((item, idx) => (
               <details key={idx} className="group px-7 py-5 transition hover:bg-slate-50/60 [&[open]]:bg-slate-50/80">
@@ -572,7 +572,7 @@ export default function Home() {
             <span className="hidden text-slate-700 sm:inline">·</span>
             <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Stripe sécurisé</span>
             <span className="hidden text-slate-700 sm:inline">·</span>
-            <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Remboursé 14 j</span>
+            <span className="inline-flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Garantie 30 j</span>
           </div>
         </div>
       </section>

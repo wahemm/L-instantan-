@@ -73,7 +73,7 @@ export default function AlbumPhotoMariagePage() {
                 <Dot /> Livraison 7–12 j
               </span>
               <span className="flex items-center gap-1.5">
-                <Dot /> Satisfait ou remboursé 14 j
+                <Dot /> Réimprimé ou remboursé 30 j
               </span>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function AlbumPhotoMariagePage() {
           <Link href="/create" className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
             Créer notre album →
           </Link>
-          <p className="mt-4 text-xs text-slate-500">Paiement sécurisé · Satisfait ou remboursé 14 jours</p>
+          <p className="mt-4 text-xs text-slate-500">Paiement sécurisé · Réimprimé ou remboursé 30 jours</p>
         </div>
       </section>
 

@@ -145,7 +145,7 @@ export default function PanierPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Check />
-                  <span>Satisfait ou remboursé sous 14 jours</span>
+                  <span>Défaut ou souci de livraison : réimprimé ou remboursé (30 jours)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Check />

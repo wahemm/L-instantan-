@@ -693,7 +693,7 @@ function ResultContent() {
               <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-slate-400">
                 <span>🔒 Paiement sécurisé Stripe</span>
                 <span>·</span>
-                <span>Satisfait ou remboursé</span>
+                <span>Réimprimé ou remboursé</span>
               </div>
             </div>
           </div>
@@ -828,7 +828,7 @@ function ResultContent() {
                 {cartStatus === "idle"   && "Ajouter au panier"}
               </button>
               <p className="mt-4 text-center text-xs text-slate-400">
-                🔒 Paiement sécurisé Stripe · Satisfait ou remboursé sous 14 jours
+                🔒 Paiement sécurisé Stripe · Garantie Album Parfait 30 jours
               </p>
             </div>
           </section>

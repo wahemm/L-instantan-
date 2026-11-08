@@ -66,7 +66,7 @@ export default function AlbumPhotoVoyagePage() {
           <Link href="/create" className="rounded-full bg-slate-900 px-8 py-4 text-sm font-semibold text-white hover:bg-slate-700 transition">Créer mon album de voyage →</Link>
           <Link href="/shop" className="rounded-full border border-slate-300 px-8 py-4 text-sm font-semibold text-slate-900 hover:border-slate-900 transition">Voir les couvertures</Link>
         </div>
-        <p className="mt-4 text-xs text-slate-400">À partir de 29€ · Livraison 7–12j · Satisfait ou remboursé 14j</p>
+        <p className="mt-4 text-xs text-slate-400">À partir de 29€ · Livraison 7–12j · Réimprimé ou remboursé 30 j</p>
       </section>
 
       {/* Destinations grid */}
@@ -178,7 +178,7 @@ export default function AlbumPhotoVoyagePage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-2xl sm:text-4xl mb-4">Prêt à immortaliser ton voyage ?</h2>
           <p className="text-slate-300 mb-8">Ça prend 10 minutes. Livré chez toi en une semaine.</p>
           <Link href="/create" className="inline-block rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">Créer mon album →</Link>
-          <p className="mt-4 text-xs text-slate-400">Paiement sécurisé · Satisfait ou remboursé 14 jours</p>
+          <p className="mt-4 text-xs text-slate-400">Paiement sécurisé · Garantie Album Parfait 30 jours</p>
         </div>
       </section>
 

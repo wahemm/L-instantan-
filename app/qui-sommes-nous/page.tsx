@@ -101,7 +101,7 @@ export default function QuiSommesNousPage() {
               { value: "A4", label: "Format premium 21×28 cm" },
               { value: "170g", label: "Papier photo satiné" },
               { value: "7–12j", label: "Délai de livraison" },
-              { value: "14j", label: "Satisfait ou remboursé" },
+              { value: "30j", label: "Réimprimé ou remboursé" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -127,7 +127,7 @@ export default function QuiSommesNousPage() {
             { icon:"📐", title:"Format A4, couverture rigide", desc:"21 × 28 cm, couverture cartonnée et reliure solide. Un objet conçu pour durer des années." },
             { icon:"✨", title:"Papier photo 170g/m²", desc:"Impression numérique haute résolution sur papier satiné premium. Le rendu des couleurs est fidèle à tes photos." },
             { icon:"🎨", title:"Éditeur intuitif", desc:"Place tes photos librement, choisis ta mise en page, ajoute du texte n'importe où. Aucune compétence requise." },
-            { icon:"🔒", title:"Paiement sécurisé, sans surprise", desc:"Tu vois l'aperçu complet avant de payer. Remboursé sous 14 jours si tu n'es pas satisfait, sans conditions." },
+            { icon:"🔒", title:"Paiement sécurisé, sans surprise", desc:"Tu vois l'aperçu complet avant de payer. Et si le livre reçu a un défaut ou ne correspond pas à l'aperçu, on le réimprime ou on te rembourse (30 jours)." },
           ].map(item => (
             <div key={item.title} className="flex gap-4 rounded-2xl border border-gray-100 p-6">
               <span className="text-2xl">{item.icon}</span>

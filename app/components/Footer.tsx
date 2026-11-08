@@ -82,7 +82,7 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <span>Paiement sécurisé</span>
             <span>·</span>
-            <span>Satisfait ou remboursé</span>
+            <span>Réimprimé ou remboursé</span>
             <span>·</span>
             <span>Livraison suivie 7–12j</span>
           </div>

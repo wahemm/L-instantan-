@@ -179,7 +179,7 @@ export default function ShopPage() {
             {/* Trust */}
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs text-slate-400">
               <span>🔒 Paiement sécurisé Stripe</span>
-              <span>↩️ Satisfait ou remboursé</span>
+              <span>↩️ Réimprimé ou remboursé</span>
               <span>📦 Livraison France & Europe</span>
             </div>
 
@@ -194,7 +194,7 @@ export default function ShopPage() {
                 {
                   key: "livraison",
                   title: "Livraison & Retours",
-                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 7 à 12 jours ouvrés. Satisfait ou remboursé sous 14 jours.",
+                  content: "Livraison en France, Belgique, Suisse, Luxembourg et Monaco sous 7 à 12 jours ouvrés. Garantie Album Parfait : défaut, colis abîmé ou rendu différent de l'aperçu → réimprimé ou remboursé, au choix, pendant 30 jours. Une photo suffit, rien à renvoyer.",
                 },
               ].map(item => (
                 <div key={item.key}>
@@ -226,13 +226,13 @@ export default function ShopPage() {
             Si l&apos;album n&apos;est pas parfait, on le réimprime ou on te rembourse.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-600">
-            On lance L&apos;Instantané avec une obsession : la qualité du livre. Si à la réception un défaut t&apos;a échappé ou que le rendu ne correspond pas à l&apos;aperçu validé, on règle ça sous 14 jours, sans discuter.
+            On lance L&apos;Instantané avec une obsession : la qualité du livre. Si à la réception un défaut t&apos;a échappé ou que le rendu ne correspond pas à l&apos;aperçu validé, tu as 30 jours pour nous le signaler : on le réimprime ou on te rembourse, au choix. Une photo suffit, rien à renvoyer.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
               { v: "100 %", l: "Aperçu avant achat" },
               { v: "7–12 j", l: "Livraison France" },
-              { v: "14 j",  l: "Remboursé sans condition" },
+              { v: "30 j",  l: "Réimprimé ou remboursé" },
             ].map(s => (
               <div key={s.l} className="rounded-2xl border border-gray-200 bg-white px-3 py-4">
                 <p className="font-[family-name:var(--font-playfair)] text-xl font-bold text-slate-900">{s.v}</p>

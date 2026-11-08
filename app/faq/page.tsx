@@ -57,12 +57,12 @@ const FAQS = [
     category: "Garanties",
     items: [
       {
-        q: "Satisfait ou remboursé ?",
-        a: "Oui. Si le rendu ne te convient pas, tu disposes de 14 jours après réception pour nous contacter. On te rembourse intégralement, sans condition ni question.",
+        q: "Et si l'album a un problème ?",
+        a: "Garantie Album Parfait : si ton livre a un défaut d'impression ou de reliure, arrive abîmé, se perd en route ou ne correspond pas à l'aperçu validé, tu as 30 jours après réception pour nous écrire avec une photo. On le réimprime gratuitement ou on te rembourse intégralement (livraison comprise), au choix. Rien à renvoyer. Comme chaque album est unique et fabriqué pour toi, un simple changement d'avis n'est pas remboursable : vérifie bien ton aperçu avant de payer.",
       },
       {
         q: "Mes photos sont-elles stockées quelque part ?",
-        a: "Non. Tes photos sont traitées localement dans ton navigateur et ne sont jamais envoyées ni stockées sur nos serveurs. Tes souvenirs restent les tiens, en toute confidentialité.",
+        a: "Pendant que tu crées ton album, tes photos restent dans ton navigateur. Si tu es connecté et que tu enregistres, l'album est sauvegardé dans ton compte pour le retrouver sur un autre appareil ; tu peux le supprimer à tout moment depuis « Mon compte ». À la commande, seuls les fichiers d'impression sont envoyés à notre imprimeur, puis effacés de nos serveurs après 6 mois. Tes photos ne sont jamais revendues ni réutilisées.",
       },
       {
         q: "Puis-je offrir un album en cadeau ?",

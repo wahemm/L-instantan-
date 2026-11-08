@@ -54,12 +54,12 @@ const PERKS = [
   {
     icon: "🔒",
     title: "Tes photos restent les tiennes",
-    desc: "Les photos sont traitées localement dans ton navigateur. Rien n'est stocké sur nos serveurs.",
+    desc: "Elles servent uniquement à fabriquer ton album. Jamais revendues ni réutilisées, et tu peux supprimer tes albums quand tu veux.",
   },
   {
     icon: "↩️",
-    title: "Satisfait ou remboursé",
-    desc: "Tu as 14 jours pour changer d'avis. On te rembourse intégralement, sans question.",
+    title: "Garantie Album Parfait",
+    desc: "Défaut, colis abîmé ou rendu différent de l'aperçu : 30 jours pour nous le signaler, on réimprime ou on rembourse, au choix.",
   },
 ];
 

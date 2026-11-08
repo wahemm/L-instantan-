@@ -66,7 +66,7 @@ export default function AlbumPhotoNaissancePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
               <span className="flex items-center gap-1.5"><Dot /> À partir de 29 €</span>
               <span className="flex items-center gap-1.5"><Dot /> Livraison 7–12 j</span>
-              <span className="flex items-center gap-1.5"><Dot /> Satisfait ou remboursé 14 j</span>
+              <span className="flex items-center gap-1.5"><Dot /> Réimprimé ou remboursé 30 j</span>
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function AlbumPhotoNaissancePage() {
           <Link href="/create" className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
             Créer l&apos;album →
           </Link>
-          <p className="mt-4 text-xs text-slate-500">Paiement sécurisé · Satisfait ou remboursé 14 jours</p>
+          <p className="mt-4 text-xs text-slate-500">Paiement sécurisé · Réimprimé ou remboursé 30 jours</p>
         </div>
       </section>
 

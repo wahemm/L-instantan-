@@ -15,7 +15,7 @@ export default function CgvPage() {
       <Nav />
       <article className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 mb-2">Conditions Générales de Vente</h1>
-        <p className="text-sm text-slate-400 mb-12">Dernière mise à jour : mars 2026</p>
+        <p className="text-sm text-slate-400 mb-12">Dernière mise à jour : novembre 2026</p>
 
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">1. Objet</h2>
@@ -57,10 +57,11 @@ export default function CgvPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">6. Droit de rétractation et retours</h2>
+          <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">6. Rétractation, garanties et retours</h2>
           <div className="text-sm leading-relaxed text-slate-600 space-y-3">
-            <p>Conformément à l&apos;article L221-28 du Code de la consommation, le droit de rétractation ne s&apos;applique pas aux produits fabriqués selon les spécifications du consommateur (albums personnalisés).</p>
-            <p>Cependant, L&apos;Instantané garantit la satisfaction de ses clients. Si l&apos;album reçu présente un défaut de fabrication ou ne correspond pas à l&apos;aperçu validé, nous vous proposerons soit un remplacement, soit un remboursement intégral, dans un délai de 14 jours après réception.</p>
+            <p>Conformément à l&apos;article L221-28 3° du Code de la consommation, le droit de rétractation ne s&apos;applique pas aux produits fabriqués selon les spécifications du consommateur ou nettement personnalisés (albums photo).</p>
+            <p><strong>Garantie commerciale « Album Parfait »</strong> : si l&apos;album reçu présente un défaut de fabrication, a été endommagé pendant le transport, n&apos;a pas été livré, ou ne correspond pas à l&apos;aperçu validé lors de la commande, le client peut, dans les 30 jours suivant la réception (ou la date de livraison prévue en cas de perte), obtenir au choix une réimpression gratuite livrée sans frais ou le remboursement intégral de la commande (produit et livraison), sur simple envoi d&apos;une photo du problème. Le retour de l&apos;album n&apos;est pas demandé. Ne sont pas couverts : les éléments figurant dans l&apos;aperçu validé, la faible résolution des fichiers fournis par le client, les légers écarts de couleur entre écran et papier, les dommages postérieurs à la réception et le changement d&apos;avis. Détails : <a href="/politique-de-retour" className="underline hover:text-slate-900">politique de retour</a>.</p>
+            <p><strong>Garanties légales</strong> : indépendamment de cette garantie commerciale, le client bénéficie de la garantie légale de conformité (articles L217-3 à L217-20 du Code de la consommation), pendant 2 ans à compter de la livraison, et de la garantie des vices cachés (articles 1641 à 1649 du Code civil).</p>
             <p>Pour toute réclamation : linstantane.officiel@gmail.com</p>
           </div>
         </section>

@@ -14,7 +14,7 @@ export default function PolitiqueConfidentialitePage() {
       <Nav />
       <article className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-slate-900 mb-2">Politique de confidentialit&eacute;</h1>
-        <p className="text-sm text-slate-400 mb-12">Derni&egrave;re mise &agrave; jour : avril 2026</p>
+        <p className="text-sm text-slate-400 mb-12">Derni&egrave;re mise &agrave; jour : novembre 2026</p>
 
         <section className="mb-10">
           <h2 className="font-[family-name:var(--font-playfair)] text-xl text-slate-900 mb-4">1. Responsable du traitement</h2>
@@ -23,7 +23,7 @@ export default function PolitiqueConfidentialitePage() {
             <p>Entreprise individuelle / auto-entrepreneur</p>
             <p>Si&egrave;ge social : France</p>
             <p>Email : linstantane.officiel@gmail.com</p>
-            <p>Site : https://linstantane.vercel.app</p>
+            <p>Site : https://linstantane.fr</p>
           </div>
         </section>
 
@@ -33,7 +33,7 @@ export default function PolitiqueConfidentialitePage() {
             <p><strong>Donn&eacute;es de compte</strong> &mdash; Nom, pr&eacute;nom, adresse email, mot de passe (g&eacute;r&eacute; par Clerk). Ces donn&eacute;es sont collect&eacute;es lors de la cr&eacute;ation de votre compte.</p>
             <p><strong>Donn&eacute;es de paiement</strong> &mdash; Informations de carte bancaire trait&eacute;es exclusivement par Stripe. L&apos;Instantan&eacute; ne stocke aucune donn&eacute;e bancaire sur ses serveurs.</p>
             <p><strong>Donn&eacute;es de livraison</strong> &mdash; Adresse postale, num&eacute;ro de t&eacute;l&eacute;phone, transmises &agrave; notre partenaire d&apos;impression pour l&apos;exp&eacute;dition de votre commande.</p>
-            <p><strong>Photos et contenus</strong> &mdash; Images t&eacute;l&eacute;charg&eacute;es pour la cr&eacute;ation de votre album, stock&eacute;es temporairement sur Vercel Blob Storage.</p>
+            <p><strong>Photos et contenus</strong> &mdash; Pendant la cr&eacute;ation, vos photos restent dans votre navigateur. Si vous enregistrez un album en &eacute;tant connect&eacute;, il est sauvegard&eacute; dans votre compte (Vercel Blob Storage). &Agrave; la commande, les fichiers d&apos;impression (PDF) sont envoy&eacute;s sur Vercel Blob Storage puis transmis &agrave; notre imprimeur. Vos photos ne sont jamais revendues ni r&eacute;utilis&eacute;es.</p>
             <p><strong>Donn&eacute;es techniques</strong> &mdash; Adresse IP, type de navigateur, pages visit&eacute;es, collect&eacute;es automatiquement &agrave; des fins de s&eacute;curit&eacute; et d&apos;am&eacute;lioration du service.</p>
           </div>
         </section>
@@ -69,7 +69,8 @@ export default function PolitiqueConfidentialitePage() {
           <div className="text-sm leading-relaxed text-slate-600 space-y-2">
             <p><strong>Donn&eacute;es de compte</strong> &mdash; Conserv&eacute;es tant que votre compte est actif, puis supprim&eacute;es dans un d&eacute;lai de 30 jours apr&egrave;s la cl&ocirc;ture du compte.</p>
             <p><strong>Donn&eacute;es de commande et facturation</strong> &mdash; Conserv&eacute;es 10 ans conform&eacute;ment aux obligations comptables l&eacute;gales.</p>
-            <p><strong>Photos t&eacute;l&eacute;charg&eacute;es</strong> &mdash; Conserv&eacute;es 30 jours apr&egrave;s la finalisation de la commande, puis supprim&eacute;es automatiquement.</p>
+            <p><strong>Albums enregistr&eacute;s dans le compte</strong> &mdash; Conserv&eacute;s jusqu&apos;&agrave; ce que vous les supprimiez (depuis &laquo;&nbsp;Mon compte&nbsp;&raquo;) ou jusqu&apos;&agrave; la cl&ocirc;ture du compte.</p>
+            <p><strong>Fichiers d&apos;impression</strong> &mdash; Conserv&eacute;s 6 mois apr&egrave;s la commande (pour permettre une r&eacute;impression au titre de la garantie), puis supprim&eacute;s automatiquement.</p>
             <p><strong>Donn&eacute;es techniques (logs)</strong> &mdash; Conserv&eacute;es 12 mois maximum.</p>
           </div>
         </section>
