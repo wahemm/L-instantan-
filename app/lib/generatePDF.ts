@@ -358,6 +358,32 @@ export async function generateAlbumPDF(
 }
 
 /**
+ * Copie la page (W×H) au centre d'un canvas (W+2B)×(H+2B) et prolonge ses
+ * bords sur B px (fond perdu) en étirant la dernière ligne/colonne de pixels.
+ */
+export function addBleed(
+  src: HTMLCanvasElement,
+  out: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  B: number,
+) {
+  out.fillStyle = "#ffffff";
+  out.fillRect(0, 0, W + 2 * B, H + 2 * B);
+  out.drawImage(src, B, B);
+  // côtés
+  out.drawImage(src, 0, 0, 1, H, 0, B, B, H);
+  out.drawImage(src, W - 1, 0, 1, H, B + W, B, B, H);
+  out.drawImage(src, 0, 0, W, 1, B, 0, W, B);
+  out.drawImage(src, 0, H - 1, W, 1, B, B + H, W, B);
+  // coins
+  out.drawImage(src, 0, 0, 1, 1, 0, 0, B, B);
+  out.drawImage(src, W - 1, 0, 1, 1, B + W, 0, B, B);
+  out.drawImage(src, 0, H - 1, 1, 1, 0, B + H, B, B);
+  out.drawImage(src, W - 1, H - 1, 1, 1, B + W, B + H, B, B);
+}
+
+/**
  * Generate interior PDF for Gelato hardcover (210×280mm, 300 DPI).
  * Skips the first (cover) page. Pads with blank pages to reach Gelato's
  * 32-page minimum and ensures an even total count.
@@ -370,11 +396,17 @@ export async function generateGelatoInteriorPDF(
   albumTitle: string,
   onProgress?: (current: number, total: number) => void
 ): Promise<Blob> {
-  // Gelato hardcover 210×280mm at 300 DPI = 2480×3307px
+  // Gelato hardcover 210×280mm at 300 DPI = 2480×3307px (format fini).
+  // Gelato exige 3 mm de fond perdu autour de chaque page de livre photo :
+  // le fichier fait donc 216×286 mm. La page est dessinée à l'identique de
+  // l'aperçu au centre, puis ses bords sont prolongés de 3 mm (coupés à la
+  // fabrication) : pas de liseré blanc, et rien de l'aperçu n'est rogné.
   const W = 2480;
   const H = 3307;
-  const W_MM = 210;
-  const H_MM = 280;
+  const BLEED_MM = 3;
+  const B = Math.round((BLEED_MM / 25.4) * 300); // 35 px
+  const W_MM = 210 + 2 * BLEED_MM;
+  const H_MM = 280 + 2 * BLEED_MM;
   const GELATO_MIN = 32;
 
   const interiorPages = pages.slice(1); // Skip cover
@@ -389,6 +421,10 @@ export async function generateGelatoInteriorPDF(
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
+  const bleedCanvas = document.createElement("canvas");
+  bleedCanvas.width = W + 2 * B;
+  bleedCanvas.height = H + 2 * B;
+  const bleedCtx = bleedCanvas.getContext("2d")!;
 
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [W_MM, H_MM] });
@@ -401,8 +437,9 @@ export async function generateGelatoInteriorPDF(
 
     ctx.clearRect(0, 0, W, H);
     await renderPage(ctx, interiorPages[i], W, H, albumTitle);
+    addBleed(canvas, bleedCtx, W, H, B);
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    const imgData = bleedCanvas.toDataURL("image/jpeg", 0.95);
     if (i > 0) pdf.addPage();
     pdf.addImage(imgData, "JPEG", 0, 0, W_MM, H_MM);
   }
