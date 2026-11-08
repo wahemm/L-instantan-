@@ -74,6 +74,8 @@ export async function POST(req: NextRequest) {
       pageCount,
       coverUrl,
       interiorUrl,
+      // Même mode de livraison que celui payé par le client
+      shipmentMethodUid: session.metadata?.shipmentMethodUid || undefined,
       shippingAddress: {
         firstName,
         lastName,
