@@ -35,7 +35,7 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "provence",  name: "Provence",  category: "Voyage", src: "/covers/Provence.png" },
   { id: "bali-1",    name: "Bali",      category: "Voyage", src: "/covers/bali 1.png" },
   { id: "bali-2",    name: "Bali 2",    category: "Voyage", src: "/covers/bali 2.png" },
-  { id: "brazil",    name: "Brésil",    category: "Voyage", src: "/covers/brazil.png" },
+  { id: "brazil",    name: "Brésil",    category: "Voyage", src: "/covers/bresil.png" },
   { id: "bresil-2",  name: "Brésil 2",  category: "Voyage", src: "/covers/bresil 2.png" },
   { id: "paris",     name: "Paris",     category: "Voyage", src: "/covers/paris.png" },
   { id: "canada",    name: "Canada",    category: "Voyage", src: "/covers/canada.png" },
