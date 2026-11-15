@@ -193,12 +193,12 @@ function ManualBookViewer({ album }: { album: Extract<Album, { type: "manual" }>
         <div className="flex flex-col items-center">
           {cur.isCover && pages[0].photos[0] ? (
             <div className="overflow-hidden rounded shadow-2xl border border-black/10"
-              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
+              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"478/326"}}>
               <img src={pages[0].photos[0]} alt="" className="h-full w-full object-cover"/>
             </div>
           ) : (
             <div className="flex overflow-hidden rounded shadow-2xl border border-black/10"
-              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2/1.41"}}>
+              style={{height:"calc(100vh - 340px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"420/280"}}>
               <div className="flex-1 overflow-hidden relative" style={{background:cur.isCover?"#1e293b":idx===1?"#2a2a2a":cur.left?.bgColor||"#fff"}}>
                 {cur.isCover ? <div className="flex h-full items-center justify-center"><p className="text-[10px] text-white/30">Couverture arrière</p></div>
                 : idx===1 ? <div className="flex h-full items-center justify-center"><p className="text-[9px] font-semibold uppercase tracking-widest text-white/25 text-center px-4">Papier de garde</p></div>

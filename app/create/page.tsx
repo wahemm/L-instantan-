@@ -1523,7 +1523,7 @@ export default function CreatePage() {
             style={{
               width: "100%",
               maxWidth: isCoverPage && currentPage.photos[0] ? "100%" : "calc(100vw - 88px)",
-              aspectRatio: isCoverPage && currentPage.photos[0] ? "2000/1389" : "210/297",
+              aspectRatio: isCoverPage && currentPage.photos[0] ? "478/326" : "210/280",
             }}
             onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
           >
@@ -1622,7 +1622,7 @@ export default function CreatePage() {
                               onClick={()=>changeCoverArtwork(tpl.src)}
                               title={tpl.name}
                               className={`relative overflow-hidden rounded-md border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900":"border-gray-200"}`}
-                              style={{aspectRatio:"2000/1389"}}
+                              style={{aspectRatio:"478/326"}}
                             >
                               <NextImage src={tpl.src} alt={tpl.name} fill sizes="100px" className="object-cover"/>
                             </button>
@@ -1752,11 +1752,11 @@ export default function CreatePage() {
               {/* Spread */}
               <div className="flex flex-col items-center">
                 {cur.isCover && pages[0].photos[0] ? (
-                  <div className="overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2000/1389"}}>
+                  <div className="overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"478/326"}}>
                     <img src={pages[0].photos[0]!} alt="" className="h-full w-full object-cover" style={{filter: pages[0].coverHue ? `hue-rotate(${pages[0].coverHue}deg)` : undefined}}/>
                   </div>
                 ) : (
-                  <div className="flex overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"2/1.41"}}>
+                  <div className="flex overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"420/280"}}>
                     {/* Gauche */}
                     <div className="flex-1 overflow-hidden" style={{background: cur.isCover ? "#1e293b" : (previewIdx===1 ? "#2a2a2a" : cur.left?.bgColor||"#fff")}}>
                       {cur.isCover ? (
@@ -1976,7 +1976,7 @@ export default function CreatePage() {
                                 onClick={()=>changeCoverArtwork(tpl.src)}
                                 title={tpl.name}
                                 className={`relative overflow-hidden rounded-lg border-2 transition ${currentPage.photos[0]===tpl.src?"border-slate-900 shadow":"border-gray-200 hover:border-slate-400"}`}
-                                style={{aspectRatio:"2000/1389"}}
+                                style={{aspectRatio:"478/326"}}
                               >
                                 <NextImage src={tpl.src} alt={tpl.name} fill sizes="100px" className="object-cover"/>
                                 {tpl.premium && (
@@ -2146,7 +2146,7 @@ export default function CreatePage() {
               <div
                 ref={pageRef}
                 className="relative overflow-hidden rounded-sm shadow-2xl"
-                style={{width:"min(1040px, calc(100vw - 160px))", aspectRatio:"2000/1389"}}
+                style={{width:"min(1040px, calc(100vw - 160px))", aspectRatio:"478/326"}}
                 onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
               >
                 <img src={currentPage.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" data-pagebackdrop="1" style={{filter: currentPage.coverHue ? `hue-rotate(${currentPage.coverHue}deg)` : undefined}}/>
@@ -2181,7 +2181,7 @@ export default function CreatePage() {
                 <div
                   ref={!isActiveRight ? pageRef : undefined}
                   className="relative overflow-hidden"
-                  style={{width: pageW, aspectRatio:"210/297", cursor: isActiveRight && spreadLeftPage ? "pointer" : "default"}}
+                  style={{width: pageW, aspectRatio:"210/280", cursor: isActiveRight && spreadLeftPage ? "pointer" : "default"}}
                   onClick={e=>{
                     if (isActiveRight && spreadLeftIdx !== null) {
                       setCurrentPageIdx(spreadLeftIdx); setActiveSlot(null); setSelectedTextId(null);
@@ -2247,7 +2247,7 @@ export default function CreatePage() {
                 <div
                   ref={isActiveRight ? pageRef : undefined}
                   className="relative overflow-hidden"
-                  style={{width: pageW, aspectRatio:"210/297", cursor: !isActiveRight && spreadRightPage ? "pointer" : "default"}}
+                  style={{width: pageW, aspectRatio:"210/280", cursor: !isActiveRight && spreadRightPage ? "pointer" : "default"}}
                   onClick={e=>{
                     if (!isActiveRight && spreadRightIdx !== null) {
                       setCurrentPageIdx(spreadRightIdx); setActiveSlot(null); setSelectedTextId(null);
