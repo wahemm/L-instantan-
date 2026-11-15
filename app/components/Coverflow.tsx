@@ -83,7 +83,7 @@ export default function Coverflow({ covers }: { covers: Cover[] }) {
                 }
               }}
             >
-              <Image src={cov.src} alt={cov.name} fill sizes="320px" style={{ objectPosition: "right center" }} />
+              <Image src={cov.src} alt={cov.name} fill sizes="320px" style={{ objectPosition: "right center", transform: "scale(1.14)" }} />
             </Link>
           );
         })}

@@ -111,7 +111,7 @@ function BookMockup({ src, alt, rotate = 0, scale = 1, zIndex = 0, hi = false }:
       <div style={{ position:"absolute", left:-6, top:2, bottom:2, width:12, background:"linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.15))", borderRadius:"4px 0 0 4px", transform:"translateZ(-1px)" }}/>
       <div style={{ position:"relative", width:"100%", height:"100%", borderRadius:4, overflow:"hidden", boxShadow:"8px 12px 28px rgba(0,0,0,0.45), 2px 2px 8px rgba(0,0,0,0.2)" }}>
         {/* Export Canva = couverture dépliée (dos | tranche | avant) → on cale à droite */}
-        <Image src={src} alt={alt} fill sizes="350px" loading="eager" fetchPriority={hi ? "high" : undefined} style={{ objectFit:"cover", objectPosition:"right center" }}/>
+        <Image src={src} alt={alt} fill sizes="350px" loading="eager" fetchPriority={hi ? "high" : undefined} style={{ objectFit:"cover", objectPosition:"right center", transform:"scale(1.14)" }}/>
       </div>
       <div style={{ position:"absolute", right:-3, top:4, bottom:4, width:6, background:"linear-gradient(to right, #e8e4df, #f5f2ed, #e8e4df)", borderRadius:"0 2px 2px 0", zIndex:-1 }}/>
       <div style={{ position:"absolute", left:4, right:4, bottom:-3, height:6, background:"linear-gradient(to bottom, #e8e4df, #f5f2ed, #e8e4df)", borderRadius:"0 0 2px 2px", zIndex:-1 }}/>
@@ -362,7 +362,7 @@ export default function Home() {
                   <div className="flex h-full items-center justify-center bg-[#fde3dc]">
                     {["/covers/Italie.png", "/covers/Espagne.png", "/covers/Provence.png"].map((src, i) => (
                       <div key={src} className={`relative aspect-[210/280] shrink-0 overflow-hidden rounded-[3px] shadow-lg ${i === 1 ? "z-10 h-[76%]" : "-mx-2 h-[56%]"}`}>
-                        <Image src={src} alt="" fill sizes="110px" className="object-cover object-right" />
+                        <Image src={src} alt="" fill sizes="110px" className="scale-[1.14] object-cover object-right" />
                       </div>
                     ))}
                   </div>

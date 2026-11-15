@@ -126,7 +126,7 @@ export default function MonComptePage() {
                   <div className="mb-3 aspect-[3/4] w-full overflow-hidden rounded-xl bg-slate-100">
                     {album.cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={album.cover} alt={album.title} className="h-full w-full object-cover object-right" />
+                      <img src={album.cover} alt={album.title} className="h-full w-full scale-[1.14] object-cover object-right" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <span className="text-3xl">📷</span>

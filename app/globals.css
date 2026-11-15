@@ -245,3 +245,12 @@ img {
 @media (prefers-reduced-motion: reduce) {
   .cf-card { transition: opacity 0.3s ease; }
 }
+
+/* Aperçu du livre (double page / couverture) : garde toujours ses proportions,
+   limité par la largeur de l'écran (téléphone) ou par la hauteur (ordinateur). */
+.book-preview {
+  --pad: 24px;
+  width: min(calc(100vw - var(--pad)), calc((100vh - var(--chrome, 340px)) * var(--ratio)));
+  aspect-ratio: var(--ratio);
+}
+@media (min-width: 640px) { .book-preview { --pad: 120px; } }

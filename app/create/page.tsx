@@ -1329,7 +1329,7 @@ export default function CreatePage() {
                       <div className="relative mb-2 aspect-[3/4] overflow-hidden rounded-lg bg-slate-100">
                         {d.cover ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={d.cover} alt="" className="h-full w-full object-cover object-right" />
+                          <img src={d.cover} alt="" className="h-full w-full scale-[1.14] object-cover object-right" />
                         ) : (
                           <span className="flex h-full items-center justify-center text-2xl">📷</span>
                         )}
@@ -1435,7 +1435,7 @@ export default function CreatePage() {
                       alt={tpl.name}
                       fill
                       sizes="(max-width: 639px) 300px, 440px"
-                      className="object-cover object-right transition group-hover:scale-105"
+                      className="scale-[1.14] object-cover object-right transition group-hover:scale-[1.2]"
                     />
                   </div>
                   {selected && (
@@ -1752,11 +1752,11 @@ export default function CreatePage() {
               {/* Spread */}
               <div className="flex flex-col items-center">
                 {cur.isCover && pages[0].photos[0] ? (
-                  <div className="overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"478/326"}}>
+                  <div className="book-preview overflow-hidden rounded shadow-2xl border border-black/10" style={{"--ratio":"478/326","--chrome":"240px"} as React.CSSProperties}>
                     <img src={pages[0].photos[0]!} alt="" className="h-full w-full object-cover" style={{filter: pages[0].coverHue ? `hue-rotate(${pages[0].coverHue}deg)` : undefined}}/>
                   </div>
                 ) : (
-                  <div className="flex overflow-hidden rounded shadow-2xl border border-black/10" style={{height:"calc(100vh - 240px)",maxWidth:"calc(100vw - 120px)",aspectRatio:"420/280"}}>
+                  <div className="book-preview flex overflow-hidden rounded shadow-2xl border border-black/10" style={{"--ratio":"420/280","--chrome":"240px"} as React.CSSProperties}>
                     {/* Gauche */}
                     <div className="flex-1 overflow-hidden" style={{background: cur.isCover ? "#1e293b" : (previewIdx===1 ? "#2a2a2a" : cur.left?.bgColor||"#fff")}}>
                       {cur.isCover ? (

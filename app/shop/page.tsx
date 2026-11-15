@@ -85,7 +85,7 @@ export default function ShopPage() {
                 <div className="book3d-spine" />
                 {/* Couverture (devant) */}
                 <div className="book3d-face book3d-cover">
-                  <Image src={cover.src} alt={cover.name} fill sizes="700px" loading="eager" fetchPriority="high" className="object-cover" style={{ objectPosition: "right center" }} />
+                  <Image src={cover.src} alt={cover.name} fill sizes="700px" loading="eager" fetchPriority="high" className="object-cover" style={{ objectPosition: "right center", transform: "scale(1.14)" }} />
                   {/* Ombre du pli côté reliure */}
                   <div className="absolute inset-y-0 left-0 w-3" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.35), transparent)" }} />
                 </div>
@@ -107,7 +107,7 @@ export default function ShopPage() {
                     }`}
                     style={{ aspectRatio: "210/297" }}
                   >
-                    <Image src={c.src} alt={c.name} fill sizes="(max-width: 639px) 160px, (max-width: 1023px) 270px, 140px" className="object-cover" style={{ objectPosition: "right center" }} />
+                    <Image src={c.src} alt={c.name} fill sizes="(max-width: 639px) 160px, (max-width: 1023px) 270px, 140px" className="object-cover" style={{ objectPosition: "right center", transform: "scale(1.14)" }} />
                   </button>
                 ))}
               </div>
@@ -144,7 +144,7 @@ export default function ShopPage() {
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livre imprimé finition premium</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Papier satiné 170g/m²</li>
                 <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Couverture rigide personnalisée</li>
-                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livraison France & Europe</li>
+                <li className="flex items-center gap-2"><span className="text-green-500">✓</span>Livraison suivie offerte</li>
               </ul>
             </div>
 
@@ -153,7 +153,7 @@ export default function ShopPage() {
               <p className="mb-2.5 text-sm font-medium text-slate-700">Couverture sélectionnée</p>
               <div className="flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
                 <div className="relative h-11 w-8 shrink-0 overflow-hidden rounded" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-                  <Image src={cover.src} alt={cover.name} fill sizes="64px" className="object-cover" style={{ objectPosition: "right center" }} />
+                  <Image src={cover.src} alt={cover.name} fill sizes="64px" className="object-cover" style={{ objectPosition: "right center", transform: "scale(1.14)" }} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-slate-900">{cover.name}</p>
@@ -180,7 +180,7 @@ export default function ShopPage() {
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs text-slate-400">
               <span>🔒 Paiement sécurisé Stripe</span>
               <span>↩️ Réimprimé ou remboursé</span>
-              <span>📦 Livraison France & Europe</span>
+              <span>📦 Livraison offerte</span>
             </div>
 
             {/* Accordions */}
