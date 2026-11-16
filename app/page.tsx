@@ -168,7 +168,7 @@ export default function Home() {
               <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1}/>
             </div>
             <div className="animate-float-slow" style={{ marginBottom:0 }}>
-              <BookMockup src="/covers/Espagne.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} hi/>
+              <BookMockup src="/covers/espagne-v2.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} hi/>
             </div>
             <div className="hidden sm:block animate-float-slow" style={{ marginBottom:16, animationDelay:"0.4s" }}>
               <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1}/>
@@ -360,7 +360,7 @@ export default function Home() {
               { num: "01", color: "#E0512E", title: "Choisis ta couverture", desc: "Un style parmi nos designs illustrés par destination.",
                 visual: (
                   <div className="flex h-full items-center justify-center bg-[#fde3dc]">
-                    {["/covers/Italie.png", "/covers/Espagne.png", "/covers/Provence.png"].map((src, i) => (
+                    {["/covers/Italie.png", "/covers/espagne-v2.png", "/covers/Provence.png"].map((src, i) => (
                       <div key={src} className={`relative aspect-[210/280] shrink-0 overflow-hidden rounded-[3px] shadow-lg ${i === 1 ? "z-10 h-[76%]" : "-mx-2 h-[56%]"}`}>
                         <Image src={src} alt="" fill sizes="110px" className="scale-[1.14] object-cover object-right" />
                       </div>

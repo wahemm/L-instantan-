@@ -22,7 +22,7 @@ const DESTINATIONS = [
   { name: "Marrakech", src: "/covers/Marrakech.png" },
   { name: "Bali", src: "/covers/bali 1.png" },
   { name: "Grèce", src: "/covers/Grece1.png" },
-  { name: "Espagne", src: "/covers/Espagne.png" },
+  { name: "Espagne", src: "/covers/espagne-v2.png" },
   { name: "Provence", src: "/covers/Provence.png" },
 ];
 

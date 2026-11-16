@@ -30,7 +30,7 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "namibie",    name: "Namibie · Dune",       category: "Collection", src: "/covers/Namibie.png",  premium: true, fixedPageCount: 32, printPdfUrl: "/covers/Namibie-24p.pdf" },
   { id: "namibie-2",  name: "Namibie · Terracotta", category: "Collection", src: "/covers/Namibie2.png", premium: true, fixedPageCount: 32, printPdfUrl: "/covers/Namibie2-24p.pdf" },
   { id: "namibie-3",  name: "Namibie · Acacia",     category: "Collection", src: "/covers/Namibie3.png", premium: true, fixedPageCount: 32, printPdfUrl: "/covers/Namibie3-24p.pdf" },
-  { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/Espagne.png" },
+  { id: "espagne",   name: "Espagne",   category: "Voyage", src: "/covers/espagne-v2.png" },
   { id: "italie",    name: "Italie",    category: "Voyage", src: "/covers/Italie.png" },
   { id: "provence",  name: "Provence",  category: "Voyage", src: "/covers/Provence.png" },
   { id: "bali-1",    name: "Bali",      category: "Voyage", src: "/covers/bali 1.png" },

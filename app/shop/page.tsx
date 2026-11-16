@@ -14,7 +14,7 @@ interface IllustratedCover {
 }
 
 const ILLUSTRATED_COVERS: IllustratedCover[] = [
-  { id: "espagne",   name: "Espagne",   src: "/covers/Espagne.png" },
+  { id: "espagne",   name: "Espagne",   src: "/covers/espagne-v2.png" },
   { id: "italie",    name: "Italie",    src: "/covers/Italie.png" },
   { id: "provence",  name: "Provence",  src: "/covers/Provence.png" },
   { id: "miami",     name: "Miami",     src: "/covers/Miami.png" },
