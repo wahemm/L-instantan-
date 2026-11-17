@@ -2150,8 +2150,10 @@ export default function CreatePage() {
                 onClick={e=>{if(e.target===pageRef.current||(e.target as HTMLElement).dataset.pagebackdrop){setSelectedTextId(null);setActiveSlot(null);}}}
               >
                 <img src={currentPage.photos[0]!} alt="" className="absolute inset-0 h-full w-full object-cover" data-pagebackdrop="1" style={{filter: currentPage.coverHue ? `hue-rotate(${currentPage.coverHue}deg)` : undefined}}/>
-                <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"3%",right:"53%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
-                <div className="pointer-events-none absolute" style={{top:"7%",bottom:"7%",left:"53%",right:"3%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
+                {/* Faces réellement visibles du livre (gabarit Gelato 478×326 mm) :
+                    arrière x 20→228 mm, avant x 250→458 mm, hauteur 20→306 mm */}
+                <div className="pointer-events-none absolute" style={{top:"6.135%",bottom:"6.135%",left:"4.184%",right:"52.301%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
+                <div className="pointer-events-none absolute" style={{top:"6.135%",bottom:"6.135%",left:"52.301%",right:"4.184%",border:"1px dashed rgba(100,100,100,0.3)"}}/>
                 {(currentPage.texts||[]).map(el=>(
                   <TextElComponent key={el.id} el={el} isSelected={selectedTextId===el.id} containerRef={pageRef}
                     onSelect={()=>{setSelectedTextId(el.id);setSelectedStickerId(null);setActiveSlot(null);setOpenPanel("text");}}
