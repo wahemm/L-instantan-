@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Album Photo Premium — 44 €, livraison offerte",
-  description: "Commande ton album photo imprimé sur papier satiné 170g/m², format A4, couverture rigide. 43 couvertures illustrées. Livré en 7–12 jours en France et Europe.",
+  description: "Commande ton album photo imprimé sur papier satiné 170g/m², format A4, couverture rigide. 10 couvertures illustrées. Livré en 7–12 jours en France et Europe.",
   alternates: { canonical: "/shop" },
   openGraph: {
     title: "Album Photo Premium — L'Instantané",
@@ -36,7 +36,7 @@ const productJsonLd = {
     "Album photo personnalisé de 32 pages (jusqu'à 200), format 21×28 cm, couverture rigide illustrée, papier photo satiné 170 g/m². Tu choisis ta couverture et tes mises en page en ligne. Livraison suivie offerte.",
   sku: "ALBUM-A4-RIGIDE",
   brand: { "@type": "Brand", name: "L'Instantané" },
-  image: [`${BASE_URL}/covers/Montenegro.png`, `${BASE_URL}/covers/angleterre.png`, `${BASE_URL}/covers/Italie.png`],
+  image: [`${BASE_URL}/covers/Montenegro.png`, `${BASE_URL}/covers/angleterre.png`, `${BASE_URL}/covers/portugal.png`],
   offers: {
     "@type": "Offer",
     url: `${BASE_URL}/shop`,

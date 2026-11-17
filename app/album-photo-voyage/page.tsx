@@ -10,20 +10,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/album-photo-voyage" },
   openGraph: {
     title: "Album photo voyage personnalisé",
-    description: "L'album photo de tes plus beaux voyages, imprimé avec soin. Plus de 30 couvertures de destinations.",
-    images: ["/covers/Italie.png"],
+    description: "L'album photo de tes plus beaux voyages, imprimé avec soin. Des couvertures illustrées par destination, et de nouvelles chaque mois.",
+    images: ["/covers/espagne-v2.png"],
   },
 };
 
 const DESTINATIONS = [
-  { name: "Italie", src: "/covers/Italie.png" },
-  { name: "Japon", src: "/covers/japon2.png" },
-  { name: "Mexique", src: "/covers/mexique1.png" },
-  { name: "Marrakech", src: "/covers/Marrakech.png" },
-  { name: "Bali", src: "/covers/bali 1.png" },
-  { name: "Grèce", src: "/covers/Grece1.png" },
   { name: "Espagne", src: "/covers/espagne-v2.png" },
-  { name: "Provence", src: "/covers/Provence.png" },
+  { name: "Japon", src: "/covers/japon-fuji.png" },
+  { name: "Portugal", src: "/covers/portugal.png" },
+  { name: "Angleterre", src: "/covers/angleterre.png" },
+  { name: "Brésil", src: "/covers/bresil.png" },
+  { name: "Argentine", src: "/covers/argentine.png" },
+  { name: "Monténégro", src: "/covers/Montenegro.png" },
+  { name: "Namibie", src: "/covers/Namibie.png" },
 ];
 
 const FAQ_ITEMS = [

@@ -165,13 +165,13 @@ export default function Home() {
 
           <div className="relative mx-auto mt-14 flex items-end justify-center gap-6 sm:gap-10 pb-0" style={{ minHeight:250 }}>
             <div className="hidden sm:block animate-float-slow" style={{ marginBottom:16, animationDelay:"0.2s" }}>
-              <BookMockup src="/covers/Italie.png" alt="Album Italie" rotate={-8} scale={0.82} zIndex={1}/>
+              <BookMockup src="/covers/angleterre.png" alt="Album Angleterre" rotate={-8} scale={0.82} zIndex={1}/>
             </div>
             <div className="animate-float-slow" style={{ marginBottom:0 }}>
               <BookMockup src="/covers/espagne-v2.png" alt="Album Espagne" rotate={0} scale={1.1} zIndex={3} hi/>
             </div>
             <div className="hidden sm:block animate-float-slow" style={{ marginBottom:16, animationDelay:"0.4s" }}>
-              <BookMockup src="/covers/Provence.png" alt="Album Provence" rotate={8} scale={0.82} zIndex={1}/>
+              <BookMockup src="/covers/portugal.png" alt="Album Portugal" rotate={8} scale={0.82} zIndex={1}/>
             </div>
             <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-12 w-80 rounded-full opacity-50" style={{ background:"radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)", filter:"blur(10px)" }}/>
           </div>
@@ -225,7 +225,7 @@ export default function Home() {
               Choisis ta couverture
             </h2>
             <p className="mx-auto mt-4 max-w-md text-slate-500">
-              Espagne, Italie, Miami, Paris… de nouvelles illustrations chaque mois.
+              Espagne, Japon, Portugal, Brésil… de nouvelles illustrations chaque mois.
             </p>
           </div>
 
@@ -360,7 +360,7 @@ export default function Home() {
               { num: "01", color: "#E0512E", title: "Choisis ta couverture", desc: "Un style parmi nos designs illustrés par destination.",
                 visual: (
                   <div className="flex h-full items-center justify-center bg-[#fde3dc]">
-                    {["/covers/Italie.png", "/covers/espagne-v2.png", "/covers/Provence.png"].map((src, i) => (
+                    {["/covers/angleterre.png", "/covers/espagne-v2.png", "/covers/portugal.png"].map((src, i) => (
                       <div key={src} className={`relative aspect-[210/280] shrink-0 overflow-hidden rounded-[3px] shadow-lg ${i === 1 ? "z-10 h-[76%]" : "-mx-2 h-[56%]"}`}>
                         <Image src={src} alt="" fill sizes="110px" className="scale-[1.14] object-cover object-right" />
                       </div>
