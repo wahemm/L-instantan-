@@ -14,6 +14,8 @@ export const ALL_COVERS: Cover[] = [
   { id: "marrakech-2", name: "Marrakech 2", src: "/covers/marrakech2.png" },
   { id: "montenegro",  name: "Monténégro",  src: "/covers/Montenegro.png" },
   { id: "angleterre",  name: "Angleterre",  src: "/covers/angleterre.png" },
+  { id: "japon-fuji",  name: "Japon",       src: "/covers/japon-fuji.png" },
+  { id: "portugal",    name: "Portugal",    src: "/covers/portugal.png" },
   { id: "bali",        name: "Bali",        src: "/covers/bali 1.png" },
   { id: "paris",       name: "Paris",       src: "/covers/paris.png" },
   { id: "perou",       name: "Pérou",       src: "/covers/Perou.png" },
