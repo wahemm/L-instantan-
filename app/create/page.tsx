@@ -36,6 +36,7 @@ const COVER_TEMPLATES: CoverTemplate[] = [
   { id: "angleterre",  name: "Angleterre",  category: "Voyage", src: "/covers/angleterre.png" },
   { id: "japon-fuji",  name: "Japon · Fuji", category: "Voyage", src: "/covers/japon-fuji.png" },
   { id: "portugal",    name: "Portugal",    category: "Voyage", src: "/covers/portugal.png" },
+  { id: "italie-vespa", name: "Italie",     category: "Voyage", src: "/covers/italie-vespa.png" },
   { id: "argentine-1", name: "Argentine",  category: "Voyage", src: "/covers/argentine.png" },
 ];
 type LayoutId = "cover"|"full"|"two-h"|"two-v"|"three-top"|"three-left"|"grid4"|"photo-text"|"text-only";

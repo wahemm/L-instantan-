@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Album Photo Premium — 44 €, livraison offerte",
-  description: "Commande ton album photo imprimé sur papier satiné 170g/m², format A4, couverture rigide. 10 couvertures illustrées. Livré en 7–12 jours en France et Europe.",
+  description: "Commande ton album photo imprimé sur papier satiné 170g/m², format A4, couverture rigide. 11 couvertures illustrées. Livré en 7–12 jours en France et Europe.",
   alternates: { canonical: "/shop" },
   openGraph: {
     title: "Album Photo Premium — L'Instantané",

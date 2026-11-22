@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 const DESTINATIONS = [
+  { name: "Italie", src: "/covers/italie-vespa.png" },
   { name: "Espagne", src: "/covers/espagne-v2.png" },
   { name: "Japon", src: "/covers/japon-fuji.png" },
   { name: "Portugal", src: "/covers/portugal.png" },

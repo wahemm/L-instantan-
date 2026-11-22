@@ -22,6 +22,7 @@ const ILLUSTRATED_COVERS: IllustratedCover[] = [
   { id: "angleterre",  name: "Angleterre",  src: "/covers/angleterre.png" },
   { id: "japon-fuji",  name: "Japon",       src: "/covers/japon-fuji.png" },
   { id: "portugal",    name: "Portugal",    src: "/covers/portugal.png" },
+  { id: "italie-vespa", name: "Italie",     src: "/covers/italie-vespa.png" },
   { id: "brazil",    name: "Brésil",    src: "/covers/bresil.png" },
   { id: "argentine-1", name: "Argentine",  src: "/covers/argentine.png" },
 ];
